@@ -53,15 +53,54 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 #minimap{position:fixed;bottom:10px;right:10px;z-index:500;width:120px!important;height:120px!important;border:2px solid #c9a227;border-radius:4px;background:rgba(0,0,0,.8);image-rendering:pixelated;pointer-events:none}
 #joy-zone{position:fixed;bottom:20px;left:20px;z-index:500;width:120px;height:120px;border-radius:50%;background:rgba(0,0,0,.35);border:2px solid rgba(201,162,39,.45);touch-action:none;display:none}
 #joy-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(201,162,39,.65);border:2px solid #f0d060;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-#act-btn{position:fixed;bottom:30px;right:20px;z-index:500;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#c9a227,#8b6914);border:2px solid #f0d060;color:#000;font-weight:bold;font-size:.75rem;cursor:pointer;display:none}
-@media(max-width:768px),(pointer:coarse){#joy-zone,#act-btn{display:block}#howto-btn{bottom:130px;top:auto}#fomo-online{right:10px;top:44px}}
+#act-btn{position:fixed;bottom:30px;right:20px;z-index:600;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#c9a227,#8b6914);border:2px solid #f0d060;color:#000;font-weight:bold;font-size:.75rem;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;padding:4px}
+#act-btn.enter-mode{width:auto;min-width:72px;height:auto;min-height:72px;border-radius:16px;padding:8px 10px}
+#act-icon{font-size:1.1rem}
+#act-label{font-size:.55rem;color:#000;display:none;max-width:64px;text-align:center}
+#act-btn.enter-mode #act-label{display:block}
+#quest-toggle,#build-toggle{display:none;position:fixed;z-index:600;border:2px solid rgba(201,162,39,.6);border-radius:12px;background:rgba(0,0,0,.82);color:#f0d060;cursor:pointer;font-size:1rem;padding:8px 10px}
+#quest-toggle .badge{font-size:.55rem;background:#7b3fa0;color:#fff;border-radius:8px;padding:1px 5px;margin-left:4px}
+#build-bar.collapsed-mobile{display:none!important}
+#quest-panel.collapsed-mobile{display:none!important}
 #build-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;display:flex;gap:8px;padding:8px 12px;background:rgba(0,0,0,.75);border:1px solid rgba(201,162,39,.5);border-radius:12px}
 .build-slot{padding:8px 12px;border:2px solid #444;border-radius:8px;background:rgba(30,30,30,.9);color:#ccc;font-size:.72rem;cursor:pointer;text-align:center;min-width:72px}
 .build-slot.active,.build-slot:hover{border-color:#c9a227;color:#f0d060}
 .build-slot span{display:block;font-size:1.2rem;margin-bottom:2px}
 #build-hint{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);z-index:500;color:#f0d060;font-size:.7rem;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
 .countdown{font-size:1.3rem;color:#ff5555;font-weight:bold;font-family:monospace;margin:8px 0}
-@media(max-width:768px),(pointer:coarse){#build-bar{bottom:140px}#build-hint{bottom:184px}}
+@media(max-width:768px),(pointer:coarse){
+  #joy-zone,#act-btn{display:flex}
+  #howto-btn{display:none}
+  #fomo-online{top:6px;right:6px;left:auto;font-size:.58rem;padding:3px 7px;max-width:46vw}
+  #fomo-feed{display:none!important}
+  #profile-btn{top:6px;left:6px;font-size:.58rem;padding:4px 8px;max-width:110px;line-height:1.2}
+  #logout-btn{top:46px;left:6px;font-size:.55rem;padding:3px 6px}
+  #sync-dot{top:28px;font-size:.55rem;padding:2px 6px}
+  #minimap{width:56px!important;height:56px!important;top:38px;left:6px;bottom:auto;right:auto}
+  #quest-toggle{display:block;top:38px;right:6px;font-size:.72rem;padding:6px 9px}
+  #quest-panel{display:block;position:fixed;top:auto;bottom:96px;right:6px;left:6px;width:auto;max-width:none;transform:none;max-height:26vh;overflow-y:auto;font-size:.62rem;padding:8px;z-index:550;border-radius:12px}
+  #quest-panel.collapsed-mobile{display:none!important}
+  #build-bar.collapsed-mobile{display:none!important}
+  #build-toggle{display:block;bottom:112px;left:50%;transform:translateX(-50%);font-size:.72rem;padding:6px 12px}
+  #build-bar{position:fixed;bottom:152px;left:6px;right:6px;transform:none;width:auto;flex-wrap:wrap;justify-content:center;gap:5px;padding:6px;max-height:22vh;overflow-y:auto;border-radius:12px}
+  #build-bar .build-slot{min-width:54px;padding:5px 6px;font-size:.58rem}
+  #build-bar .build-slot span{font-size:1rem}
+  #build-hint{bottom:196px;font-size:.62rem;max-width:90vw;text-align:center}
+  #interact-prompt{display:none!important}
+  #joy-zone{width:92px;height:92px;bottom:8px;left:8px}
+  #joy-knob{width:38px;height:38px}
+  #act-btn{bottom:8px;right:8px;min-width:80px;min-height:80px;font-size:.8rem}
+  #daily-banner{top:32px;font-size:.68rem;padding:7px 10px;max-width:92vw}
+  .overlay{padding:8px}
+  .cards{grid-template-columns:1fr}
+  .shop-tabs{gap:4px}
+  .shop-tab{padding:5px 8px;font-size:.62rem}
+}
+@media(min-width:769px){
+  #quest-toggle,#build-toggle{display:none!important}
+  #quest-panel{display:block!important}
+  #build-bar{display:flex!important}
+}
 #profile-overlay{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#0a0812,#1a1028 40%,#0d1a2e);display:flex;align-items:center;justify-content:center;padding:20px}
 #profile-overlay.hidden{display:none}
 .profile-card{max-width:420px;width:100%;background:linear-gradient(160deg,#1a1408,#0d0d12);border:2px solid #c9a227;border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 0 60px rgba(201,162,39,.2)}
@@ -134,7 +173,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 <button id="profile-btn" style="display:none"></button>
 <button id="logout-btn">Cerrar sesión</button>
 <div id="sync-dot"></div>
-<div id="quest-panel">
+<button id="quest-toggle" type="button">📜 Misiones<span class="badge" id="quest-badge"></span></button>
+<div id="quest-panel" class="collapsed-mobile">
 <h4>📜 Misiones Cuánticas</h4>
 <div id="quest-list"></div>
 </div>
@@ -145,11 +185,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 <div id="fomo-feed"></div>
 <canvas id="minimap" width="120" height="120"></canvas>
 <div id="joy-zone"><div id="joy-knob"></div></div>
-<button id="act-btn">E</button>
-<button id="interact-prompt"><span>E</span><span id="interact-label">Entrar</span></button>
+<button id="act-btn" type="button"><span id="act-icon">E</span><span id="act-label"></span></button>
+<button id="interact-prompt" type="button"><span>E</span><span id="interact-label">Entrar</span></button>
 <div id="daily-banner"></div>
 <div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
-<div id="build-bar">
+<button id="build-toggle" type="button">🏗️ Construir</button>
+<div id="build-bar" class="collapsed-mobile">
 <button class="build-slot" data-build=""><span>🚶</span>Mover</button>
 <button class="build-slot" data-build="fence"><span>🪵</span>Cerca<br>5💎</button>
 <button class="build-slot" data-build="house"><span>🏠</span>Casa<br>15💎</button>
@@ -558,15 +599,54 @@ function applyDailyBonus() {
     window.G.showToast('🎁 Bonus diario: +'+bonus+' cristales (racha '+window.S.streak+')');
   }
 }
+function isMobileUI() {
+  return window.matchMedia('(max-width:768px)').matches || window.matchMedia('(pointer:coarse)').matches;
+}
 function updateInteractPrompt(zone) {
   const el = document.getElementById('interact-prompt');
   const lbl = document.getElementById('interact-label');
+  const act = document.getElementById('act-btn');
+  const actIcon = document.getElementById('act-icon');
+  const actLbl = document.getElementById('act-label');
   if (!el) return;
+  const enterLbl = zone ? (zone.shop === 'audio' ? '🛒 ENTRAR Tienda' : zone.shop === 'skins' ? '🔮 ENTRAR Skins' : '🗼 ENTRAR Quiz') : '';
   if (zone && !window.S.modal) {
-    el.style.display = 'block';
-    lbl.textContent = zone.name;
+    if (isMobileUI() && act) {
+      el.style.display = 'none';
+      act.classList.add('enter-mode');
+      actIcon.textContent = zone.shop === 'audio' ? '🏰' : zone.shop === 'skins' ? '🔮' : '🗼';
+      actLbl.textContent = 'ENTRAR';
+    } else {
+      el.style.display = 'block';
+      lbl.textContent = enterLbl || zone.name;
+      act?.classList.remove('enter-mode');
+      if (actIcon) actIcon.textContent = 'E';
+      if (actLbl) actLbl.textContent = '';
+    }
     el.onclick = ()=>{ if (window.G) window.G.doInteract(); };
-  } else el.style.display = 'none';
+  } else {
+    el.style.display = 'none';
+    act?.classList.remove('enter-mode');
+    if (actIcon) actIcon.textContent = 'E';
+    if (actLbl) actLbl.textContent = '';
+  }
+}
+function initMobileUI() {
+  const qp = document.getElementById('quest-panel');
+  const bb = document.getElementById('build-bar');
+  const apply = ()=>{
+    if (isMobileUI()) {
+      qp?.classList.add('collapsed-mobile');
+      bb?.classList.add('collapsed-mobile');
+    } else {
+      qp?.classList.remove('collapsed-mobile');
+      bb?.classList.remove('collapsed-mobile');
+    }
+  };
+  apply();
+  window.addEventListener('resize', apply);
+  document.getElementById('quest-toggle')?.addEventListener('click', ()=> qp?.classList.toggle('collapsed-mobile'));
+  document.getElementById('build-toggle')?.addEventListener('click', ()=> bb?.classList.toggle('collapsed-mobile'));
 }
 function renderQuests() {
   const el = document.getElementById('quest-list');
@@ -579,6 +659,9 @@ function renderQuests() {
     if (q.id==='level3' && !done) prog = ' (Lvl '+(window.S.level||0)+'/3)';
     return '<div class="quest-item'+(done?' done':'')+'">'+q.text+prog+(done?' ✓':'')+'</div>';
   }).join('');
+  const pending = QUESTS.filter(q=>!(window.S.questsDone||[]).includes(q.id)).length;
+  const badge = document.getElementById('quest-badge');
+  if (badge) badge.textContent = pending > 0 ? pending : '';
 }
 function updateProfileBtn() {
   const b = document.getElementById('profile-btn');
@@ -655,14 +738,25 @@ function makeTextures(scene) {
   }
   function drawVoxelChar(key, body, skin, hair, hat, frame) {
     g.clear();
-    const sw = frame ? 1 : 0;
-    block(10 + sw, 38, 6, 10, 0x444466, 0x333355);
-    block(18 - sw, 38, 6, 10, 0x444466, 0x333355);
-    block(9, 22, 16, 18, body, body * 0.75);
-    block(8, 8, 18, 16, skin, skin * 0.85);
-    if (hair) { g.fillStyle(hair, 1); g.fillRect(8, 8, 18, 5); g.fillRect(6, 10, 3, 10); g.fillRect(25, 10, 3, 10); }
-    if (hat) { g.fillStyle(hat, 1); g.fillRect(6, 4, 22, 6); g.fillRect(10, 0, 14, 5); }
-    g.generateTexture(key, 36, 52);
+    const sw = frame ? 2 : 0;
+    const bodyD = (body & 0xfefefe) >> 1;
+    const bodyL = (body & 0xf8f8f8) | 0x080808;
+    block(11 + sw, 44, 6, 8, 0x2a2a3a, 0x1a1a28);
+    block(19 - sw, 44, 6, 8, 0x2a2a3a, 0x1a1a28);
+    block(8, 28, 20, 16, body, bodyD);
+    block(8, 26, 20, 4, bodyL, bodyD);
+    block(3 + sw, 30, 6, 10, body, bodyD);
+    block(27 - sw, 30, 6, 10, body, bodyD);
+    block(10, 10, 16, 16, skin, (skin & 0xfefefe) >> 1);
+    g.fillStyle(0x1a1a1a, 1); g.fillRect(14, 18, 3, 3); g.fillRect(21, 18, 3, 3);
+    g.fillStyle(0xffffff, 0.35); g.fillRect(15, 19, 1, 1); g.fillRect(22, 19, 1, 1);
+    g.fillStyle(0xffaaaa, 0.45); g.fillRect(12, 22, 3, 2); g.fillRect(21, 22, 3, 2);
+    if (hair) {
+      g.fillStyle(hair, 1); g.fillRect(9, 9, 18, 6); g.fillRect(7, 12, 4, 10); g.fillRect(25, 12, 4, 10);
+      g.fillStyle((hair & 0xfefefe) >> 1, 1); g.fillRect(10, 10, 16, 3);
+    }
+    if (hat) { g.fillStyle(hat, 1); g.fillRect(7, 4, 22, 6); g.fillRect(11, 0, 14, 5); g.fillStyle(0xffffff, 0.25); g.fillRect(12, 1, 12, 2); }
+    g.generateTexture(key, 36, 56);
   }
   drawVoxelChar('alicia_0', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 0);
   drawVoxelChar('alicia_1', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 1);
@@ -675,14 +769,23 @@ function makeTextures(scene) {
   drawVoxelChar('npc_0', 0xffffff, 0xffccaa, 0xf0d060, 0xc9a227, 0);
   drawVoxelChar('npc_1', 0xffffff, 0xffccaa, 0xf0d060, 0xc9a227, 1);
 
+  function prism(bx, by, hw, h, top, left, right) {
+    g.fillStyle(left, 1); g.beginPath(); g.moveTo(bx - hw, by); g.lineTo(bx - hw, by - h); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx, by - hw * 0.35); g.closePath(); g.fillPath();
+    g.fillStyle(right, 1); g.beginPath(); g.moveTo(bx, by - hw * 0.35); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx + hw, by - h); g.lineTo(bx + hw, by); g.closePath(); g.fillPath();
+    g.fillStyle(top, 1); g.beginPath(); g.moveTo(bx, by - h - hw * 0.7); g.lineTo(bx + hw, by - h - hw * 0.35); g.lineTo(bx, by - h); g.lineTo(bx - hw, by - h - hw * 0.35); g.closePath(); g.fillPath();
+  }
+
   g.clear(); g.fillStyle(0x000000, 0.35); g.fillEllipse(18, 10, 16, 7); g.generateTexture('shadow', 36, 20);
 
   g.clear();
-  block(15, 32, 8, 14, 0x6b4423, 0x5a3818);
-  block(8, 22, 22, 12, 0x4caf50, 0x388e3c);
-  block(10, 12, 18, 12, 0x66bb6a, 0x43a047);
-  block(12, 4, 14, 10, 0x81c784, 0x4caf50);
-  g.generateTexture('tree', 38, 48);
+  block(16, 48, 14, 12, 0x4e342e, 0x3e2723);
+  g.fillStyle(0x6d4c41, 1); g.fillRect(17, 50, 12, 2); g.fillRect(17, 54, 12, 2);
+  prism(23, 38, 18, 16, 0x388e3c, 0x2e7d32, 0x43a047);
+  prism(23, 26, 22, 18, 0x4caf50, 0x388e3c, 0x43a047);
+  prism(23, 14, 18, 16, 0x66bb6a, 0x4caf50, 0x57bb63);
+  prism(23, 4, 12, 12, 0x81c784, 0x66bb6a, 0x72c276);
+  g.fillStyle(0x2e7d32, 0.5); g.fillEllipse(10, 32, 8, 5); g.fillEllipse(36, 28, 7, 4);
+  g.generateTexture('tree', 46, 62);
 
   g.clear();
   g.fillStyle(0x4dd0e1, 1); g.beginPath(); g.moveTo(12, 2); g.lineTo(22, 14); g.lineTo(12, 24); g.lineTo(2, 14); g.closePath(); g.fillPath();
@@ -704,11 +807,6 @@ function makeTextures(scene) {
   g.clear(); block(4, 14, 28, 16, 0xc9a227, 0x8b6914); block(10, 6, 16, 10, 0xf0d060, 0xc9a227);
   g.fillStyle(0x6b4a10, 1); g.fillRect(14, 10, 8, 6); g.generateTexture('chest', 36, 32);
 
-  function prism(bx, by, hw, h, top, left, right) {
-    g.fillStyle(left, 1); g.beginPath(); g.moveTo(bx - hw, by); g.lineTo(bx - hw, by - h); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx, by - hw * 0.35); g.closePath(); g.fillPath();
-    g.fillStyle(right, 1); g.beginPath(); g.moveTo(bx, by - hw * 0.35); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx + hw, by - h); g.lineTo(bx + hw, by); g.closePath(); g.fillPath();
-    g.fillStyle(top, 1); g.beginPath(); g.moveTo(bx, by - h - hw * 0.7); g.lineTo(bx + hw, by - h - hw * 0.35); g.lineTo(bx, by - h); g.lineTo(bx - hw, by - h - hw * 0.35); g.closePath(); g.fillPath();
-  }
   function buildHouse() {
     g.clear(); block(4, 28, 40, 22, 0xd4a574, 0xb8956a);
     g.fillStyle(0x8b4513, 1); g.beginPath(); g.moveTo(24, 4); g.lineTo(44, 28); g.lineTo(4, 28); g.closePath(); g.fillPath();
@@ -746,21 +844,41 @@ function makeTextures(scene) {
   g.generateTexture('shop_ring', 32, 32);
 
   g.clear();
-  prism(20, 100, 18, 36, 0xc9a227, 0x8b6914, 0xa07818); prism(44, 100, 18, 36, 0xc9a227, 0x8b6914, 0xa07818);
-  prism(32, 100, 22, 44, 0xd4af37, 0x9a7b0a, 0xb8921a);
-  prism(32, 58, 16, 40, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
-  prism(32, 28, 12, 24, 0x7b3fa0, 0x3d1a5c, 0x5a2d82);
-  g.fillStyle(0x3d1a00, 1); g.fillRect(26, 78, 12, 22);
-  g.fillStyle(0xf0d060, 0.8); g.fillRect(28, 82, 8, 14);
-  block(4, 90, 8, 20, 0xc9a227, 0x8b6914); block(52, 90, 8, 20, 0xc9a227, 0x8b6914);
-  g.fillStyle(0xffffff, 1); g.fillRect(30, 8, 4, 10);
+  prism(18, 104, 16, 32, 0xc9a227, 0x8b6914, 0xa07818); prism(46, 104, 16, 32, 0xc9a227, 0x8b6914, 0xa07818);
+  prism(32, 104, 24, 40, 0xd4af37, 0x9a7b0a, 0xb8921a);
+  for (let i = 0; i < 5; i++) block(8 + i * 10, 68, 6, 8, 0xd4af37, 0x9a7b0a);
+  for (let i = 0; i < 7; i++) block(6 + i * 8, 58, 5, 5, 0xd4af37, 0x9a7b0a);
+  prism(32, 56, 18, 36, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
+  prism(32, 24, 14, 28, 0x7b3fa0, 0x3d1a5c, 0x5a2d82);
+  g.fillStyle(0x2a1500, 1); g.fillRect(26, 82, 14, 24);
+  g.fillStyle(0xf0d060, 0.9); g.fillRect(28, 86, 10, 16);
+  g.fillStyle(0xffffff, 0.6); g.fillRect(30, 90, 3, 3);
+  g.fillStyle(0x4ade80, 0.8); g.fillRect(20, 72, 4, 4); g.fillRect(40, 72, 4, 4); g.fillRect(30, 64, 4, 4);
+  block(2, 92, 8, 22, 0xc9a227, 0x8b6914); block(54, 92, 8, 22, 0xc9a227, 0x8b6914);
+  g.fillStyle(0xf0d060, 0.35); g.fillRect(24, 96, 18, 3);
   g.generateTexture('b_castle', 64, 112);
-  g.clear(); prism(48, 88, 22, 24, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
-  g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(48, 28); g.lineTo(72, 52); g.lineTo(48, 58); g.lineTo(24, 52); g.closePath(); g.fillPath();
-  g.generateTexture('b_cabin', 96, 96);
-  g.clear(); prism(40, 112, 12, 56, 0x7af0ff, 0x1a6b7a, 0x3de8f0);
-  g.fillStyle(0xb8ffff, 1); g.beginPath(); g.moveTo(40, 36); g.lineTo(56, 44); g.lineTo(40, 52); g.lineTo(24, 44); g.closePath(); g.fillPath();
-  g.generateTexture('b_tower', 80, 120);
+  g.clear();
+  block(6, 74, 52, 26, 0x6d4c41, 0x4e342e);
+  for (let i = 0; i < 6; i++) { g.fillStyle(0x5d4037, 1); g.fillRect(8, 76 + i * 4, 48, 2); }
+  block(10, 58, 12, 18, 0x5a3820, 0x3d2615);
+  g.fillStyle(0x4a2810, 1); g.fillRect(12, 62, 8, 10);
+  g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(32, 6); g.lineTo(60, 34); g.lineTo(32, 42); g.lineTo(4, 34); g.closePath(); g.fillPath();
+  g.fillStyle(0x9b59b6, 1); g.beginPath(); g.moveTo(32, 6); g.lineTo(48, 22); g.lineTo(32, 30); g.lineTo(16, 22); g.closePath(); g.fillPath();
+  block(26, 48, 12, 12, 0x5d4037, 0x3e2723);
+  g.fillStyle(0x4ade80, 0.75); g.fillCircle(16, 68, 4); g.fillCircle(44, 72, 3); g.fillCircle(22, 78, 2);
+  g.fillStyle(0x2a1500, 1); g.fillRect(28, 80, 10, 14);
+  g.fillStyle(0xf0d060, 0.75); g.fillRect(30, 84, 6, 8);
+  g.fillStyle(0xc9a227, 0.6); g.fillRect(24, 96, 16, 3);
+  g.generateTexture('b_cabin', 64, 102);
+  g.clear();
+  block(26, 90, 28, 30, 0x546e7a, 0x37474f);
+  for (let i = 0; i < 4; i++) { g.fillStyle(0x607d8b, 1); g.fillRect(28, 92 + i * 6, 24, 2); }
+  prism(40, 86, 14, 50, 0x80deea, 0x26c6da, 0x4dd0e1);
+  prism(40, 38, 10, 38, 0xb2ebf2, 0x4dd0e1, 0x80deea);
+  g.fillStyle(0xffffff, 0.75); g.fillCircle(40, 48, 5);
+  g.fillStyle(0x3de8f0, 0.55); g.fillRect(34, 94, 12, 10);
+  g.fillStyle(0xf0d060, 0.7); g.fillRect(38, 42, 4, 8);
+  g.generateTexture('b_tower', 80, 122);
 
   g.clear(); g.fillStyle(0x8b6914, 1); g.fillRect(2, 0, 3, 28);
   g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(5, 4); g.lineTo(22, 10); g.lineTo(5, 16); g.closePath(); g.fillPath();
@@ -935,6 +1053,8 @@ function initDOM() {
   jz.onpointermove=e=>{if(ja)jm(e.clientX,e.clientY);};
   jz.onpointerup=()=>{ja=false;jk.style.transform='translate(-50%,-50%)';window.mobileInput.dx=0;window.mobileInput.dy=0;};
   document.getElementById('act-btn').onpointerdown=()=>{window.mobileInput.act=true;};
+  document.getElementById('act-btn').onclick=()=>{ if(window.G && !window.S.modal) window.G.doInteract(); };
+  initMobileUI();
   window.buildMode = '';
   document.querySelectorAll('.build-slot').forEach(btn=>{
     btn.onclick=()=>{
@@ -1017,6 +1137,7 @@ class Game extends Phaser.Scene {
       }
     });
     this.placeShopMarkers();
+    this.placeEnterBadges();
 
     const fp=this.wpos(HUB.col+1,HUB.row+3);
     this.add.image(fp.x,fp.y-8,'fountain').setOrigin(0.5,0.88).setDepth(isoDepth(HUB.col+1,HUB.row+3,48));
@@ -1057,7 +1178,10 @@ class Game extends Phaser.Scene {
     });
     this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
     this.syncHUD(); this.checkTier();
-    this.time.delayedCall(1200, ()=>this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris'));
+    this.time.delayedCall(1200, ()=>{
+      if (isMobileUI()) this.showToast('📱 Joystick = mover · Botón dorado = ENTRAR · Toca 🛒 ENTRAR en edificios');
+      else this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris');
+    });
   }
 
   isInHubPlaza() {
@@ -1065,14 +1189,45 @@ class Game extends Phaser.Scene {
   }
 
   placeShopMarkers() {
-    [[40,44],[39,43],[41,43],[38,44],[42,44],[37,43],[43,43]].forEach(([c,r])=>{
-      const p=this.wpos(c,r);
-      const ring=this.add.image(p.x,p.y-2,'shop_ring').setDepth(isoDepth(c,r,12)).setAlpha(0.55).setScale(0.9);
-      this.tweens.add({targets:ring,alpha:0.25,scale:1.1,duration:1100,yoyo:true,repeat:-1});
-      this.shopMarkers.push(ring);
+    BUILDINGS.forEach(b => {
+      (b.points || [{ col:b.col, row:b.row + b.r + 1 }]).slice(0, 2).forEach(pt => {
+        const p = this.wpos(pt.col, pt.row);
+        const ring = this.add.image(p.x, p.y - 2, 'shop_ring').setDepth(isoDepth(pt.col, pt.row, 12)).setAlpha(0.45).setScale(b.shop === 'audio' ? 0.95 : 0.75);
+        this.tweens.add({ targets:ring, alpha:0.2, scaleX:ring.scaleX * 1.12, scaleY:ring.scaleY * 1.12, duration:1100, yoyo:true, repeat:-1 });
+        this.shopMarkers.push(ring);
+      });
     });
-    const ep=this.wpos(40,44);
-    this.add.text(ep.x,ep.y-36,'⬇ ENTRADA TIENDA ⬇',{fontFamily:'Segoe UI',fontSize:'10px',color:'#4ade80',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(40,44,53));
+    const ep = this.wpos(40, 44);
+    this.add.text(ep.x, ep.y - 36, '⬇ ENTRADA TIENDA ⬇', { fontFamily:'Segoe UI', fontSize:'10px', color:'#4ade80', stroke:'#000', strokeThickness:3, align:'center' }).setOrigin(0.5, 1).setDepth(isoDepth(40, 44, 53));
+  }
+
+  placeEnterBadges() {
+    const meta = {
+      audio: { title:'🛒 ENTRAR', sub:'Tienda Audios Erior' },
+      skins: { title:'🔮 ENTRAR', sub:'Cabaña de Skins' },
+      quiz: { title:'🗼 ENTRAR', sub:'Torre Cuántica' },
+    };
+    const compact = isMobileUI();
+    BUILDINGS.forEach(b => {
+      const pt = b.points[0];
+      const m = meta[b.shop];
+      if (!m) return;
+      const p = this.wpos(pt.col, pt.row);
+      const d = isoDepth(pt.col, pt.row, 67);
+      const bw = compact ? 100 : 118, bh = compact ? 34 : 40;
+      const bg = this.add.rectangle(p.x, p.y - 54, bw, bh, 0x050508, 0.88).setStrokeStyle(2, 0x4ade80, 1).setDepth(d);
+      const t1 = this.add.text(p.x, p.y - (compact ? 60 : 62), m.title, { fontFamily:'Segoe UI', fontSize: compact ? '10px' : '12px', color:'#4ade80', fontStyle:'bold', stroke:'#000', strokeThickness:3 }).setOrigin(0.5).setDepth(d + 1);
+      const t2 = this.add.text(p.x, p.y - (compact ? 48 : 48), m.sub, { fontFamily:'Segoe UI', fontSize: compact ? '8px' : '9px', color:'#f0d060', stroke:'#000', strokeThickness:2 }).setOrigin(0.5).setDepth(d + 1);
+      const hit = this.add.rectangle(p.x, p.y - 54, bw + 4, bh + 6, 0x000000, 0.001).setDepth(d + 2).setInteractive({ useHandCursor:true });
+      hit.on('pointerdown', (e) => {
+        e.stopPropagation();
+        if (window.S.modal) return;
+        if (b.shop === 'audio') this.tryOpenCastle(true);
+        else if (this.nearBuilding()?.shop === b.shop) openShop(b.shop);
+        else { this.showToast('Camina a la entrada de '+b.name+'...'); this.walkToBuilding(b); }
+      });
+      this.tweens.add({ targets:[bg, t1, t2], y:'-=3', duration:850, yoyo:true, repeat:-1, ease:'Sine.easeInOut' });
+    });
   }
 
   tryOpenCastle(fromClick) {
@@ -1168,21 +1323,25 @@ class Game extends Phaser.Scene {
 
   buildHUD() {
     this.hud = this.add.container(0,0).setScrollFactor(0).setDepth(20000);
-    const panel = this.add.rectangle(8,8,220,118,0x000000,0.55).setOrigin(0,0).setStrokeStyle(1,0xc9a227,0.4);
+    const compact = isMobileUI();
+    const pw = compact ? 168 : 220, ph = compact ? 88 : 118;
+    const panel = this.add.rectangle(8,8,pw,ph,0x000000,0.55).setOrigin(0,0).setStrokeStyle(1,0xc9a227,0.4);
     const st = { fontFamily:'Segoe UI, Tahoma, sans-serif', stroke:'#000', strokeThickness:3 };
+    const fs = compact ? 11 : 13;
     this.hudTxt = {
-      title: this.add.text(16,14,'ERIOR WORLD ✦',{...st,fontSize:'15px',color:'#f0d060'}),
-      level: this.add.text(16,34,'',{...st,fontSize:'12px',color:'#f0d060'}),
-      crys: this.add.text(16,52,'',{...st,fontSize:'13px',color:'#3de8f0'}),
-      badge: this.add.text(16,72,'',{...st,fontSize:'11px',color:'#9ca3af'}),
-      coord: this.add.text(16,90,'',{...st,fontSize:'11px',color:'#888'}),
-      pdf: this.add.text(16,108,'',{...st,fontSize:'10px',color:'#c9a227'}).setInteractive({useHandCursor:true}),
+      title: this.add.text(16,14,'ERIOR WORLD ✦',{...st,fontSize:compact?13:15,color:'#f0d060'}),
+      level: this.add.text(16,34,'',{...st,fontSize:fs,color:'#f0d060'}),
+      crys: this.add.text(16,compact?50:52,'',{...st,fontSize:fs,color:'#3de8f0'}),
+      badge: this.add.text(16,compact?66:72,'',{...st,fontSize:compact?9:11,color:'#9ca3af'}),
+      coord: this.add.text(16,compact?80:90,'',{...st,fontSize:10,color:'#888'}).setVisible(!compact),
+      pdf: this.add.text(16,compact?80:108,'',{...st,fontSize:10,color:'#c9a227'}).setInteractive({useHandCursor:true}),
       tip: this.add.text(400,300,'',{...st,fontSize:'14px',color:'#f0d060',backgroundColor:'#000000aa',padding:{x:12,y:6}}).setOrigin(0.5).setAlpha(0),
       toast: this.add.text(400,260,'',{...st,fontSize:'16px',color:'#f0d060'}).setOrigin(0.5).setAlpha(0),
     };
     this.xpGfx = this.add.graphics().setScrollFactor(0).setDepth(20001);
     this.hud.add([panel,...Object.values(this.hudTxt)]);
     this.hudTxt.pdf.on('pointerdown', genPDF);
+    if (compact) this.hud.setVisible(false);
     if (!document.getElementById('npc-bubble')) {
       const bub = document.createElement('div');
       bub.id = 'npc-bubble';
@@ -1507,8 +1666,11 @@ class Game extends Phaser.Scene {
   }
 
   drawMinimap() {
-    const cv = document.getElementById('minimap'), ctx = cv.getContext('2d'), sc = 120/MAP;
-    ctx.fillStyle = '#0a0a12'; ctx.fillRect(0,0,120,120);
+    const cv = document.getElementById('minimap'), ctx = cv.getContext('2d');
+    const mm = isMobileUI() ? 56 : 120;
+    if (cv.width !== mm) { cv.width = mm; cv.height = mm; }
+    const sc = mm / MAP;
+    ctx.fillStyle = '#0a0a12'; ctx.fillRect(0,0,mm,mm);
     for (let r=0;r<MAP;r++) for (let c=0;c<MAP;c++) {
       const k = tileKind(c,r);
       ctx.fillStyle = k==='t_grass'||k==='t_grass2'?'#4a9e4a':k==='t_plaza'?'#a0a0b0':k==='t_stone'?'#707080':k==='t_dirt'?'#ae8f5a':'#6a8020';
@@ -1556,7 +1718,17 @@ class Game extends Phaser.Scene {
     }
 
     const z = this.nearBuilding();
-    updateInteractPrompt(z);
+    const dNpc = dist(this.col, this.row, NPC.col, NPC.row);
+    if (z && !window.S.modal) updateInteractPrompt(z);
+    else if (dNpc < 2.5 && !window.S.modal && isMobileUI()) {
+      document.getElementById('interact-prompt').style.display = 'none';
+      const act = document.getElementById('act-btn');
+      const actIcon = document.getElementById('act-icon');
+      const actLbl = document.getElementById('act-label');
+      act?.classList.add('enter-mode');
+      if (actIcon) actIcon.textContent = '✦';
+      if (actLbl) actLbl.textContent = 'Alicia IA';
+    } else updateInteractPrompt(null);
     if (z) {
       const lbl = z.shop === 'audio' ? '🛒 Tienda Audios Erior' : z.name;
       this.hudTxt.tip.setText('Presiona E — ' + lbl).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
