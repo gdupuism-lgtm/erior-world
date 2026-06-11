@@ -227,7 +227,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 <p>🕹️ <b>WASD</b> o <b>Clic</b> — Mover por el mundo</p>
 <p>👤 <b>Perfil</b> — Elige nombre y avatar · empiezas Nivel 0</p>
 <p>🔮 <b>Clic</b> cerca de cristales — Recolectar (+XP)</p>
-<p>🏗️ <b>Barra inferior</b> — Construir casas (cerca auto)</p>
+<p>🏗️ <b>Barra inferior</b> — Construir casas (cerca auto) · lleva tu nombre ✦</p>
+<p>🆘 <b>Atascado/a</b> — El juego te mueve solo a un lugar seguro</p>
 <p>🏰 <b>Tecla E</b> en el Castillo — Tienda de audios Erior</p>
 <p>📜 <b>Misiones</b> — Panel derecho · recompensas 💎</p>
 <p>✦ <b>Alicia IA</b> — Tu guía cuántica personal</p>
@@ -358,6 +359,12 @@ try {
   Object.assign(window.S, saved);
   if (!window.S.tierNotified) window.S.tierNotified = [];
   if (!window.S.builds) window.S.builds = [];
+  if (window.S.builds.length) {
+    window.S.builds = window.S.builds.map(b => ({
+      ...b,
+      owner: b.owner || (b.type !== 'fence' ? (window.S.username || '') : (window.S.username || 'Viajero')),
+    }));
+  }
   if (!window.S.questsDone) window.S.questsDone = [];
   if (!window.S.stats) window.S.stats = { shopVisits:0, crystalsTotal:0, aliciaVisits:0 };
   if (window.S.level === undefined) window.S.level = 0;
@@ -1147,8 +1154,8 @@ class Game extends Phaser.Scene {
     this.tweens.add({targets:wheel,angle:360,duration:12000,repeat:-1});
 
     this.col=window.S.col; this.row=window.S.row;
-    if(this.isBlocked(this.col,this.row)){this.col=44;this.row=44;}
     this.placeObjects(); this.placeChests(); this.loadBuilds(); this.spawnFakePlayers();
+    this.unstuckPlayer(true);
 
     const np=this.wpos(NPC.col,NPC.row);
     this.npcSh=this.add.image(np.x,np.y+4,'shadow').setDepth(isoDepth(NPC.col,NPC.row,60));
@@ -1462,6 +1469,58 @@ class Game extends Phaser.Scene {
     return !this.walk[ir][ic];
   }
 
+  hasWalkableNeighbor() {
+    const pc = Math.round(this.col), pr = Math.round(this.row);
+    for (const [dc, dr] of [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]]) {
+      const nc = pc + dc, nr = pr + dr;
+      if (nc >= 0 && nr >= 0 && nc < MAP && nr < MAP && this.walk[nr][nc]) return true;
+    }
+    return false;
+  }
+
+  findNearestWalkable(fromCol, fromRow) {
+    const startC = Math.round(fromCol), startR = Math.round(fromRow);
+    const queue = [{ c: startC, r: startR }];
+    const seen = new Set([startC + ',' + startR]);
+    while (queue.length) {
+      const { c, r } = queue.shift();
+      if (c >= 0 && r >= 0 && c < MAP && r < MAP && this.walk[r][c]) return { col: c, row: r };
+      for (const [dc, dr] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+        const nc = c + dc, nr = r + dr, key = nc + ',' + nr;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        queue.push({ c: nc, r: nr });
+      }
+    }
+    return { col: 44, row: 44 };
+  }
+
+  unstuckPlayer(silent) {
+    const trapped = this.isBlocked(this.col, this.row) || !this.hasWalkableNeighbor();
+    if (!trapped) return false;
+    const spot = this.findNearestWalkable(this.col, this.row);
+    this.col = spot.col + 0.5;
+    this.row = spot.row + 0.5;
+    this.targetCol = null;
+    this.targetRow = null;
+    window.S.col = Math.round(this.col);
+    window.S.row = Math.round(this.row);
+    this.repositionPlayer();
+    if (!silent) this.showToast('📍 Te movimos a un lugar seguro — no construyas donde estás parado/a');
+    save();
+    return true;
+  }
+
+  canPlaceBlockingAt(ic, ir) {
+    if (ic < 0 || ir < 0 || ic >= MAP || ir >= MAP || !this.walk[ir][ic]) return false;
+    const pc = Math.round(this.col), pr = Math.round(this.row);
+    if (ic === pc && ir === pr) return false;
+    this.walk[ir][ic] = false;
+    const ok = this.hasWalkableNeighbor();
+    this.walk[ir][ic] = true;
+    return ok;
+  }
+
   spawnFakePlayers() {
     const hubSpots = [[39,43],[41,43],[39,45],[41,45],[38,44],[42,44],[40,46],[37,43]];
     hubSpots.forEach((pos,i)=>{
@@ -1495,27 +1554,39 @@ class Game extends Phaser.Scene {
   }
 
   loadBuilds() {
-    (window.S.builds || []).forEach(b => this.placeBuild(b.col, b.row, b.type, false));
+    (window.S.builds || []).forEach(b => this.placeBuild(b.col, b.row, b.type, false, b.owner));
   }
 
-  placeBuild(c, r, type, persist) {
+  placeBuild(c, r, type, persist, ownerName) {
     const ic = Math.round(c), ir = Math.round(r);
     if (ic < 0 || ir < 0 || ic >= MAP || ir >= MAP || !this.walk[ir][ic]) return false;
     const tex = type === 'tree' ? 'tree' : 'build_' + type;
-    if (type !== 'tree') this.walk[ir][ic] = false;
+    const blocks = type !== 'tree';
+    if (blocks && !this.canPlaceBlockingAt(ic, ir)) return false;
+    if (blocks) this.walk[ir][ic] = false;
     const p = this.wpos(ic, ir);
     const d = isoDepth(ic, ir, 40);
     this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 1);
     const spr = this.add.sprite(p.x, p.y - (type === 'house' ? 16 : 8), tex).setOrigin(0.5, 0.88).setDepth(d);
-    this.placedBuilds.push({ col: ic, row: ir, type, spr });
+    let tag = null;
+    const owner = ownerName || (persist ? window.S.username : '') || '';
+    if (type !== 'fence' && owner) {
+      const lift = type === 'house' ? 54 : type === 'tree' ? 48 : 44;
+      tag = this.add.text(p.x, p.y - lift, '✦ ' + owner, {
+        fontFamily: 'Segoe UI', fontSize: type === 'house' ? '10px' : '9px',
+        color: '#f0d060', stroke: '#000', strokeThickness: 3, align: 'center',
+      }).setOrigin(0.5, 1).setDepth(d + 1);
+    }
+    this.placedBuilds.push({ col: ic, row: ir, type, spr, tag, owner });
     if (persist) {
       window.S.builds = window.S.builds || [];
-      window.S.builds.push({ col: ic, row: ir, type });
+      window.S.builds.push({ col: ic, row: ir, type, owner: window.S.username || 'Viajero' });
       window.S.buildCount = (window.S.buildCount || 0) + 1;
       if (type === 'house') this.autoFence(ic, ir);
       addXP(type === 'house' ? 25 : 12);
       checkQuests();
       save();
+      if (!this.hasWalkableNeighbor()) this.unstuckPlayer(false);
     }
     return true;
   }
@@ -1525,8 +1596,9 @@ class Game extends Phaser.Scene {
       const fc = hc+dc, fr = hr+dr;
       if (fc<0||fr<0||fc>=MAP||fr>=MAP||!this.walk[fr][fc]) return;
       if ((window.S.builds||[]).some(b=>b.col===fc&&b.row===fr)) return;
+      if (!this.canPlaceBlockingAt(fc, fr)) return;
       if (this.placeBuild(fc, fr, 'fence', false)) {
-        window.S.builds.push({ col:fc, row:fr, type:'fence' });
+        window.S.builds.push({ col:fc, row:fr, type:'fence', owner: window.S.username || 'Viajero' });
       }
     });
   }
@@ -1536,13 +1608,19 @@ class Game extends Phaser.Scene {
     const ic = Math.round(t.col), ir = Math.round(t.row);
     const type = window.buildMode;
     if (!type || !BUILD_COST[type]) return;
+    const pc = Math.round(this.col), pr = Math.round(this.row);
+    if (ic === pc && ir === pr) { this.showToast('No puedes construir donde estás parado/a'); return; }
     if (dist(this.col, this.row, ic, ir) > 4) { this.showToast('Acércate para construir'); return; }
     if (!this.walk[ir] || !this.walk[ir][ic]) { this.showToast('No se puede construir aquí'); return; }
+    if (type !== 'tree' && !this.canPlaceBlockingAt(ic, ir)) {
+      this.showToast('Eso te encerraría — muévete a otro lado primero');
+      return;
+    }
     const cost = BUILD_COST[type];
     if (this.crystals < cost) { this.showToast('Necesitas ' + cost + ' cristales'); return; }
     if (this.placeBuild(ic, ir, type, true)) {
       this.crystals -= cost;
-      this.showToast('¡Construido!');
+      this.showToast('¡Construido! · ✦ ' + (window.S.username || 'Tú'));
       this.syncHUD();
     }
   }
@@ -1759,6 +1837,10 @@ class Game extends Phaser.Scene {
     } else {
       this.walkFrame = 0; this.setSkin();
     }
+    if (this.isBlocked(this.col, this.row) || !this.hasWalkableNeighbor()) {
+      this._stuckMs = (this._stuckMs || 0) + delta;
+      if (this._stuckMs > 400) { this.unstuckPlayer(false); this._stuckMs = 0; }
+    } else this._stuckMs = 0;
   }
 }
 
