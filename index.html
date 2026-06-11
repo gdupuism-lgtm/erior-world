@@ -215,7 +215,8 @@ const SKIN_COLORS = [
 const WA = '524432289203', EMAIL = 'eriorcenter@gmail.com', PAYPAL = 'https://paypal.me/sheismagique';
 const ALICIA_IA = 'https://eriorcenterguiaaudios.netlify.app/#alicia';
 
-const HUB = { col: 40, row: 40, radius: 8 };
+const HUB = { col: 40, row: 40, radius: 8, interactR: 12 };
+const NPC = { col: 36, row: 43 };
 const QUESTS = [
   { id:'castle', text:'🏰 Visita el Castillo Erior', reward:15, xp:30 },
   { id:'alicia', text:'✦ Habla con Alicia IA', reward:10, xp:25 },
@@ -234,7 +235,6 @@ const BUILDINGS = [
   { id:'tower', name:'Torre Cuántica', col:65, row:20, r:2, shop:'quiz', tex:'b_tower',
     points:[{col:65,row:23,r:4},{col:68,row:20,r:4}] },
 ];
-const NPC = { col:38, row:42 };
 const CHESTS = [{col:10,row:50},{col:25,row:70},{col:55,row:10},{col:70,row:60},{col:35,row:25}];
 
 const TIERS = [
@@ -592,8 +592,9 @@ function updateProfileBtn() {
 function rng(n) { let s = SEED + n * 9301 + 49297; s = (s * 233280 + 12345) & 0x7fffffff; return (s % 10000) / 10000; }
 function tileKind(c,r) {
   const hub = Math.abs(c-HUB.col)+Math.abs(r-HUB.row);
+  if (hub <= 2) return 't_plaza';
   if (hub <= HUB.radius && hub >= 2) return 't_stone';
-  if (hub < 12 && rng(c*MAP+r+1) < 0.45) return 't_dirt';
+  if (hub < 14 && rng(c*MAP+r+1) < 0.45) return 't_dirt';
   const v=rng(c*MAP+r);
   if(v<.55)return't_grass'; if(v<.75)return't_grass2'; if(v<.88)return't_dirt'; if(v<.97)return't_stone'; return't_spark';
 }
@@ -638,6 +639,10 @@ function makeTextures(scene) {
   isoTile('t_grass2', 0x5cb85c, 0x449944, 0x50a850, 0x357835);
   isoTile('t_dirt', 0xc4a574, 0x9a7d4a, 0xae8f5a, 0x7a6030);
   isoTile('t_stone', 0x9a9aaa, 0x707080, 0x808090, 0x505060);
+  g.clear();
+  isoTile('t_plaza', 0xc9c9d8, 0xa0a0b0, 0xb0b0c0, 0x707080);
+  g.fillStyle(0xf0d060, 0.25); g.fillCircle(cx, cy - 2, 8);
+  g.generateTexture('t_plaza', TW, TH);
   g.clear();
   isoTile('t_spark', 0x6ecf6e, 0x4a9e4a, 0x58b858, 0x3d7a3d);
   g.fillStyle(0xf0d060, 0.9); g.fillCircle(cx, cy - 2, 6); g.fillStyle(0xffffff, 0.7); g.fillCircle(cx - 2, cy - 3, 2);
@@ -734,9 +739,22 @@ function makeTextures(scene) {
   }
   g.generateTexture('wheel', 40, 52);
 
-  g.clear(); prism(56, 118, 28, 44, 0xf0d060, 0x8b6914, 0xc9a227); prism(28, 118, 20, 32, 0xc9a227, 0x8b6914, 0xa07818);
-  prism(84, 118, 20, 32, 0xc9a227, 0x8b6914, 0xa07818); prism(56, 72, 14, 36, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
-  g.fillStyle(0xffe066, 1); g.fillRect(52, 88, 8, 12); g.generateTexture('b_castle', 112, 128);
+  g.clear();
+  g.lineStyle(3, 0xf0d060, 0.9); g.strokeCircle(16, 16, 14);
+  g.lineStyle(2, 0xffffff, 0.5); g.strokeCircle(16, 16, 10);
+  g.fillStyle(0xf0d060, 0.3); g.fillCircle(16, 16, 8);
+  g.generateTexture('shop_ring', 32, 32);
+
+  g.clear();
+  prism(20, 100, 18, 36, 0xc9a227, 0x8b6914, 0xa07818); prism(44, 100, 18, 36, 0xc9a227, 0x8b6914, 0xa07818);
+  prism(32, 100, 22, 44, 0xd4af37, 0x9a7b0a, 0xb8921a);
+  prism(32, 58, 16, 40, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
+  prism(32, 28, 12, 24, 0x7b3fa0, 0x3d1a5c, 0x5a2d82);
+  g.fillStyle(0x3d1a00, 1); g.fillRect(26, 78, 12, 22);
+  g.fillStyle(0xf0d060, 0.8); g.fillRect(28, 82, 8, 14);
+  block(4, 90, 8, 20, 0xc9a227, 0x8b6914); block(52, 90, 8, 20, 0xc9a227, 0x8b6914);
+  g.fillStyle(0xffffff, 1); g.fillRect(30, 8, 4, 10);
+  g.generateTexture('b_castle', 64, 112);
   g.clear(); prism(48, 88, 22, 24, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
   g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(48, 28); g.lineTo(72, 52); g.lineTo(48, 58); g.lineTo(24, 52); g.closePath(); g.fillPath();
   g.generateTexture('b_cabin', 96, 96);
@@ -949,6 +967,7 @@ class Game extends Phaser.Scene {
     this.walk = []; this.collectibles = []; this.chests = []; this.zones = []; this.fakePlayers = []; this.placedBuilds = [];
     this.walkFrame = 0; this.walkTimer = 0; this.skinBase = 'alicia';
     this.targetCol = null; this.targetRow = null; this.vx = 0; this.vy = 0;
+    this.pendingShop = null; this.shopMarkers = [];
 
     const corners = [iso(0,0), iso(MAP-1,0), iso(0,MAP-1), iso(MAP-1,MAP-1)];
     const pad = TW * 4;
@@ -978,24 +997,26 @@ class Game extends Phaser.Scene {
       for(let dr=-b.r;dr<=b.r;dr++)for(let dc=-b.r;dc<=b.r;dc++){
         const c=b.col+dc,rr=b.row+dr; if(c>=0&&rr>=0&&c<MAP&&rr<MAP)this.walk[rr][c]=false;
       }
-      this.zones.push({col:b.col,row:b.row,shop:b.shop,name:b.name,points:b.points,r:b.r});
+      this.zones.push({col:b.col,row:b.row,shop:b.shop,name:b.name,points:b.points,r:b.r,id:b.id});
       const p=this.wpos(b.col,b.row);
-      const img=this.add.image(p.x,p.y-20,b.tex).setOrigin(0.5,0.88).setDepth(isoDepth(b.col,b.row,50));
+      const img=this.add.image(p.x,p.y-24,b.tex).setOrigin(0.5,0.88).setDepth(isoDepth(b.col,b.row,50)).setScale(b.id==='castle'?1.35:1);
       img.setInteractive({ useHandCursor:true, pixelPerfect:false });
+      const hitH = b.id === 'castle' ? 140 : 90;
+      img.input.hitArea = new Phaser.Geom.Rectangle(-40, -hitH, 80, hitH);
       img.on('pointerdown',(e)=>{
         e.stopPropagation();
         if(window.S.modal)return;
-        const reach=(b.r||2)+5;
-        if(dist(this.col,this.row,b.col,b.row)<=reach) openShop(b.shop);
-        else this.showToast('Acércate al '+b.name+' (camina hacia la puerta)');
+        if(b.shop==='audio') this.tryOpenCastle(true);
+        else if(this.nearBuilding()?.shop===b.shop) openShop(b.shop);
+        else { this.showToast('Camina a la plaza del '+b.name); this.walkToBuilding(b); }
       });
       if(b.id==='castle'){
-        const f=this.add.sprite(p.x+20,p.y-70,'flag').setOrigin(0,1).setDepth(isoDepth(b.col,b.row,55));
+        const f=this.add.sprite(p.x+24,p.y-82,'flag').setOrigin(0,1).setDepth(isoDepth(b.col,b.row,55)).setScale(1.2);
         this.tweens.add({targets:f,x:f.x+5,duration:1200,yoyo:true,repeat:-1});
-        const ep=this.wpos(40,44);
-        this.add.text(ep.x,ep.y-60,'🏰 TIENDA ERIOR\n↓ Camina aquí ↓',{fontFamily:'Segoe UI',fontSize:'11px',color:'#f0d060',stroke:'#000',strokeThickness:4,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(40,44,52));
+        this.add.text(p.x,p.y-100,'🛒 TIENDA AUDIOS ERIOR',{fontFamily:'Segoe UI',fontSize:'12px',color:'#f0d060',stroke:'#000',strokeThickness:4,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(b.col,b.row,56));
       }
     });
+    this.placeShopMarkers();
 
     const fp=this.wpos(HUB.col+1,HUB.row+3);
     this.add.image(fp.x,fp.y-8,'fountain').setOrigin(0.5,0.88).setDepth(isoDepth(HUB.col+1,HUB.row+3,48));
@@ -1012,7 +1033,8 @@ class Game extends Phaser.Scene {
     this.npcSh=this.add.image(np.x,np.y+4,'shadow').setDepth(isoDepth(NPC.col,NPC.row,60));
     this.npcGlow=this.add.circle(np.x,np.y,14,0xf0d060,0.15).setDepth(isoDepth(NPC.col,NPC.row,61));
     this.npc=this.add.sprite(np.x,np.y-12,'npc_0').setOrigin(0.5,0.92).setDepth(isoDepth(NPC.col,NPC.row,62));
-    this.npcTag=this.add.text(np.x,np.y-48,'Lvl 99\n✦ Alicia',{fontFamily:'Segoe UI',fontSize:'10px',color:'#fff',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
+    this.npcTag=this.add.text(np.x,np.y-48,'Lvl 99\n✦ Alicia IA',{fontFamily:'Segoe UI',fontSize:'10px',color:'#fff',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
+    this.add.text(np.x,np.y-72,'Guía Cuántica',{fontFamily:'Segoe UI',fontSize:'8px',color:'#f0d060',stroke:'#000',strokeThickness:2,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
 
     const sp=this.wpos(this.col,this.row);
     this.playerSh=this.add.image(sp.x,sp.y+4,'shadow').setDepth(isoDepth(this.col,this.row,80));
@@ -1035,7 +1057,43 @@ class Game extends Phaser.Scene {
     });
     this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
     this.syncHUD(); this.checkTier();
-    this.time.delayedCall(1200, ()=>this.showToast('🏰 Camina al sur del Castillo · Pulsa E para la Tienda Erior'));
+    this.time.delayedCall(1200, ()=>this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris'));
+  }
+
+  isInHubPlaza() {
+    return dist(this.col, this.row, HUB.col, HUB.row) <= HUB.interactR;
+  }
+
+  placeShopMarkers() {
+    [[40,44],[39,43],[41,43],[38,44],[42,44],[37,43],[43,43]].forEach(([c,r])=>{
+      const p=this.wpos(c,r);
+      const ring=this.add.image(p.x,p.y-2,'shop_ring').setDepth(isoDepth(c,r,12)).setAlpha(0.55).setScale(0.9);
+      this.tweens.add({targets:ring,alpha:0.25,scale:1.1,duration:1100,yoyo:true,repeat:-1});
+      this.shopMarkers.push(ring);
+    });
+    const ep=this.wpos(40,44);
+    this.add.text(ep.x,ep.y-36,'⬇ ENTRADA TIENDA ⬇',{fontFamily:'Segoe UI',fontSize:'10px',color:'#4ade80',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(40,44,53));
+  }
+
+  tryOpenCastle(fromClick) {
+    if (this.isInHubPlaza() || this.nearBuilding()?.shop === 'audio') {
+      openShop('audio');
+      this.pendingShop = null;
+      return;
+    }
+    if (fromClick) {
+      this.pendingShop = 'audio';
+      this.targetCol = 40; this.targetRow = 44;
+      this.showToast('🏰 Caminando a la Tienda Erior...');
+    } else {
+      this.showToast('Camina a la plaza GRIS junto al castillo dorado');
+    }
+  }
+
+  walkToBuilding(b) {
+    const pt = (b.points && b.points[0]) || { col: b.col, row: b.row + (b.r||2) + 1 };
+    this.targetCol = pt.col; this.targetRow = pt.row;
+    this.pendingShop = b.shop;
   }
 
   setZoom(){this.cameras.main.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width,this.scale.height)/520,1.3,2.8));}
@@ -1227,14 +1285,16 @@ class Game extends Phaser.Scene {
   nearBuilding() {
     let best = null, bestD = Infinity;
     this.zones.forEach(z => {
-      const pts = z.points || [{ col: z.col, row: z.row, r: (z.r || 2) + 3 }];
+      if (z.shop === 'audio') return;
+      const pts = z.points || [{ col: z.col, row: z.row, r: (z.r || 2) + 4 }];
       pts.forEach(p => {
         const dd = dist(this.col, this.row, p.col, p.row);
-        const reach = p.r || 4;
-        if (dd <= reach && dd < bestD) { bestD = dd; best = z; }
+        if (dd <= (p.r || 5) && dd < bestD) { bestD = dd; best = z; }
       });
     });
-    return best;
+    if (best) return best;
+    if (this.isInHubPlaza()) return this.zones.find(z => z.shop === 'audio');
+    return null;
   }
 
   isBlocked(c, r) {
@@ -1417,16 +1477,23 @@ class Game extends Phaser.Scene {
   }
 
   doInteract() {
-    const z = this.nearBuilding();
-    if (z) {
-      openShop(z.shop);
-    } else if (dist(this.col, this.row, NPC.col, NPC.row) < 2.5) {
+    const dNpc = dist(this.col, this.row, NPC.col, NPC.row);
+    if (dNpc < 2.2) {
       window.S.stats.aliciaVisits = (window.S.stats.aliciaVisits||0)+1;
       completeQuest('alicia');
       window.open(ALICIA_IA, '_blank');
-    } else {
-      this.showToast('Camina a la plaza del Castillo (sur) o a un edificio ✦');
+      return;
     }
+    if (this.isInHubPlaza()) {
+      openShop('audio');
+      return;
+    }
+    const z = this.nearBuilding();
+    if (z) {
+      openShop(z.shop);
+      return;
+    }
+    this.showToast('Camina a la plaza GRIS (piedra) del castillo dorado 🛒');
   }
 
   repositionPlayer() {
@@ -1444,7 +1511,7 @@ class Game extends Phaser.Scene {
     ctx.fillStyle = '#0a0a12'; ctx.fillRect(0,0,120,120);
     for (let r=0;r<MAP;r++) for (let c=0;c<MAP;c++) {
       const k = tileKind(c,r);
-      ctx.fillStyle = k==='t_grass'||k==='t_grass2'?'#4a9e4a':k==='t_stone'?'#707080':k==='t_dirt'?'#ae8f5a':'#6a8020';
+      ctx.fillStyle = k==='t_grass'||k==='t_grass2'?'#4a9e4a':k==='t_plaza'?'#a0a0b0':k==='t_stone'?'#707080':k==='t_dirt'?'#ae8f5a':'#6a8020';
       ctx.fillRect(c*sc, r*sc, sc+0.5, sc+0.5);
     }
     BUILDINGS.forEach(b => {
@@ -1480,10 +1547,22 @@ class Game extends Phaser.Scene {
       this.doInteract(); window.mobileInput.act = false;
     }
 
+    if (this.pendingShop) {
+      const z = this.nearBuilding();
+      if (z && z.shop === this.pendingShop) {
+        openShop(this.pendingShop);
+        this.pendingShop = null;
+      }
+    }
+
     const z = this.nearBuilding();
     updateInteractPrompt(z);
-    if (z) this.hudTxt.tip.setText('Presiona E o clic abajo — ' + z.name).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
-    else this.hudTxt.tip.setAlpha(0);
+    if (z) {
+      const lbl = z.shop === 'audio' ? '🛒 Tienda Audios Erior' : z.name;
+      this.hudTxt.tip.setText('Presiona E — ' + lbl).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+    } else if (dist(this.col, this.row, NPC.col, NPC.row) < 3) {
+      this.hudTxt.tip.setText('Presiona E — Hablar con Alicia IA').setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+    } else this.hudTxt.tip.setAlpha(0);
 
     const bubble = document.getElementById('npc-bubble');
     if (bubble) bubble.style.display = dist(this.col, this.row, NPC.col, NPC.row) < 2 ? 'block' : 'none';
