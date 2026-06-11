@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ERIOR WORLD ✦</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',Tahoma,sans-serif}
+#game-root{position:fixed;inset:0;z-index:1}
+#game-root canvas{display:block;width:100%!important;height:100%!important;touch-action:none;image-rendering:auto}
+#vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.25) 100%)}
+.overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);flex-direction:column;align-items:center;padding:12px;overflow:hidden}
+.overlay.open{display:flex}
+.modal-close{position:fixed;top:14px;right:14px;z-index:1001;width:42px;height:42px;border-radius:50%;border:2px solid #c9a227;background:rgba(0,0,0,.85);color:#f0d060;font-size:1.2rem;cursor:pointer}
+.shop-header{width:100%;max-width:1100px;text-align:center;margin-bottom:10px;flex-shrink:0}
+.shop-header h1{font-size:clamp(1rem,3vw,1.5rem);background:linear-gradient(90deg,#c9a227,#f0d060,#7b3fa0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.shop-notice{color:#f0d060;font-size:.78rem;margin-top:8px;padding:8px 14px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:rgba(201,162,39,.08)}
+.shop-tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:1100px;margin-bottom:10px;flex-shrink:0}
+.shop-tab{padding:7px 12px;border:1px solid rgba(201,162,39,.5);border-radius:18px;background:rgba(20,20,20,.9);color:#c9a227;cursor:pointer;font-size:.72rem}
+.shop-tab.active,.shop-tab:hover{background:linear-gradient(135deg,rgba(201,162,39,.25),rgba(123,63,160,.25));color:#f0d060}
+.shop-scroll{flex:1;width:100%;max-width:1100px;overflow-y:auto;padding:6px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.poke-card{position:relative;background:linear-gradient(160deg,#0d0d12,#1a1028,#0a0a0f);border-radius:14px;padding:14px}
+.poke-card::before{content:'';position:absolute;inset:0;border-radius:14px;padding:2px;background:linear-gradient(135deg,#c9a227,#7b3fa0,#3de8f0,#c9a227);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.poke-emoji{font-size:2.6rem;text-align:center;margin:6px 0}
+.poke-name{color:#f0d060;font-weight:bold;font-size:.92rem;text-align:center;margin-bottom:5px}
+.poke-desc{color:#aaa;font-size:.7rem;text-align:center;line-height:1.35;min-height:2.6em;margin-bottom:8px}
+.poke-price{text-align:center;font-size:.95rem;color:#3de8f0;font-weight:bold;margin-bottom:6px}
+.poke-price .old{text-decoration:line-through;color:#666;font-size:.78rem;margin-right:5px}
+.poke-price .new{color:#f0d060}
+.poke-btns{display:flex;gap:5px;margin-top:8px}
+.poke-btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:.68rem;font-weight:bold;cursor:pointer;text-decoration:none;text-align:center;display:block;color:#fff}
+.poke-btn-wa{background:linear-gradient(135deg,#25d366,#128c7e)}
+.poke-btn-pp{background:linear-gradient(135deg,#0070ba,#003087)}
+.gold-modal{background:linear-gradient(160deg,#1a1408,#0d0d0a);border:2px solid #c9a227;border-radius:16px;padding:24px;text-align:center;max-width:480px;width:94%;color:#ccc;max-height:90vh;overflow-y:auto}
+.gold-modal h2{color:#f0d060;margin-bottom:10px}
+.gold-modal p{margin:8px 0;font-size:.9rem}
+.gold-btn{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;cursor:pointer;margin:5px;font-size:.85rem}
+.gold-btn:disabled{opacity:.4;cursor:not-allowed}
+.skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;max-width:760px;width:100%;overflow-y:auto;padding:8px}
+.skin-card{background:linear-gradient(160deg,#1a0a28,#0d0d12);border:2px solid #7b3fa0;border-radius:12px;padding:14px;text-align:center}
+.skin-card.owned{border-color:#c9a227}
+.skin-card canvas{image-rendering:pixelated;margin:6px auto;display:block}
+.quiz-opt{display:block;width:100%;padding:10px;margin:5px 0;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:rgba(20,20,20,.9);color:#ccc;cursor:pointer;text-align:left;font-size:.82rem}
+.quiz-opt:hover{border-color:#c9a227;background:rgba(201,162,39,.12);color:#f0d060}
+#howto-btn{position:fixed;top:10px;right:10px;z-index:500;padding:7px 12px;border:2px solid #c9a227;border-radius:18px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.72rem;cursor:pointer;font-weight:bold}
+#fomo-online{position:fixed;top:10px;right:70px;z-index:500;padding:5px 10px;border-radius:14px;background:rgba(0,0,0,.8);color:#4ade80;font-size:.72rem;border:1px solid rgba(74,222,128,.3);pointer-events:none}
+#fomo-feed{position:fixed;left:6px;top:50%;transform:translateY(-50%);z-index:500;width:210px;max-height:180px;overflow:hidden;pointer-events:none}
+.fomo-item{padding:5px 8px;margin-bottom:5px;border-radius:7px;background:rgba(0,0,0,.75);border-left:3px solid #7b3fa0;color:#aaa;font-size:.65rem;animation:fi .4s ease}
+.fomo-item b{color:#f0d060}
+@keyframes fi{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+#minimap{position:fixed;bottom:10px;right:10px;z-index:500;width:120px!important;height:120px!important;border:2px solid #c9a227;border-radius:4px;background:rgba(0,0,0,.8);image-rendering:pixelated;pointer-events:none}
+#joy-zone{position:fixed;bottom:20px;left:20px;z-index:500;width:120px;height:120px;border-radius:50%;background:rgba(0,0,0,.35);border:2px solid rgba(201,162,39,.45);touch-action:none;display:none}
+#joy-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(201,162,39,.65);border:2px solid #f0d060;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+#act-btn{position:fixed;bottom:30px;right:20px;z-index:500;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#c9a227,#8b6914);border:2px solid #f0d060;color:#000;font-weight:bold;font-size:.75rem;cursor:pointer;display:none}
+@media(max-width:768px),(pointer:coarse){#joy-zone,#act-btn{display:block}#howto-btn{bottom:130px;top:auto}#fomo-online{right:10px;top:44px}}
+#build-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;display:flex;gap:8px;padding:8px 12px;background:rgba(0,0,0,.75);border:1px solid rgba(201,162,39,.5);border-radius:12px}
+.build-slot{padding:8px 12px;border:2px solid #444;border-radius:8px;background:rgba(30,30,30,.9);color:#ccc;font-size:.72rem;cursor:pointer;text-align:center;min-width:72px}
+.build-slot.active,.build-slot:hover{border-color:#c9a227;color:#f0d060}
+.build-slot span{display:block;font-size:1.2rem;margin-bottom:2px}
+#build-hint{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);z-index:500;color:#f0d060;font-size:.7rem;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
+.countdown{font-size:1.3rem;color:#ff5555;font-weight:bold;font-family:monospace;margin:8px 0}
+@media(max-width:768px),(pointer:coarse){#build-bar{bottom:140px}#build-hint{bottom:184px}}
+#profile-overlay{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#0a0812,#1a1028 40%,#0d1a2e);display:flex;align-items:center;justify-content:center;padding:20px}
+#profile-overlay.hidden{display:none}
+.profile-card{max-width:420px;width:100%;background:linear-gradient(160deg,#1a1408,#0d0d12);border:2px solid #c9a227;border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 0 60px rgba(201,162,39,.2)}
+.profile-card h1{font-size:1.6rem;background:linear-gradient(90deg,#c9a227,#f0d060,#7b3fa0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.profile-card p{color:#aaa;font-size:.85rem;margin-bottom:16px;line-height:1.45}
+.profile-card input{width:100%;padding:12px;border:2px solid rgba(201,162,39,.4);border-radius:10px;background:#0a0a0a;color:#f0d060;font-size:1rem;text-align:center;margin-bottom:14px}
+.avatar-pick{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.av-opt{width:44px;height:44px;border-radius:10px;border:2px solid #444;cursor:pointer;transition:transform .2s,border-color .2s}
+.av-opt.selected{border-color:#f0d060;transform:scale(1.1);box-shadow:0 0 12px rgba(240,208,96,.4)}
+.profile-start{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;font-size:1rem;cursor:pointer}
+.profile-start:disabled{opacity:.4;cursor:not-allowed}
+#profile-btn{position:fixed;top:10px;left:10px;z-index:500;padding:6px 10px;border:2px solid #c9a227;border-radius:12px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.68rem;cursor:pointer;max-width:140px;text-align:left;line-height:1.3}
+#quest-panel{position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:500;width:180px;background:rgba(0,0,0,.78);border:1px solid rgba(123,63,160,.5);border-radius:10px;padding:10px;font-size:.65rem;color:#aaa}
+#quest-panel h4{color:#f0d060;font-size:.72rem;margin-bottom:6px}
+.quest-item{margin-bottom:5px;padding:4px 6px;border-radius:6px;background:rgba(123,63,160,.15)}
+.quest-item.done{color:#4ade80;text-decoration:line-through;opacity:.7}
+.auth-tabs{display:flex;gap:8px;margin-bottom:12px;justify-content:center}
+.auth-tab{flex:1;padding:8px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:rgba(0,0,0,.4);color:#aaa;cursor:pointer;font-size:.78rem}
+.auth-tab.active{border-color:#f0d060;color:#f0d060;background:rgba(201,162,39,.15)}
+.auth-field{width:100%;padding:10px;border:2px solid rgba(201,162,39,.35);border-radius:8px;background:#0a0a0a;color:#f0d060;font-size:.9rem;margin-bottom:10px}
+.auth-msg{font-size:.75rem;min-height:1.2em;margin:8px 0;color:#f87171}
+.auth-msg.ok{color:#4ade80}
+.cloud-badge{display:inline-block;padding:3px 8px;border-radius:10px;background:rgba(74,222,128,.15);color:#4ade80;font-size:.65rem;margin-bottom:10px;border:1px solid rgba(74,222,128,.3)}
+.skin-card.premium{border-color:#c9a227}
+.skin-card.pending{opacity:.85;border-color:#f59e0b}
+.skin-price-mxn{color:#f0d060;font-size:.85rem;font-weight:bold;margin:4px 0}
+.skin-btns{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.skin-btns .gold-btn,.skin-btns .poke-btn{font-size:.68rem;padding:7px 6px}
+#sync-dot{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:501;font-size:.6rem;padding:3px 8px;border-radius:10px;background:rgba(0,0,0,.7);color:#888;display:none}
+#sync-dot.synced{color:#4ade80;display:block}
+#sync-dot.syncing{color:#f0d060;display:block}
+#logout-btn{position:fixed;top:58px;left:10px;z-index:500;padding:4px 8px;border:1px solid #666;border-radius:8px;background:rgba(0,0,0,.7);color:#aaa;font-size:.6rem;cursor:pointer;display:none}
+</style>
+</head>
+<body>
+<div id="profile-overlay">
+<div class="profile-card">
+<h1>ERIOR WORLD ✦</h1>
+<div id="auth-step">
+<p>Crea tu <b style="color:#f0d060">cuenta única Erior</b> — juega, compra audios y desbloquea skins premium en todos tus dispositivos.</p>
+<div class="auth-tabs">
+<button type="button" class="auth-tab active" data-mode="login">Iniciar sesión</button>
+<button type="button" class="auth-tab" data-mode="register">Crear cuenta</button>
+</div>
+<input class="auth-field" id="auth-email" type="email" placeholder="Email" autocomplete="email">
+<input class="auth-field" id="auth-pass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="current-password">
+<button class="profile-start" id="auth-submit">✦ Entrar al Mundo</button>
+<p class="auth-msg" id="auth-msg"></p>
+<p style="font-size:.68rem;color:#666;margin-top:8px">Sin cuenta: copia <code>config.example.js</code> → <code>config.js</code> con Supabase.<br>O juega en modo local abajo ↓</p>
+<button type="button" id="local-play" style="margin-top:8px;padding:8px;border:1px solid #444;border-radius:8px;background:transparent;color:#888;font-size:.72rem;cursor:pointer;width:100%">Jugar sin cuenta (solo este dispositivo)</button>
+</div>
+<div id="avatar-step" style="display:none">
+<span class="cloud-badge" id="cloud-badge">☁️ Cuenta Erior conectada</span>
+<p>Elige tu nombre de viajero — empiezas en <b style="color:#f0d060">Nivel 0</b>.</p>
+<input id="profile-name" maxlength="16" placeholder="Tu nombre (ej. Valeria)" autocomplete="off">
+<div class="avatar-pick" id="avatar-pick"></div>
+<button class="profile-start" id="profile-start" disabled>✦ Entrar al Mundo</button>
+</div>
+</div>
+</div>
+<button id="profile-btn" style="display:none"></button>
+<button id="logout-btn">Cerrar sesión</button>
+<div id="sync-dot"></div>
+<div id="quest-panel">
+<h4>📜 Misiones Cuánticas</h4>
+<div id="quest-list"></div>
+</div>
+<div id="game-root"></div>
+<div id="vignette"></div>
+<button id="howto-btn">❓</button>
+<div id="fomo-online">🟢 35 jugadores online</div>
+<div id="fomo-feed"></div>
+<canvas id="minimap" width="120" height="120"></canvas>
+<div id="joy-zone"><div id="joy-knob"></div></div>
+<button id="act-btn">E</button>
+<div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
+<div id="build-bar">
+<button class="build-slot" data-build=""><span>🚶</span>Mover</button>
+<button class="build-slot" data-build="fence"><span>🪵</span>Cerca<br>5💎</button>
+<button class="build-slot" data-build="house"><span>🏠</span>Casa<br>15💎</button>
+<button class="build-slot" data-build="table"><span>🪑</span>Mesa<br>8💎</button>
+<button class="build-slot" data-build="tree"><span>🌲</span>Árbol<br>3💎</button>
+</div>
+
+<div id="shop-overlay" class="overlay">
+<button class="modal-close" id="shop-x">✕</button>
+<div class="shop-header"><h1>🏰 Tienda del Castillo Erior</h1>
+<div class="shop-notice">⚡ Envía comprobante a eriorcenter@gmail.com — recibes tu audio en 24h.</div>
+<div id="shop-tier" style="color:#f0d060;font-size:.78rem;margin-top:6px"></div></div>
+<div class="shop-tabs" id="shop-tabs"></div>
+<div class="shop-scroll"><div class="cards" id="shop-cards"></div></div>
+</div>
+
+<div id="cabin-overlay" class="overlay">
+<button class="modal-close" id="cabin-x">✕</button>
+<div class="shop-header"><h1>🔮 Cabaña Mística — Skins</h1>
+<div class="shop-notice">💎 Desbloquea con cristales en el juego · 💳 Skins premium con PayPal (cuenta Erior) · Comprobante a eriorcenter@gmail.com</div></div>
+<div class="skin-grid" id="skin-grid"></div>
+</div>
+
+<div id="skin-pay-overlay" class="overlay">
+<button class="modal-close" id="skin-pay-x">✕</button>
+<div class="gold-modal" id="skin-pay-box"></div>
+</div>
+
+<div id="quiz-overlay" class="overlay"><button class="modal-close" id="quiz-x">✕</button><div class="gold-modal" id="quiz-box"></div></div>
+<div id="chest-overlay" class="overlay"><button class="modal-close" id="chest-x">✕</button><div class="gold-modal" id="chest-box"></div></div>
+<div id="howto-overlay" class="overlay">
+<button class="modal-close" id="howto-x">✕</button>
+<div class="gold-modal"><h2>🎮 ¿Cómo Jugar?</h2>
+<p>🕹️ <b>WASD</b> o <b>Clic</b> — Mover por el mundo</p>
+<p>👤 <b>Perfil</b> — Elige nombre y avatar · empiezas Nivel 0</p>
+<p>🔮 <b>Clic</b> cerca de cristales — Recolectar (+XP)</p>
+<p>🏗️ <b>Barra inferior</b> — Construir casas (cerca auto)</p>
+<p>🏰 <b>Tecla E</b> en el Castillo — Tienda de audios Erior</p>
+<p>📜 <b>Misiones</b> — Panel derecho · recompensas 💎</p>
+<p>✦ <b>Alicia IA</b> — Tu guía cuántica personal</p>
+<button class="gold-btn" id="howto-ok">¡Explorar!</button></div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+const TW = 64, TH = 32, MAP = 80, SPEED = 220, SEED = 77777;
+const BUILD_COST = { fence:5, house:15, table:8, tree:3 };
+const FAKE_NAMES = ['Dencrew','Valeria','Carlos','Sofía','Miguel','Camila','Diego','Pablo','Lucía','Andrea','Fernanda','Roberto','Mariana','Tomás','Isabel','Natalia','Carmen','Andrés','Daniela','Mateo','Elena','Gabriel','Paula','Jorge','Ana'];
+const SKIN_COLORS = [
+  { body:0x3498db, head:0xffccaa, hair:0x2c1810, hat:0 },
+  { body:0xe74c3c, head:0x8d5524, hair:0x1a1a1a, hat:0 },
+  { body:0x2ecc71, head:0xffccaa, hair:0xf0d060, hat:0xf39c12 },
+  { body:0x9b59b6, head:0xffccaa, hair:0x1a1a2e, hat:0 },
+  { body:0xf1c40f, head:0x8d5524, hair:0, hat:0xe74c3c },
+  { body:0xffffff, head:0xffccaa, hair:0x4a3728, hat:0 },
+];
+const WA = '524432289203', EMAIL = 'eriorcenter@gmail.com', PAYPAL = 'https://paypal.me/sheismagique';
+const ALICIA_IA = 'https://eriorcenterguiaaudios.netlify.app/#alicia';
+
+const HUB = { col: 40, row: 40, radius: 8 };
+const QUESTS = [
+  { id:'castle', text:'🏰 Visita el Castillo Erior', reward:15, xp:30 },
+  { id:'alicia', text:'✦ Habla con Alicia IA', reward:10, xp:25 },
+  { id:'build3', text:'🏗️ Construye 3 objetos', reward:20, xp:40, target:3 },
+  { id:'crystals10', text:'💎 Recolecta 10 cristales', reward:25, xp:50, target:10 },
+  { id:'shop', text:'🛒 Abre la Tienda de Audios', reward:15, xp:35 },
+];
+const BUILDINGS = [
+  { id:'castle', name:'Castillo Erior', col:40, row:40, r:3, shop:'audio', tex:'b_castle' },
+  { id:'cabin', name:'Cabaña Mística', col:15, row:15, r:2, shop:'skins', tex:'b_cabin' },
+  { id:'tower', name:'Torre Cuántica', col:65, row:20, r:2, shop:'quiz', tex:'b_tower' },
+];
+const NPC = { col:38, row:42 };
+const CHESTS = [{col:10,row:50},{col:25,row:70},{col:55,row:10},{col:70,row:60},{col:35,row:25}];
+
+const TIERS = [
+  { n:100, badge:'🌟 Maestro Cuántico', audio:.15, pack:.10, pdf:true, color:'#ffffff' },
+  { n:50, badge:'👑 Guardián', audio:.10, pack:.05, color:'#f0d060' },
+  { n:25, badge:'💎 Viajero Cuántico', audio:.07, pack:0, color:'#3de8f0' },
+  { n:10, badge:'🔮 Iniciado', audio:.05, pack:0, color:'#9ca3af' },
+];
+
+const SKINS = [
+  { id:'purpura', name:'Alicia Púrpura', cost:75, priceMXN:149, key:'sk_p', dress:0x7b3fa0, hair:0x4a1a6b, aura:0x9b59b6 },
+  { id:'dorada', name:'Alicia Dorada', cost:100, priceMXN:199, key:'sk_d', dress:0xc9a227, hair:0x8b6914, aura:0xffe066 },
+  { id:'galactica', name:'Alicia Galáctica', cost:150, priceMXN:249, key:'sk_g', dress:0x3de8f0, hair:0x1a1a2e, aura:0x6b4fd4 },
+  { id:'matrix', name:'Alicia Matrix', cost:200, priceMXN:299, key:'sk_m', dress:0x00ff41, hair:0x003300, aura:0x00ff00 },
+  { id:'quantum', name:'Alicia Quantum ✦', cost:null, priceMXN:399, premiumOnly:true, key:'sk_q', dress:0xffffff, hair:0xf0d060, aura:0xc9a227 },
+];
+
+const AUDIO = [
+  {cat:'AUTOESTIMA',e:'✨',n:'Éclat',d:'Manifestar belleza y hasta 5 cambios físicos',p:1190},
+  {cat:'AUTOESTIMA',e:'🦋',n:'Amor Magic 2.0',d:'Elevar merecimiento y amor propio',p:1190},
+  {cat:'AUTOESTIMA',e:'👑',n:'Amor Propio Magic 3.0',d:'Quitar codependencia',p:1190},
+  {cat:'AUTOESTIMA',e:'🪞',n:'Mesmerizing Love',d:'Ser ultramagnético',p:1190},
+  {cat:'AUTOESTIMA',e:'🧠',n:'MASTER MIND',d:'Quitar autosabotaje',p:1190},
+  {cat:'AUTOESTIMA',e:'🎞️',n:'Identity',d:'Rediseñar tu película',p:1190},
+  {cat:'AMOR',e:'💖',n:'Erior LOVE',d:'Elevar relaciones amorosas',p:1190},
+  {cat:'AMOR',e:'💗',n:'CURIOUS-CURIOUSER',d:'Romper miedos al amor',p:1190},
+  {cat:'AMOR',e:'🫶',n:'11:11',d:'Personas adictas a tu presencia',p:1190},
+  {cat:'AMOR',e:'🌹',n:'ATTRACTION',d:'Atraer amor o persona específica',p:1190},
+  {cat:'DINERO',e:'💰',n:'Master Abundance',d:'Manifestar abundancia',p:1190},
+  {cat:'DINERO',e:'💸',n:'MONEY TECH',d:'Nueva fórmula para atraer dinero',p:1190},
+  {cat:'DINERO',e:'🍀',n:'Lucky',d:'Activar buena suerte',p:1190},
+  {cat:'DINERO',e:'🧸',n:'Audio YOU',d:'Ganar dinero haciendo lo que amas',p:1190},
+  {cat:'SALUD',e:'🌿',n:'VITAMIND',d:'Mejorar salud física mental emocional',p:1190},
+  {cat:'SALUD',e:'💪',n:'FIT WAVE',d:'Cambiar el cuerpo',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🛸',n:'SIMULATION-U',d:'Manifestar visualizando',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🧘',n:'KEEP COOL',d:'Quitar miedo y ansiedad',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🐇',n:'Booster',d:'Reinicio total',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🌀',n:'Wonderland Coherence',d:'Coherencia del sistema nervioso',p:1190},
+  {cat:'MANIFESTACIÓN',e:'👁️',n:'SELECT',d:'5 comandos de nueva realidad',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🃏',n:'Satori',d:'Soltar lo que no puedes superar',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🌀',n:'WONDERLAND',d:'Romper el ego',p:1190},
+  {cat:'MANIFESTACIÓN',e:'☽',n:'AUDIO ERIOR 3.0',d:'Recrear memoria',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🆘',n:'EMERGENCY 999',d:'Para emergencias urgentes',p:1190},
+  {cat:'MANIFESTACIÓN',e:'🎯',n:'ICON AURA',d:'Magnetismo irresistible',p:1190},
+  {cat:'EXPERIENCIAS',e:'🎬',n:'Mind Movie',d:'Película mental personalizada',p:1190},
+  {cat:'EXPERIENCIAS',e:'📱',n:'Telegram VIP Mensual',d:'Canal privado con Pauline',p:888,s:'/mes'},
+  {cat:'PACKS',e:'🔥',n:'Father Upgrade Pack',d:'2 audios + bonus + ebook + rifa Telegram VIP (solo junio)',p:1888},
+];
+const CATS = ['TODOS','AUTOESTIMA','AMOR','DINERO','SALUD','MANIFESTACIÓN','EXPERIENCIAS','PACKS'];
+
+const FOMO_MSGS = [
+  '💎 <b>Valeria</b> de CDMX compró MONEY TECH','🔥 <b>Carlos</b> de Monterrey desbloqueó Maestro Cuántico',
+  '✨ <b>Sofía</b> de España compró Father Pack','🌟 <b>Andrea</b> de Buenos Aires recolectó 50 cristales',
+  '💜 <b>Miguel</b> de Guadalajara abrió cofre dorado','⚡ <b>Camila</b> de Bogotá compró EMERGENCY 999',
+  '🎯 <b>Diego</b> de Lima desbloqueó Alicia Galáctica','💰 <b>Fernanda</b> de Santiago compró Master Abundance',
+  '🐇 <b>Pablo</b> de Madrid habló con Alicia IA','🔮 <b>Lucía</b> de Monterrey alcanzó Guardián',
+  '💖 <b>Mariana</b> de Medellín compró ATTRACTION','🧠 <b>Roberto</b> de Caracas compró MASTER MIND',
+  '🌿 <b>Valeria</b> de Guadalajara compró VITAMIND','👑 <b>Sofía</b> de Monterrey desbloqueó Alicia Dorada',
+  '🛸 <b>Tomás</b> de México DF compró SIMULATION-U','🍀 <b>Isabel</b> de Sevilla compró Lucky',
+  '🐇 <b>Daniela</b> de Cali encontró cofre secreto','💸 <b>Andrés</b> de Lima compró MONEY TECH',
+  '🌀 <b>Natalia</b> de Buenos Aires compró Booster','✦ <b>Carmen</b> de Madrid habló con Alicia IA',
+];
+
+const QUIZ = [
+  { q:'¿Qué quieres mejorar?', o:[{t:'💕 Amor',c:'AMOR',w:3},{t:'💰 Dinero',c:'DINERO',w:3},{t:'🌿 Salud',c:'SALUD',w:3},{t:'🛸 Manifestación',c:'MANIFESTACIÓN',w:3}]},
+  { q:'¿Cómo te sientes hoy?', o:[{t:'😔 Bloqueado/a',c:'AUTOESTIMA',w:2},{t:'⚡ Con energía',c:'MANIFESTACIÓN',w:2},{t:'😰 Ansioso/a',c:'SALUD',w:2},{t:'🔥 Listo/a para cambiar',c:'DINERO',w:2}]},
+  { q:'¿Qué resultado quieres?', o:[{t:'💘 Atracción',c:'AMOR',w:3},{t:'💸 Abundancia',c:'DINERO',w:3},{t:'🧘 Paz interior',c:'SALUD',w:3},{t:'🌟 Transformación total',c:'MANIFESTACIÓN',w:3}]},
+];
+const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND', MANIFESTACIÓN:'Wonderland Coherence', AUTOESTIMA:'Amor Propio Magic 3.0' };
+
+window.S = {
+  userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
+  crystals:0, skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
+  tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
+  stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
+  pendingSkins:[],
+};
+try {
+  const saved = JSON.parse(localStorage.getItem('erior')||'{}');
+  Object.assign(window.S, saved);
+  if (!window.S.tierNotified) window.S.tierNotified = [];
+  if (!window.S.builds) window.S.builds = [];
+  if (!window.S.questsDone) window.S.questsDone = [];
+  if (!window.S.stats) window.S.stats = { shopVisits:0, crystalsTotal:0, aliciaVisits:0 };
+  if (window.S.level === undefined) window.S.level = 0;
+  if (window.S.xp === undefined) window.S.xp = 0;
+  if (!window.S.premiumSkins) window.S.premiumSkins = [];
+  if (!window.S.pendingSkins) window.S.pendingSkins = [];
+} catch(e){}
+try { window.S.openedChests = JSON.parse(sessionStorage.getItem('erior_chests')||'[]'); } catch(e){ window.S.openedChests = []; }
+
+const CFG = window.ERIOR_CONFIG || {};
+let sb = null;
+if (CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_URL.includes('supabase.co') && !CFG.SUPABASE_ANON_KEY.includes('tu-anon') && window.supabase) {
+  sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+}
+let cloudTimer = null;
+
+function hasSkin(id) {
+  return (window.S.skins||[]).includes(id) || (window.S.premiumSkins||[]).includes(id);
+}
+function gamePayload() {
+  return {
+    username: window.S.username,
+    avatar: window.S.avatar,
+    level: window.S.level,
+    xp: window.S.xp,
+    crystals: window.S.crystals,
+    active_skin: window.S.activeSkin,
+    skins: window.S.skins || [],
+    premium_skins: window.S.premiumSkins || [],
+    col: window.S.col,
+    row: window.S.row,
+    tier_notified: window.S.tierNotified || [],
+    builds: window.S.builds || [],
+    quests_done: window.S.questsDone || [],
+    build_count: window.S.buildCount || 0,
+    stats: window.S.stats || {},
+    updated_at: new Date().toISOString(),
+  };
+}
+function applyCloudRow(row) {
+  if (!row) return;
+  window.S.username = row.username || window.S.username;
+  window.S.avatar = row.avatar ?? window.S.avatar;
+  window.S.level = row.level ?? 0;
+  window.S.xp = row.xp ?? 0;
+  window.S.crystals = row.crystals ?? 0;
+  window.S.activeSkin = row.active_skin || 'default';
+  window.S.skins = row.skins || [];
+  window.S.premiumSkins = row.premium_skins || [];
+  window.S.col = row.col ?? 44;
+  window.S.row = row.row ?? 44;
+  window.S.tierNotified = row.tier_notified || [];
+  window.S.builds = row.builds || [];
+  window.S.questsDone = row.quests_done || [];
+  window.S.buildCount = row.build_count || 0;
+  window.S.stats = row.stats || window.S.stats;
+  window.S.cloud = true;
+  if (window.G) {
+    window.G.crystals = window.S.crystals;
+    window.G.col = window.S.col;
+    window.G.row = window.S.row;
+    window.G.loadBuilds?.();
+    window.G.setSkin?.();
+    window.G.updateAura?.();
+    window.G.syncHUD?.();
+  }
+}
+async function loadPurchases(userId) {
+  if (!sb) return;
+  const { data } = await sb.from('skin_purchases').select('skin_id,status').eq('user_id', userId);
+  if (!data) return;
+  window.S.pendingSkins = data.filter(p=>p.status==='pending').map(p=>p.skin_id);
+  data.filter(p=>p.status==='approved').forEach(p=>{
+    if (!window.S.premiumSkins.includes(p.skin_id)) window.S.premiumSkins.push(p.skin_id);
+  });
+}
+async function cloudLoad(userId) {
+  if (!sb) return null;
+  setSync('syncing');
+  const { data, error } = await sb.from('player_profiles').select('*').eq('id', userId).maybeSingle();
+  if (error) { setSync(''); return null; }
+  if (data) applyCloudRow(data);
+  await loadPurchases(userId);
+  setSync('synced');
+  saveLocal();
+  return data;
+}
+async function cloudSave() {
+  if (!sb || !window.S.userId || !window.S.profileReady) return;
+  setSync('syncing');
+  const { error } = await sb.from('player_profiles').upsert({ id: window.S.userId, ...gamePayload() }, { onConflict: 'id' });
+  setSync(error ? '' : 'synced');
+}
+function setSync(state) {
+  const el = document.getElementById('sync-dot');
+  if (!el || !window.S.cloud) return;
+  el.className = state;
+  el.textContent = state === 'syncing' ? '☁️ Guardando…' : state === 'synced' ? '☁️ Sincronizado' : '';
+}
+function saveLocal() {
+  localStorage.setItem('erior', JSON.stringify({
+    userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
+    level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
+    crystals:window.S.crystals, skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
+    activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
+    builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
+    stats:window.S.stats||{}, pendingSkins:window.S.pendingSkins||[],
+  }));
+  sessionStorage.setItem('erior_chests', JSON.stringify(window.S.openedChests||[]));
+  updateProfileBtn();
+}
+function paypalSkinLink(sk) {
+  return PAYPAL + '/' + sk.priceMXN;
+}
+function waSkin(sk) {
+  const m = 'Hola Pauline, pagué la skin '+sk.name+' ('+price(sk.priceMXN)+') en ERIOR WORLD. Mi cuenta: '+window.S.username+' · '+window.S.userId;
+  return 'https://wa.me/'+WA+'?text='+encodeURIComponent(m);
+}
+async function submitSkinPurchase(sk, txn, payerEmail) {
+  if (!sb || !window.S.userId) {
+    if (window.G) window.G.showToast('Inicia sesión para comprar skins premium');
+    return false;
+  }
+  if (hasSkin(sk.id)) return true;
+  const { error } = await sb.from('skin_purchases').insert({
+    user_id: window.S.userId,
+    skin_id: sk.id,
+    amount_mxn: sk.priceMXN,
+    paypal_txn: txn || null,
+    payer_email: payerEmail || null,
+    notes: 'Usuario: '+window.S.username,
+  });
+  if (error) {
+    if (window.G) window.G.showToast('Error al registrar compra');
+    return false;
+  }
+  if (!window.S.pendingSkins.includes(sk.id)) window.S.pendingSkins.push(sk.id);
+  save();
+  if (window.G) window.G.showToast('✓ Compra registrada — Pauline la activará pronto');
+  return true;
+}
+function openSkinPayModal(sk) {
+  if (!window.S.userId) {
+    if (window.G) window.G.showToast('Crea tu cuenta Erior para comprar skins');
+    return;
+  }
+  window.S.modal = true;
+  const el = document.getElementById('skin-pay-box');
+  el.innerHTML = '<h2>💳 '+sk.name+'</h2>'+
+    '<p style="color:#3de8f0;font-size:1.2rem">'+price(sk.priceMXN)+'</p>'+
+    '<p style="font-size:.82rem;color:#aaa">Pago seguro PayPal de Pauline · La skin se desbloquea en <b style="color:#f0d060">tu cuenta única</b> al verificar el pago.</p>'+
+    '<p style="font-size:.75rem;color:#888">Cuenta: <b style="color:#f0d060">'+window.S.username+'</b></p>'+
+    '<a class="poke-btn poke-btn-pp" style="display:block;padding:12px;margin:10px 0" href="'+paypalSkinLink(sk)+'" target="_blank">💳 Pagar con PayPal</a>'+
+    '<a class="poke-btn poke-btn-wa" style="display:block;padding:10px;margin-bottom:10px" href="'+waSkin(sk)+'" target="_blank">💬 Enviar comprobante WhatsApp</a>'+
+    '<input class="auth-field" id="skin-txn" placeholder="ID transacción PayPal (opcional)" style="margin-top:8px">'+
+    '<input class="auth-field" id="skin-email" type="email" placeholder="Email de PayPal" style="margin-bottom:8px">'+
+    '<button class="gold-btn" id="skin-confirm-pay">✓ Ya pagué — registrar en mi cuenta</button>'+
+    '<p style="font-size:.68rem;color:#666;margin-top:10px">Activación en ~24h · eriorcenter@gmail.com</p>';
+  document.getElementById('skin-pay-overlay').classList.add('open');
+  document.getElementById('skin-confirm-pay').onclick = async ()=>{
+    const ok = await submitSkinPurchase(sk, document.getElementById('skin-txn').value.trim(), document.getElementById('skin-email').value.trim());
+    if (ok) { document.getElementById('skin-pay-overlay').classList.remove('open'); window.S.modal=false; renderSkins(); }
+  };
+}
+
+function uid() { return 'erior-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
+function xpNeed(l) { return 40 + l * 30; }
+function addXP(n) {
+  window.S.xp = (window.S.xp || 0) + n;
+  let leveled = false;
+  while (window.S.xp >= xpNeed(window.S.level)) {
+    window.S.xp -= xpNeed(window.S.level);
+    window.S.level++;
+    leveled = true;
+  }
+  if (leveled && window.G) window.G.onLevelUp();
+  save();
+  renderQuests();
+}
+function save() {
+  saveLocal();
+  if (sb && window.S.userId && window.S.profileReady) {
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(cloudSave, 1500);
+  }
+}
+function completeQuest(id) {
+  if ((window.S.questsDone||[]).includes(id)) return;
+  const q = QUESTS.find(x=>x.id===id);
+  if (!q) return;
+  if (q.target) {
+    if (id==='build3' && (window.S.buildCount||0) < q.target) return;
+    if (id==='crystals10' && (window.S.stats?.crystalsTotal ?? window.S.crystals) < q.target) return;
+  }
+  window.S.questsDone.push(id);
+  window.S.crystals += q.reward;
+  addXP(q.xp);
+  if (window.G) {
+    window.G.crystals = window.S.crystals;
+    window.G.showToast('📜 Misión: '+q.text+' ✓ +'+q.reward+'💎');
+    window.G.syncHUD();
+  }
+  save(); renderQuests();
+}
+function checkQuests() {
+  if (window.S.buildCount >= 3) completeQuest('build3');
+  const ct = window.S.stats?.crystalsTotal ?? window.S.crystals;
+  if (ct >= 10) completeQuest('crystals10');
+  renderQuests();
+}
+function renderQuests() {
+  const el = document.getElementById('quest-list');
+  if (!el) return;
+  el.innerHTML = QUESTS.map(q=>{
+    const done = (window.S.questsDone||[]).includes(q.id);
+    let prog = '';
+    if (q.id==='build3' && !done) prog = ' ('+(window.S.buildCount||0)+'/3)';
+    if (q.id==='crystals10' && !done) prog = ' ('+(window.S.stats?.crystalsTotal ?? window.S.crystals)+'/10)';
+    return '<div class="quest-item'+(done?' done':'')+'">'+q.text+prog+(done?' ✓':'')+'</div>';
+  }).join('');
+}
+function updateProfileBtn() {
+  const b = document.getElementById('profile-btn');
+  const lo = document.getElementById('logout-btn');
+  if (!b || !window.S.profileReady) return;
+  b.style.display = 'block';
+  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · 💎'+window.S.crystals+(window.S.cloud?' · ☁️':'');
+  if (lo) lo.style.display = window.S.userId ? 'block' : 'none';
+}
+
+function rng(n) { let s = SEED + n * 9301 + 49297; s = (s * 233280 + 12345) & 0x7fffffff; return (s % 10000) / 10000; }
+function tileKind(c,r) {
+  const hub = Math.abs(c-HUB.col)+Math.abs(r-HUB.row);
+  if (hub <= HUB.radius && hub >= 2) return 't_stone';
+  if (hub < 12 && rng(c*MAP+r+1) < 0.45) return 't_dirt';
+  const v=rng(c*MAP+r);
+  if(v<.55)return't_grass'; if(v<.75)return't_grass2'; if(v<.88)return't_dirt'; if(v<.97)return't_stone'; return't_spark';
+}
+function screenToTile(wx,wy,offX,offY){const sx=wx-offX,sy=wy-offY;return{col:(sx/(TW/2)+sy/(TH/2))/2,row:(sy/(TH/2)-sx/(TW/2))/2};}
+function iso(c,r) { return { x:(c-r)*(TW/2), y:(c+r)*(TH/2) }; }
+function isoDepth(c,r,l=0) { return (c+r)*100+l; }
+function dist(a,b,c,d) { return Math.hypot(a-c,b-d); }
+function tier() { return TIERS.find(t=>window.S.crystals>=t.n)||null; }
+function disc(item) { const t=tier(); if(!t)return{final:item.p,rate:0}; const r=item.cat==='PACKS'?t.pack:t.audio; return{final:Math.round(item.p*(1-r)),rate:r}; }
+function price(n) { return '$'+n.toLocaleString('es-MX')+' MXN'; }
+function wa(n,x) { let m='Hola, quiero el audio '+n+', enviaré comprobante a '+EMAIL; if(x)m+='. '+x; return 'https://wa.me/'+WA+'?text='+encodeURIComponent(m); }
+
+function genPDF() {
+  const doc=new window.jspdf.jsPDF(), now=new Date(), exp=new Date(now.getTime()+48*3600000);
+  const ds=now.toISOString().slice(0,10).replace(/-/g,'');
+  const code='ERIOR-'+ds+'-'+Math.random().toString(36).substring(2,6).toUpperCase();
+  doc.setFillColor(15,12,5); doc.rect(0,0,210,297,'F');
+  doc.setDrawColor(201,162,39); doc.setLineWidth(2); doc.rect(12,12,186,273);
+  doc.setTextColor(240,208,96); doc.setFontSize(24); doc.text('ERIOR WORLD ✦',105,40,{align:'center'});
+  doc.setFontSize(18); doc.text('CUPÓN MAESTRO CUÁNTICO — 15% OFF',105,62,{align:'center'});
+  doc.setFontSize(26); doc.setTextColor(201,162,39); doc.text('15% OFF',105,82,{align:'center'});
+  doc.setFontSize(12); doc.setTextColor(200,200,200);
+  doc.text('Código: '+code,105,105,{align:'center'});
+  doc.text('Expira: '+exp.toLocaleString('es-MX'),105,120,{align:'center'});
+  doc.setFontSize(10); doc.text('Envía este cupón con tu comprobante a '+EMAIL,105,145,{align:'center'});
+  doc.save('cupon-maestro-erior.pdf');
+}
+
+function makeTextures(scene) {
+  const g = scene.make.graphics({ add: false });
+  const cx = TW / 2, cy = TH / 2, hw = TW / 2, hh = TH / 2;
+
+  function isoTile(key, top, left, right, edge) {
+    g.clear();
+    g.fillStyle(left, 1); g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx - hw, cy); g.lineTo(cx, cy + hh); g.closePath(); g.fillPath();
+    g.fillStyle(right, 1); g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + hw, cy); g.lineTo(cx, cy + hh); g.closePath(); g.fillPath();
+    g.fillStyle(top, 1); g.beginPath(); g.moveTo(cx, cy - hh); g.lineTo(cx + hw, cy); g.lineTo(cx, cy + hh); g.lineTo(cx - hw, cy); g.closePath(); g.fillPath();
+    g.lineStyle(1, edge, 0.4); g.beginPath(); g.moveTo(cx, cy - hh); g.lineTo(cx + hw, cy); g.lineTo(cx, cy + hh); g.lineTo(cx - hw, cy); g.closePath(); g.strokePath();
+    g.generateTexture(key, TW, TH);
+  }
+  isoTile('t_grass', 0x6ecf6e, 0x4a9e4a, 0x58b858, 0x3d7a3d);
+  isoTile('t_grass2', 0x5cb85c, 0x449944, 0x50a850, 0x357835);
+  isoTile('t_dirt', 0xc4a574, 0x9a7d4a, 0xae8f5a, 0x7a6030);
+  isoTile('t_stone', 0x9a9aaa, 0x707080, 0x808090, 0x505060);
+  g.clear();
+  isoTile('t_spark', 0x6ecf6e, 0x4a9e4a, 0x58b858, 0x3d7a3d);
+  g.fillStyle(0xf0d060, 0.9); g.fillCircle(cx, cy - 2, 6); g.fillStyle(0xffffff, 0.7); g.fillCircle(cx - 2, cy - 3, 2);
+  g.generateTexture('t_spark', TW, TH);
+
+  function block(x, y, w, h, top, side) {
+    g.fillStyle(side, 1); g.fillRect(x, y + h * 0.3, w, h * 0.7);
+    g.fillStyle(top, 1); g.fillRect(x, y, w, h * 0.35);
+    g.lineStyle(1, 0x000000, 0.15); g.strokeRect(x, y, w, h);
+  }
+  function drawVoxelChar(key, body, skin, hair, hat, frame) {
+    g.clear();
+    const sw = frame ? 1 : 0;
+    block(10 + sw, 38, 6, 10, 0x444466, 0x333355);
+    block(18 - sw, 38, 6, 10, 0x444466, 0x333355);
+    block(9, 22, 16, 18, body, body * 0.75);
+    block(8, 8, 18, 16, skin, skin * 0.85);
+    if (hair) { g.fillStyle(hair, 1); g.fillRect(8, 8, 18, 5); g.fillRect(6, 10, 3, 10); g.fillRect(25, 10, 3, 10); }
+    if (hat) { g.fillStyle(hat, 1); g.fillRect(6, 4, 22, 6); g.fillRect(10, 0, 14, 5); }
+    g.generateTexture(key, 36, 52);
+  }
+  drawVoxelChar('alicia_0', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 0);
+  drawVoxelChar('alicia_1', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 1);
+  SKINS.forEach(s => { drawVoxelChar(s.key + '_0', s.dress, 0xffccaa, s.hair, 0, 0); drawVoxelChar(s.key + '_1', s.dress, 0xffccaa, s.hair, 0, 1); });
+  for (let i = 0; i < 6; i++) {
+    const c = SKIN_COLORS[i];
+    drawVoxelChar('bot' + i + '_0', c.body, c.head, c.hair, c.hat, 0);
+    drawVoxelChar('bot' + i + '_1', c.body, c.head, c.hair, c.hat, 1);
+  }
+  drawVoxelChar('npc_0', 0xffffff, 0xffccaa, 0xf0d060, 0xc9a227, 0);
+  drawVoxelChar('npc_1', 0xffffff, 0xffccaa, 0xf0d060, 0xc9a227, 1);
+
+  g.clear(); g.fillStyle(0x000000, 0.35); g.fillEllipse(18, 10, 16, 7); g.generateTexture('shadow', 36, 20);
+
+  g.clear();
+  block(15, 32, 8, 14, 0x6b4423, 0x5a3818);
+  block(8, 22, 22, 12, 0x4caf50, 0x388e3c);
+  block(10, 12, 18, 12, 0x66bb6a, 0x43a047);
+  block(12, 4, 14, 10, 0x81c784, 0x4caf50);
+  g.generateTexture('tree', 38, 48);
+
+  g.clear();
+  g.fillStyle(0x4dd0e1, 1); g.beginPath(); g.moveTo(12, 2); g.lineTo(22, 14); g.lineTo(12, 24); g.lineTo(2, 14); g.closePath(); g.fillPath();
+  g.fillStyle(0xffffff, 0.8); g.fillCircle(10, 12, 3);
+  g.lineStyle(2, 0xf0d060, 0.6); g.strokePath();
+  g.generateTexture('crystal', 24, 28);
+
+  g.clear(); g.fillStyle(0x888899, 1);
+  for (let i = 0; i < 4; i++) block(4 + i * 6, 16 + (i % 2) * 4, 8, 10, 0xaaaabb, 0x666677);
+  g.generateTexture('rock', 36, 32);
+
+  g.clear(); block(14, 28, 4, 10, 0x2e7d32, 0x1b5e20);
+  g.fillStyle(0xff6eb4, 1); g.fillCircle(16, 18, 6); g.fillStyle(0xffe066, 1); g.fillCircle(16, 18, 2);
+  g.generateTexture('flower', 32, 40);
+  g.clear(); block(14, 28, 4, 10, 0xf5deb3, 0xd2b48c);
+  g.fillStyle(0xe53935, 1); g.fillEllipse(16, 18, 12, 8);
+  g.generateTexture('mushroom', 32, 40);
+
+  g.clear(); block(4, 14, 28, 16, 0xc9a227, 0x8b6914); block(10, 6, 16, 10, 0xf0d060, 0xc9a227);
+  g.fillStyle(0x6b4a10, 1); g.fillRect(14, 10, 8, 6); g.generateTexture('chest', 36, 32);
+
+  function prism(bx, by, hw, h, top, left, right) {
+    g.fillStyle(left, 1); g.beginPath(); g.moveTo(bx - hw, by); g.lineTo(bx - hw, by - h); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx, by - hw * 0.35); g.closePath(); g.fillPath();
+    g.fillStyle(right, 1); g.beginPath(); g.moveTo(bx, by - hw * 0.35); g.lineTo(bx, by - h - hw * 0.35); g.lineTo(bx + hw, by - h); g.lineTo(bx + hw, by); g.closePath(); g.fillPath();
+    g.fillStyle(top, 1); g.beginPath(); g.moveTo(bx, by - h - hw * 0.7); g.lineTo(bx + hw, by - h - hw * 0.35); g.lineTo(bx, by - h); g.lineTo(bx - hw, by - h - hw * 0.35); g.closePath(); g.fillPath();
+  }
+  function buildHouse() {
+    g.clear(); block(4, 28, 40, 22, 0xd4a574, 0xb8956a);
+    g.fillStyle(0x8b4513, 1); g.beginPath(); g.moveTo(24, 4); g.lineTo(44, 28); g.lineTo(4, 28); g.closePath(); g.fillPath();
+    g.fillStyle(0x4a3020, 1); g.fillRect(18, 34, 12, 16); g.generateTexture('build_house', 48, 52);
+  }
+  function buildFence() {
+    g.clear(); for (let i = 0; i < 3; i++) { block(2 + i * 12, 8, 4, 28, 0xa0522d, 0x8b4513); block(2 + i * 12, 20, 14, 4, 0xc4a574, 0xa0522d); }
+    g.generateTexture('build_fence', 40, 40);
+  }
+  function buildTable() {
+    g.clear(); block(6, 24, 28, 6, 0xc4a574, 0xa0522d); block(8, 30, 4, 12, 0x8b4513, 0x6b3410); block(26, 30, 4, 12, 0x8b4513, 0x6b3410);
+    g.fillStyle(0x3de8f0, 1); g.fillCircle(14, 20, 3); g.fillCircle(22, 22, 3); g.generateTexture('build_table', 40, 44);
+  }
+  buildHouse(); buildFence(); buildTable();
+
+  g.clear();
+  g.fillStyle(0x888899, 1); g.fillCircle(40, 40, 28);
+  g.fillStyle(0x707080, 1); g.fillCircle(40, 40, 22);
+  g.fillStyle(0x4fc3f7, 0.85); g.fillCircle(40, 38, 14);
+  g.fillStyle(0xffffff, 0.5); g.fillCircle(36, 34, 4);
+  block(36, 18, 8, 22, 0xaaaabb, 0x707080);
+  g.generateTexture('fountain', 80, 56);
+  g.clear();
+  g.fillStyle(0xc9a227, 1); g.fillRect(20, 8, 4, 40);
+  for (let i = 0; i < 6; i++) {
+    const colors = [0xe74c3c,0xf39c12,0x2ecc71,0x3498db,0x9b59b6,0xe91e63];
+    g.fillStyle(colors[i], 1); g.beginPath(); g.moveTo(22, 12+i*5); g.lineTo(36, 16+i*5); g.lineTo(22, 20+i*5); g.closePath(); g.fillPath();
+  }
+  g.generateTexture('wheel', 40, 52);
+
+  g.clear(); prism(56, 118, 28, 44, 0xf0d060, 0x8b6914, 0xc9a227); prism(28, 118, 20, 32, 0xc9a227, 0x8b6914, 0xa07818);
+  prism(84, 118, 20, 32, 0xc9a227, 0x8b6914, 0xa07818); prism(56, 72, 14, 36, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
+  g.fillStyle(0xffe066, 1); g.fillRect(52, 88, 8, 12); g.generateTexture('b_castle', 112, 128);
+  g.clear(); prism(48, 88, 22, 24, 0x9b59b6, 0x4a1a6b, 0x7b3fa0);
+  g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(48, 28); g.lineTo(72, 52); g.lineTo(48, 58); g.lineTo(24, 52); g.closePath(); g.fillPath();
+  g.generateTexture('b_cabin', 96, 96);
+  g.clear(); prism(40, 112, 12, 56, 0x7af0ff, 0x1a6b7a, 0x3de8f0);
+  g.fillStyle(0xb8ffff, 1); g.beginPath(); g.moveTo(40, 36); g.lineTo(56, 44); g.lineTo(40, 52); g.lineTo(24, 44); g.closePath(); g.fillPath();
+  g.generateTexture('b_tower', 80, 120);
+
+  g.clear(); g.fillStyle(0x8b6914, 1); g.fillRect(2, 0, 3, 28);
+  g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(5, 4); g.lineTo(22, 10); g.lineTo(5, 16); g.closePath(); g.fillPath();
+  g.generateTexture('flag', 24, 30);
+  g.clear(); g.fillStyle(0xffffff, 1); g.fillCircle(2, 2, 2); g.generateTexture('spark', 4, 4);
+  g.clear(); g.fillStyle(0xa8e6cf, 1); g.fillCircle(3, 3, 3); g.generateTexture('firefly', 6, 6);
+  g.destroy();
+}
+
+let shopCat='TODOS', quizA=[], chestT=null;
+function closeAll() {
+  ['shop-overlay','cabin-overlay','quiz-overlay','chest-overlay','howto-overlay','skin-pay-overlay'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  window.S.modal=false; if(chestT){clearInterval(chestT);chestT=null;}
+  window.buildMode='';
+  document.querySelectorAll('.build-slot').forEach(b=>b.classList.remove('active'));
+  const hint=document.getElementById('build-hint'); if(hint)hint.style.display='none';
+}
+function renderShop() {
+  const t=tier();
+  const un = window.S.username ? window.S.username : 'Viajero';
+  document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+'Bienvenido, '+un+' — audios exclusivos Erior';
+  const items=shopCat==='TODOS'?AUDIO:AUDIO.filter(i=>i.cat===shopCat);
+  document.getElementById('shop-cards').innerHTML=items.map(it=>{
+    const d=disc(it), suf=it.s||'';
+    const ph=d.rate?'<span class="old">'+price(it.p)+'</span><span class="new">'+price(d.final)+suf+'</span>':'<span>'+price(it.p)+suf+'</span>';
+    return '<div class="poke-card"><div class="poke-emoji">'+it.e+'</div><div class="poke-name">'+it.n+'</div><div class="poke-desc">'+it.d+'</div><div class="poke-price">'+ph+'</div>'+
+      '<div class="poke-btns"><a class="poke-btn poke-btn-wa" href="'+wa(it.n)+'" target="_blank">💬 WhatsApp</a><a class="poke-btn poke-btn-pp" href="'+PAYPAL+'" target="_blank">💳 PayPal</a></div></div>';
+  }).join('');
+}
+function renderSkins() {
+  document.getElementById('skin-grid').innerHTML=SKINS.map(s=>{
+    const ok=hasSkin(s.id), eq=window.S.activeSkin===s.id, pend=(window.S.pendingSkins||[]).includes(s.id);
+    let priceTxt = '';
+    if (ok) priceTxt = eq ? '✅ Equipada' : '✅ Desbloqueada';
+    else if (pend) priceTxt = '⏳ Pago en verificación';
+    else if (s.premiumOnly) priceTxt = '💳 Solo PayPal · '+price(s.priceMXN);
+    else priceTxt = '💎 '+s.cost+' cristales · o 💳 '+price(s.priceMXN);
+    let btns = '';
+    if (ok) btns = '<button class="gold-btn sk" data-id="'+s.id+'">'+(eq?'Equipada':'Equipar')+'</button>';
+    else if (pend) btns = '<button class="gold-btn" disabled>Esperando activación</button>';
+    else {
+      if (!s.premiumOnly) btns += '<button class="gold-btn sk" data-id="'+s.id+'" data-mode="crystal"'+(window.S.crystals<s.cost?' disabled':'')+'>💎 Desbloquear ('+s.cost+')</button>';
+      btns += '<button class="gold-btn sk-pay" data-id="'+s.id+'">💳 PayPal '+price(s.priceMXN)+'</button>';
+    }
+    return '<div class="skin-card '+(ok?'owned':'')+(s.premiumOnly?' premium':'')+(pend?' pending':'')+'">'+
+      '<canvas id="pv-'+s.id+'" width="16" height="24"></canvas>'+
+      '<h3 style="color:#f0d060;font-size:.85rem">'+s.name+'</h3>'+
+      '<p class="skin-price-mxn">'+priceTxt+'</p>'+
+      '<div class="skin-btns">'+btns+'</div></div>';
+  }).join('');
+  SKINS.forEach(s=>{
+    const cv=document.getElementById('pv-'+s.id); if(!cv)return;
+    const ctx=cv.getContext('2d');
+    const px=(x,y,col)=>{ctx.fillStyle='#'+col.toString(16).padStart(6,'0');ctx.fillRect(x,y,1,1);};
+    for(let y=0;y<24;y++) for(let x=0;x<16;x++){
+      const cx=x-8;
+      if(y>=14&&y<20&&Math.abs(cx)<4) px(x,y,s.dress);
+      else if(y>=10&&y<14&&Math.abs(cx)<3) px(x,y,s.dress);
+      else if(y>=4&&y<10&&Math.abs(cx)<2) px(x,y,0xffd4a8);
+      else if(y<12&&(cx<-1||cx>1)&&Math.abs(cx)<5) px(x,y,s.hair);
+    }
+  });
+  document.querySelectorAll('.sk').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id, sk=SKINS.find(x=>x.id===id);
+    if(hasSkin(id)){window.S.activeSkin=id;save();if(window.G){window.G.setSkin();window.G.updateAura();}}
+    else if(b.dataset.mode!=='crystal' && sk.premiumOnly) openSkinPayModal(sk);
+    else if(sk.cost && window.S.crystals>=sk.cost){window.S.crystals-=sk.cost;window.S.skins.push(id);window.S.activeSkin=id;save();if(window.G){window.G.crystals=window.S.crystals;window.G.syncHUD();window.G.setSkin();window.G.updateAura();}}
+    renderSkins();
+  });
+  document.querySelectorAll('.sk-pay').forEach(b=>b.onclick=()=>{
+    const sk=SKINS.find(x=>x.id===b.dataset.id);
+    if(sk) openSkinPayModal(sk);
+  });
+}
+function renderQuiz() {
+  const el=document.getElementById('quiz-box');
+  if(quizA.length<QUIZ.length){
+    const q=QUIZ[quizA.length];
+    el.innerHTML='<h2>🗼 ¿Qué audio necesitas?</h2><p>Pregunta '+(quizA.length+1)+'/3</p><h3 style="color:#f0d060;margin:12px 0">'+q.q+'</h3>'+
+      q.o.map((o,i)=>'<button class="quiz-opt" data-i="'+i+'">'+o.t+'</button>').join('');
+    el.querySelectorAll('.quiz-opt').forEach(b=>b.onclick=()=>{quizA.push(+b.dataset.i);renderQuiz();});
+  } else {
+    const sc={};
+    quizA.forEach((ai,qi)=>{const o=QUIZ[qi].o[ai];sc[o.c]=(sc[o.c]||0)+o.w;});
+    const cat=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0][0];
+    const name=QUIZ_REC[cat], it=AUDIO.find(a=>a.n===name)||AUDIO[0], d=disc(it);
+    el.innerHTML='<h2>✨ Tu audio cuántico</h2><div style="font-size:3rem">'+it.e+'</div><h3 style="color:#f0d060">'+it.n+'</h3><p>'+it.d+'</p>'+
+      '<p style="color:#3de8f0;font-size:1.1rem">'+(d.rate?price(d.final):price(it.p))+'</p>'+
+      '<a class="poke-btn poke-btn-wa" style="display:inline-block;padding:12px 24px;margin-top:10px" href="'+wa(it.n,'Quiz Torre Cuántica')+'" target="_blank">💬 WhatsApp</a>'+
+      '<br><button class="gold-btn" onclick="closeAll()">Cerrar</button>';
+  }
+}
+function openChestModal(it) {
+  window.S.modal=true;
+  const d=disc(it), fp=Math.max(0,Math.round(d.final*.9));
+  let sec=300; const el=document.getElementById('chest-box');
+  const tick=()=>{const cd=el.querySelector('.countdown'); if(cd)cd.textContent=Math.floor(sec/60)+':'+(sec%60).toString().padStart(2,'0'); if(sec<=0&&chestT){clearInterval(chestT);chestT=null;}sec--;};
+  el.innerHTML='<h2>📦 Cofre del Tesoro</h2><div style="font-size:3rem">'+it.e+'</div><h3 style="color:#f0d060">'+it.n+'</h3><p>'+it.d+'</p>'+
+    '<p style="color:#f0d060;font-weight:bold">⚡ OFERTA RELÁMPAGO +10% descuento extra</p><p style="color:#3de8f0;font-size:1.15rem">'+price(fp)+'</p>'+
+    '<div class="countdown">5:00</div><a class="poke-btn poke-btn-wa" style="display:inline-block;padding:12px 24px" href="'+wa(it.n,'Oferta relámpago cofre')+'" target="_blank">💬 ¡Lo quiero!</a>';
+  document.getElementById('chest-overlay').classList.add('open');
+  tick(); chestT=setInterval(tick,1000);
+}
+function openShop(type) {
+  window.S.modal=true;
+  if(type==='audio'){
+    window.S.stats.shopVisits=(window.S.stats.shopVisits||0)+1;
+    completeQuest('shop');
+    renderShop();
+    document.getElementById('shop-overlay').classList.add('open');
+  }
+  else if(type==='skins'){
+    const open = ()=>{ renderSkins(); document.getElementById('cabin-overlay').classList.add('open'); };
+    if (sb && window.S.userId) loadPurchases(window.S.userId).then(open);
+    else open();
+  }
+  else if(type==='quiz'){quizA=[];renderQuiz();document.getElementById('quiz-overlay').classList.add('open');}
+}
+
+function initDOM() {
+  document.getElementById('shop-tabs').innerHTML=CATS.map(c=>'<button class="shop-tab'+(c===shopCat?' active':'')+'" data-c="'+c+'">'+c+'</button>').join('');
+  document.getElementById('shop-tabs').onclick=e=>{
+    const b=e.target.closest('.shop-tab'); if(!b)return;
+    shopCat=b.dataset.c; document.querySelectorAll('.shop-tab').forEach(t=>t.classList.toggle('active',t.dataset.c===shopCat)); renderShop();
+  };
+  ['shop-x','cabin-x','quiz-x','chest-x','howto-x','skin-pay-x'].forEach(id=>document.getElementById(id).onclick=closeAll);
+  document.getElementById('howto-btn').onclick=()=>{window.S.modal=true;document.getElementById('howto-overlay').classList.add('open');};
+  document.getElementById('howto-ok').onclick=closeAll;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
+  const upd=()=>document.getElementById('fomo-online').textContent='🟢 '+Phaser.Math.Between(28,47)+' jugadores online';
+  upd(); setInterval(upd,30000);
+  const feed=()=>{
+    const d=document.createElement('div'); d.className='fomo-item'; d.innerHTML=FOMO_MSGS[Phaser.Math.Between(0,FOMO_MSGS.length-1)];
+    const f=document.getElementById('fomo-feed'); f.insertBefore(d,f.firstChild); while(f.children.length>3)f.lastChild.remove();
+    setTimeout(()=>d.remove(),8000); setTimeout(feed,Phaser.Math.Between(15000,20000));
+  };
+  setTimeout(feed,4000);
+  window.mobileInput={dx:0,dy:0,act:false};
+  const jz=document.getElementById('joy-zone'), jk=document.getElementById('joy-knob');
+  let ja=false;
+  const jm=(cx,cy)=>{const r=jz.getBoundingClientRect(),x=cx-r.left-r.width/2,y=cy-r.top-r.height/2,d=Math.min(Math.hypot(x,y),60),a=Math.atan2(y,x);
+    jk.style.transform='translate(calc(-50% + '+Math.cos(a)*d+'px),calc(-50% + '+Math.sin(a)*d+'px))';
+    window.mobileInput.dx=Math.cos(a)*d/60; window.mobileInput.dy=Math.sin(a)*d/60;};
+  jz.onpointerdown=e=>{ja=true;jz.setPointerCapture(e.pointerId);jm(e.clientX,e.clientY);};
+  jz.onpointermove=e=>{if(ja)jm(e.clientX,e.clientY);};
+  jz.onpointerup=()=>{ja=false;jk.style.transform='translate(-50%,-50%)';window.mobileInput.dx=0;window.mobileInput.dy=0;};
+  document.getElementById('act-btn').onpointerdown=()=>{window.mobileInput.act=true;};
+  window.buildMode = '';
+  document.querySelectorAll('.build-slot').forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll('.build-slot').forEach(b=>b.classList.remove('active'));
+      window.buildMode = btn.dataset.build || '';
+      if(window.buildMode) btn.classList.add('active');
+      document.getElementById('build-hint').style.display = window.buildMode ? 'block' : 'none';
+    };
+  });
+  document.getElementById('profile-btn').onclick = () => {
+    if (!window.G) return;
+    const s = window.S.stats || {};
+    window.G.showToast('✦ '+window.S.username+' · Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🏗️'+(window.S.buildCount||0));
+  };
+}
+initDOM();
+
+class Boot extends Phaser.Scene {
+  constructor(){super('Boot');}
+  create(){makeTextures(this);this.scene.start('Game');}
+}
+
+class Game extends Phaser.Scene {
+  constructor(){super('Game');}
+  wpos(c,r){const s=iso(c,r);return{x:s.x+this.offX,y:s.y+this.offY};}
+
+  create() {
+    window.G = this;
+    this.crystals = window.S.crystals;
+    this.walk = []; this.collectibles = []; this.chests = []; this.zones = []; this.fakePlayers = []; this.placedBuilds = [];
+    this.walkFrame = 0; this.walkTimer = 0; this.skinBase = 'alicia';
+    this.targetCol = null; this.targetRow = null; this.vx = 0; this.vy = 0;
+
+    const corners = [iso(0,0), iso(MAP-1,0), iso(0,MAP-1), iso(MAP-1,MAP-1)];
+    const pad = TW * 4;
+    this.offX = pad - Math.min(...corners.map(c=>c.x));
+    this.offY = pad - Math.min(...corners.map(c=>c.y));
+    this.wW = Math.max(...corners.map(c=>c.x)) + this.offX + pad;
+    this.wH = Math.max(...corners.map(c=>c.y)) + this.offY + pad + TH * 8;
+
+    this.cameras.main.setBackgroundColor(0x6ab4d4).setBounds(0, 0, this.wW, this.wH);
+    this.sky = this.add.container(0,0).setScrollFactor(0).setDepth(-200);
+    for (let i=0;i<120;i++){
+      const s=this.add.circle(Phaser.Math.Between(0,this.scale.width),Phaser.Math.Between(0,this.scale.height),Phaser.Math.FloatBetween(0.4,1.2),0xffffff,Phaser.Math.FloatBetween(0.05,0.35));
+      this.sky.add(s); this.tweens.add({targets:s,alpha:s.alpha*0.3,duration:Phaser.Math.Between(2000,5000),yoyo:true,repeat:-1});
+    }
+
+    this.ground = this.add.renderTexture(0,0,this.wW,this.wH).setOrigin(0,0).setDepth(0);
+    const stamp = this.make.image({x:0,y:0,key:'t_grass',add:false});
+    for (let sum=0;sum<MAP*2;sum++) for (let c=0;c<MAP;c++){
+      const r=sum-c; if(r<0||r>=MAP)continue;
+      this.walk[r]=this.walk[r]||[]; this.walk[r][c]=true;
+      stamp.setTexture(tileKind(c,r));
+      const p=this.wpos(c,r); this.ground.draw(stamp,p.x-TW/2,p.y-TH/2);
+    }
+    stamp.destroy();
+
+    BUILDINGS.forEach(b=>{
+      for(let dr=-b.r;dr<=b.r;dr++)for(let dc=-b.r;dc<=b.r;dc++){
+        const c=b.col+dc,rr=b.row+dr; if(c>=0&&rr>=0&&c<MAP&&rr<MAP)this.walk[rr][c]=false;
+      }
+      this.zones.push({col:b.col,row:b.row,shop:b.shop,name:b.name});
+      const p=this.wpos(b.col,b.row);
+      this.add.image(p.x,p.y-20,b.tex).setOrigin(0.5,0.88).setDepth(isoDepth(b.col,b.row,50));
+      if(b.id==='castle'){
+        const f=this.add.sprite(p.x+20,p.y-70,'flag').setOrigin(0,1).setDepth(isoDepth(b.col,b.row,55));
+        this.tweens.add({targets:f,x:f.x+5,duration:1200,yoyo:true,repeat:-1});
+      }
+    });
+
+    const fp=this.wpos(HUB.col+1,HUB.row+3);
+    this.add.image(fp.x,fp.y-8,'fountain').setOrigin(0.5,0.88).setDepth(isoDepth(HUB.col+1,HUB.row+3,48));
+    this.walk[HUB.row+3][HUB.col+1]=false;
+    const wpos2=this.wpos(HUB.col-3,HUB.row+2);
+    const wheel=this.add.image(wpos2.x,wpos2.y-16,'wheel').setOrigin(0.5,0.88).setDepth(isoDepth(HUB.col-3,HUB.row+2,47));
+    this.tweens.add({targets:wheel,angle:360,duration:12000,repeat:-1});
+
+    this.col=window.S.col; this.row=window.S.row;
+    if(this.isBlocked(this.col,this.row)){this.col=44;this.row=44;}
+    this.placeObjects(); this.placeChests(); this.loadBuilds(); this.spawnFakePlayers();
+
+    const np=this.wpos(NPC.col,NPC.row);
+    this.npcSh=this.add.image(np.x,np.y+4,'shadow').setDepth(isoDepth(NPC.col,NPC.row,60));
+    this.npcGlow=this.add.circle(np.x,np.y,14,0xf0d060,0.15).setDepth(isoDepth(NPC.col,NPC.row,61));
+    this.npc=this.add.sprite(np.x,np.y-12,'npc_0').setOrigin(0.5,0.92).setDepth(isoDepth(NPC.col,NPC.row,62));
+    this.npcTag=this.add.text(np.x,np.y-48,'Lvl 99\n✦ Alicia',{fontFamily:'Segoe UI',fontSize:'10px',color:'#fff',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
+
+    const sp=this.wpos(this.col,this.row);
+    this.playerSh=this.add.image(sp.x,sp.y+4,'shadow').setDepth(isoDepth(this.col,this.row,80));
+    this.glow=this.add.circle(sp.x,sp.y,16,0x3de8f0,0.12).setDepth(isoDepth(this.col,this.row,81));
+    this.tweens.add({targets:this.glow,alpha:{from:0.08,to:0.22},scale:{from:0.85,to:1.2},duration:1000,yoyo:true,repeat:-1});
+    this.player=this.add.sprite(sp.x,sp.y-12,'alicia_0').setOrigin(0.5,0.92).setDepth(isoDepth(this.col,this.row,82));
+    this.playerTag=this.add.text(sp.x,sp.y-52,'Lvl '+(window.S.level||0)+'\n'+(window.S.username||'Tú'),{fontFamily:'Segoe UI',fontSize:'10px',color:'#f0d060',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(this.col,this.row,83));
+    this.facing='SE';
+    this.setSkin(); this.updateAura();
+
+    this.keys=this.input.keyboard.addKeys({W:'W',A:'A',S:'S',D:'D',E:'E'});
+    this.buildHUD();
+    this.fireflies=this.add.particles(0,0,'firefly',{x:{min:this.offX,max:this.wW},y:{min:this.offY,max:this.wH},speed:{min:4,max:12},scale:{start:0.6,end:0},alpha:{start:0.5,end:0},lifespan:{min:3000,max:6000},frequency:400,blendMode:'ADD',tint:[0xa8e6cf,0xf0d060,0x3de8f0]}).setDepth(9000);
+    this.cameras.main.startFollow(this.player,true,0.07,0.07);
+    this.setZoom();
+    this.input.on('pointerdown',ptr=>{
+      if(window.S.modal)return;
+      const wp=this.cameras.main.getWorldPoint(ptr.x,ptr.y);
+      if(this.handleClick(wp.x,wp.y))return;
+    });
+    this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
+    this.syncHUD(); this.checkTier();
+  }
+
+  setZoom(){this.cameras.main.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width,this.scale.height)/520,1.3,2.8));}
+  rebuildSky(){this.sky.removeAll(true);for(let i=0;i<120;i++){const s=this.add.circle(Phaser.Math.Between(0,this.scale.width),Phaser.Math.Between(0,this.scale.height),Phaser.Math.FloatBetween(0.4,1.2),0xffffff,Phaser.Math.FloatBetween(0.05,0.35));this.sky.add(s);this.tweens.add({targets:s,alpha:s.alpha*0.3,duration:Phaser.Math.Between(2000,5000),yoyo:true,repeat:-1});}}
+
+  seededPos(n, salt) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      let c, r, k = 0;
+      do {
+        c = Math.floor(rng(salt+i*17+k)*(MAP-4))+2;
+        r = Math.floor(rng(salt+i*31+k+500)*(MAP-4))+2;
+        k++;
+      } while ((!this.walk[r][c] || out.some(o=>o.c===c&&o.r===r)) && k<50);
+      if (k<50) out.push({c,r});
+    }
+    return out;
+  }
+
+  placeObjects() {
+    const blocked = new Set();
+    BUILDINGS.forEach(b=>{for(let d=-b.r-1;d<=b.r+1;d++)for(let e=-b.r-1;e<=b.r+1;e++)blocked.add((b.col+d)+','+(b.row+e));});
+    CHESTS.forEach(ch=>blocked.add(ch.col+','+ch.row));
+    blocked.add(NPC.col+','+NPC.row);
+    blocked.add(Math.round(this.col)+','+Math.round(this.row));
+
+    const list = [
+      ...this.seededPos(120,1000).map(p=>({...p,type:'crystal',tex:'crystal'})),
+      ...this.seededPos(80,2000).map(p=>({...p,type:'tree',tex:'tree'})),
+      ...this.seededPos(50,3000).map(p=>({...p,type:'rock',tex:'rock'})),
+      ...this.seededPos(40,4000).map(p=>({...p,type:'deco',tex:rng(p.c*99+p.r)>.5?'flower':'mushroom'})),
+    ];
+    list.forEach(pos => {
+      if (blocked.has(pos.c+','+pos.r)) return;
+      blocked.add(pos.c+','+pos.r);
+      const p = this.wpos(pos.c, pos.r);
+      const d = isoDepth(pos.c, pos.r, 30);
+      this.add.image(p.x, p.y+2, 'shadow').setDepth(d-1).setScale(pos.type==='tree'?1.2:0.8);
+      const o = this.add.sprite(p.x, p.y-(pos.type==='tree'?8:4), pos.tex).setOrigin(0.5,0.88).setDepth(d);
+      o.meta = { c:pos.c, r:pos.r, type:pos.type, hx:p.x, hy:p.y-4, gone:false };
+      if (pos.type==='crystal') {
+        o.setInteractive({ useHandCursor: true });
+        o.on('pointerdown', (e) => {
+          e.stopPropagation();
+          if (window.S.modal) return;
+          if (dist(this.col, this.row, o.meta.c, o.meta.r) <= 3.5) this.collectCrystal(o);
+          else this.showToast('¡Acércate al cristal!');
+        });
+        this.tweens.add({ targets:o, y:o.y-4, alpha:{from:0.6,to:1}, duration:800, yoyo:true, repeat:-1 });
+        const gl = this.add.circle(p.x, p.y-4, 8, 0x3de8f0, 0.08).setDepth(d-1);
+        this.tweens.add({ targets:gl, alpha:0.2, scale:1.4, duration:900, yoyo:true, repeat:-1 });
+        o.meta.glow = gl;
+      } else if (pos.type!=='deco') {
+        this.tweens.add({ targets:o, y:o.y-3, duration:1200+rng(pos.c+pos.r)*600, yoyo:true, repeat:-1 });
+      }
+      this.collectibles.push(o);
+    });
+  }
+
+  placeChests() {
+    CHESTS.forEach((ch,i) => {
+      if ((window.S.openedChests||[]).includes(i)) return;
+      const p = this.wpos(ch.col, ch.row);
+      const d = isoDepth(ch.col, ch.row, 35);
+      this.add.image(p.x, p.y+2, 'shadow').setDepth(d-1);
+      const c = this.add.sprite(p.x, p.y-2, 'chest').setOrigin(0.5,0.88).setDepth(d);
+      c.meta = { id:i, col:ch.col, row:ch.row, opened:false };
+      this.tweens.add({ targets:c, y:c.y-2, duration:700, yoyo:true, repeat:-1 });
+      this.chests.push(c);
+    });
+  }
+
+  buildHUD() {
+    this.hud = this.add.container(0,0).setScrollFactor(0).setDepth(20000);
+    const panel = this.add.rectangle(8,8,220,118,0x000000,0.55).setOrigin(0,0).setStrokeStyle(1,0xc9a227,0.4);
+    const st = { fontFamily:'Segoe UI, Tahoma, sans-serif', stroke:'#000', strokeThickness:3 };
+    this.hudTxt = {
+      title: this.add.text(16,14,'ERIOR WORLD ✦',{...st,fontSize:'15px',color:'#f0d060'}),
+      level: this.add.text(16,34,'',{...st,fontSize:'12px',color:'#f0d060'}),
+      crys: this.add.text(16,52,'',{...st,fontSize:'13px',color:'#3de8f0'}),
+      badge: this.add.text(16,72,'',{...st,fontSize:'11px',color:'#9ca3af'}),
+      coord: this.add.text(16,90,'',{...st,fontSize:'11px',color:'#888'}),
+      pdf: this.add.text(16,108,'',{...st,fontSize:'10px',color:'#c9a227'}).setInteractive({useHandCursor:true}),
+      tip: this.add.text(400,300,'',{...st,fontSize:'14px',color:'#f0d060',backgroundColor:'#000000aa',padding:{x:12,y:6}}).setOrigin(0.5).setAlpha(0),
+      toast: this.add.text(400,260,'',{...st,fontSize:'16px',color:'#f0d060'}).setOrigin(0.5).setAlpha(0),
+    };
+    this.xpGfx = this.add.graphics().setScrollFactor(0).setDepth(20001);
+    this.hud.add([panel,...Object.values(this.hudTxt)]);
+    this.hudTxt.pdf.on('pointerdown', genPDF);
+    if (!document.getElementById('npc-bubble')) {
+      const bub = document.createElement('div');
+      bub.id = 'npc-bubble';
+      bub.style.cssText = 'display:none;position:fixed;z-index:600;left:50%;top:42%;transform:translate(-50%,-50%);background:linear-gradient(160deg,rgba(26,20,8,.95),rgba(10,10,10,.95));border:2px solid #c9a227;border-radius:14px;padding:18px 22px;max-width:340px;text-align:center;color:#f0d060;font-size:.9rem;box-shadow:0 0 30px rgba(201,162,39,.25)';
+      bub.innerHTML = 'Psst... ¿buscas transformar tu realidad?<br>Tengo algo especial para ti 🐇<br><br><button id="npc-btn" style="padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;cursor:pointer">✦ Hablar con Alicia IA</button>';
+      document.body.appendChild(bub);
+      document.getElementById('npc-btn').onclick = () => {
+        window.S.stats.aliciaVisits = (window.S.stats.aliciaVisits||0)+1;
+        completeQuest('alicia');
+        window.open(ALICIA_IA, '_blank');
+      };
+    }
+  }
+
+  onLevelUp() {
+    this.showToast('🎉 ¡Subiste a Nivel ' + window.S.level + '!');
+    this.burst(this.player.x, this.player.y, 0xf0d060);
+    this.updatePlayerTag();
+    this.syncHUD();
+  }
+
+  updatePlayerTag() {
+    if (!this.playerTag) return;
+    this.playerTag.setText('Lvl ' + (window.S.level||0) + '\n' + (window.S.username || 'Tú'));
+  }
+
+  applyFacing(dc, dr) {
+    if (Math.abs(dc) < 0.01 && Math.abs(dr) < 0.01) return;
+    if (dc >= 0 && dr >= 0) this.facing = 'SE';
+    else if (dc >= 0 && dr < 0) this.facing = 'NE';
+    else if (dc < 0 && dr >= 0) this.facing = 'SW';
+    else this.facing = 'NW';
+    this.player.setFlipX(this.facing === 'SW' || this.facing === 'NW');
+    this.player.setScale(this.facing === 'NE' || this.facing === 'NW' ? 0.94 : 1);
+  }
+
+  syncHUD() {
+    window.S.crystals = this.crystals;
+    window.S.col = Math.round(this.col);
+    window.S.row = Math.round(this.row);
+    const lv = window.S.level || 0;
+    const need = xpNeed(lv);
+    const xp = window.S.xp || 0;
+    this.hudTxt.level.setText('✦ ' + (window.S.username || 'Viajero') + ' · Lvl ' + lv);
+    this.hudTxt.crys.setText('💎 Cristales: '+this.crystals+' · XP '+xp+'/'+need);
+    const t = tier();
+    this.hudTxt.badge.setText(t?t.badge:'Explora y recolecta cristales');
+    if (t) this.hudTxt.badge.setColor(t.color);
+    this.hudTxt.coord.setText('X: '+Math.round(this.col)+'  Y: '+Math.round(this.row));
+    this.hudTxt.pdf.setVisible(!!(t&&t.pdf)).setText(t&&t.pdf?'📄 Descargar Cupón PDF':'');
+    this.xpGfx.clear();
+    this.xpGfx.fillStyle(0x333333, 0.8).fillRect(16, 48, 188, 5);
+    this.xpGfx.fillStyle(0x7b3fa0, 1).fillRect(16, 48, 188 * Math.min(1, xp / need), 5);
+    save();
+    updateProfileBtn();
+    this.updatePlayerTag();
+    this.drawMinimap();
+  }
+
+  setSkin() {
+    const id = window.S.activeSkin;
+    const sk = SKINS.find(s=>s.id===id);
+    if (sk && hasSkin(id)) {
+      this.skinBase = sk.key;
+    } else {
+      this.skinBase = 'bot' + (window.S.avatar || 0);
+    }
+    this.player.setTexture(this.skinBase + (this.walkFrame ? '_1' : '_0'));
+  }
+
+  updateAura() {
+    const id = window.S.activeSkin;
+    const sk = SKINS.find(s=>s.id===id);
+    this.auraColor = sk && hasSkin(id) ? sk.aura : 0x3de8f0;
+    this.glow.setFillStyle(this.auraColor, 0.12);
+  }
+
+  checkTier() {
+    if (!window.S.tierNotified) window.S.tierNotified = [];
+    TIERS.forEach(t => {
+      if (this.crystals >= t.n && !window.S.tierNotified.includes(t.badge)) {
+        window.S.tierNotified.push(t.badge);
+        this.showToast('🏅 '+t.badge+' desbloqueado!');
+        if (t.pdf) genPDF();
+        save();
+      }
+    });
+  }
+
+  showToast(msg) {
+    this.hudTxt.toast.setText(msg).setAlpha(1).setPosition(this.cameras.main.width/2, this.cameras.main.height/2-40);
+    this.tweens.killTweensOf(this.hudTxt.toast);
+    this.tweens.add({ targets:this.hudTxt.toast, alpha:0, y:this.hudTxt.toast.y-20, duration:1400 });
+  }
+
+  nearBuilding() {
+    let best = null, d = Infinity;
+    this.zones.forEach(z => {
+      const dd = dist(this.col, this.row, z.col, z.row);
+      if (dd <= 3 && dd < d) { d = dd; best = z; }
+    });
+    return best;
+  }
+
+  isBlocked(c, r) {
+    const ic = Math.round(c), ir = Math.round(r);
+    if (ic<0||ir<0||ic>=MAP||ir>=MAP) return true;
+    return !this.walk[ir][ic];
+  }
+
+  spawnFakePlayers() {
+    for (let i = 0; i < 22; i++) {
+      const pos = this.seededPos(1, 9000 + i * 13)[0];
+      if (!pos) continue;
+      const skin = i % 6;
+      const p = this.wpos(pos.c, pos.r);
+      const d = isoDepth(pos.c, pos.r, 70);
+      const sh = this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 2);
+      const spr = this.add.sprite(p.x, p.y - 12, 'bot' + skin + '_0').setOrigin(0.5, 0.92).setDepth(d);
+      const lvl = Phaser.Math.Between(8, 45);
+      const name = FAKE_NAMES[i % FAKE_NAMES.length];
+      const tag = this.add.text(p.x, p.y - 48, 'Lvl ' + lvl + '\n' + name, { fontFamily: 'Segoe UI', fontSize: '9px', color: '#fff', stroke: '#000', strokeThickness: 2, align: 'center' }).setOrigin(0.5, 1).setDepth(d + 1);
+      this.fakePlayers.push({
+        col: pos.c, row: pos.r, skin, sh, spr, tag, lvl, name,
+        frame: 0, timer: 0, wait: Phaser.Math.Between(500, 2000),
+        tx: pos.c, ty: pos.r, speed: Phaser.Math.FloatBetween(0.8, 1.4),
+      });
+    }
+  }
+
+  loadBuilds() {
+    (window.S.builds || []).forEach(b => this.placeBuild(b.col, b.row, b.type, false));
+  }
+
+  placeBuild(c, r, type, persist) {
+    const ic = Math.round(c), ir = Math.round(r);
+    if (ic < 0 || ir < 0 || ic >= MAP || ir >= MAP || !this.walk[ir][ic]) return false;
+    const tex = type === 'tree' ? 'tree' : 'build_' + type;
+    if (type !== 'tree') this.walk[ir][ic] = false;
+    const p = this.wpos(ic, ir);
+    const d = isoDepth(ic, ir, 40);
+    this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 1);
+    const spr = this.add.sprite(p.x, p.y - (type === 'house' ? 16 : 8), tex).setOrigin(0.5, 0.88).setDepth(d);
+    this.placedBuilds.push({ col: ic, row: ir, type, spr });
+    if (persist) {
+      window.S.builds = window.S.builds || [];
+      window.S.builds.push({ col: ic, row: ir, type });
+      window.S.buildCount = (window.S.buildCount || 0) + 1;
+      if (type === 'house') this.autoFence(ic, ir);
+      addXP(type === 'house' ? 25 : 12);
+      checkQuests();
+      save();
+    }
+    return true;
+  }
+
+  autoFence(hc, hr) {
+    [[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dc,dr])=>{
+      const fc = hc+dc, fr = hr+dr;
+      if (fc<0||fr<0||fc>=MAP||fr>=MAP||!this.walk[fr][fc]) return;
+      if ((window.S.builds||[]).some(b=>b.col===fc&&b.row===fr)) return;
+      if (this.placeBuild(fc, fr, 'fence', false)) {
+        window.S.builds.push({ col:fc, row:fr, type:'fence' });
+      }
+    });
+  }
+
+  tryBuild(wx, wy) {
+    const t = screenToTile(wx, wy, this.offX, this.offY);
+    const ic = Math.round(t.col), ir = Math.round(t.row);
+    const type = window.buildMode;
+    if (!type || !BUILD_COST[type]) return;
+    if (dist(this.col, this.row, ic, ir) > 4) { this.showToast('Acércate para construir'); return; }
+    if (!this.walk[ir] || !this.walk[ir][ic]) { this.showToast('No se puede construir aquí'); return; }
+    const cost = BUILD_COST[type];
+    if (this.crystals < cost) { this.showToast('Necesitas ' + cost + ' cristales'); return; }
+    if (this.placeBuild(ic, ir, type, true)) {
+      this.crystals -= cost;
+      this.showToast('¡Construido!');
+      this.syncHUD();
+    }
+  }
+
+  handleClick(wx, wy) {
+    let best = null, bd = Infinity;
+    this.collectibles.forEach(o => {
+      if (o.meta.gone || o.meta.type !== 'crystal') return;
+      const pd = dist(this.col, this.row, o.meta.c, o.meta.r);
+      if (pd <= 3.5) {
+        const sd = Math.hypot(o.x - wx, o.y - wy);
+        if (sd < bd) { bd = sd; best = o; }
+      }
+    });
+    if (best && bd < 80) { this.collectCrystal(best); return true; }
+    if (window.buildMode) { this.tryBuild(wx, wy); return true; }
+    const t = screenToTile(wx, wy, this.offX, this.offY);
+    if (!this.isBlocked(t.col, t.row)) {
+      this.targetCol = t.col; this.targetRow = t.row;
+    }
+    return false;
+  }
+
+  updateFakePlayers(delta) {
+    this.fakePlayers.forEach(fp => {
+      fp.timer += delta;
+      if (fp.timer > fp.wait) {
+        fp.timer = 0;
+        fp.wait = Phaser.Math.Between(800, 3500);
+        const a = Phaser.Math.FloatBetween(0, Math.PI * 2);
+        fp.tx = Phaser.Math.Clamp(fp.col + Math.cos(a) * Phaser.Math.Between(3, 12), 2, MAP - 3);
+        fp.ty = Phaser.Math.Clamp(fp.row + Math.sin(a) * Phaser.Math.Between(3, 12), 2, MAP - 3);
+      }
+      let dc = fp.tx - fp.col, dr = fp.ty - fp.row;
+      const len = Math.hypot(dc, dr);
+      if (len > 0.15) {
+        dc /= len; dr /= len;
+        const spd = fp.speed * (delta / 1000) * (SPEED / TW);
+        const nc = fp.col + dc * spd, nr = fp.row + dr * spd;
+        if (!this.isBlocked(nc, fp.row)) fp.col = nc;
+        if (!this.isBlocked(fp.col, nr)) fp.row = nr;
+        fp.frame = fp.frame ? 0 : 1;
+        fp.spr.setTexture('bot' + fp.skin + '_' + fp.frame);
+        fp.spr.setFlipX(dc < 0);
+      } else {
+        fp.frame = 0;
+        fp.spr.setTexture('bot' + fp.skin + '_0');
+      }
+      const p = this.wpos(fp.col, fp.row);
+      const d = isoDepth(fp.col, fp.row, 70);
+      fp.spr.setPosition(p.x, p.y - 12).setDepth(d);
+      fp.sh.setPosition(p.x, p.y + 4).setDepth(d - 2);
+      fp.tag.setPosition(p.x, p.y - 48).setDepth(d + 1);
+    });
+  }
+
+  collectCrystal(o) {
+    if (o.meta.gone) return;
+    o.meta.gone = true;
+    this.crystals++;
+    window.S.stats = window.S.stats || {};
+    window.S.stats.crystalsTotal = (window.S.stats.crystalsTotal||0)+1;
+    addXP(5);
+    checkQuests();
+    this.showToast('+1 Cristal · +5 XP');
+    this.burst(o.x, o.y, 0x3de8f0);
+    if (o.meta.glow) o.meta.glow.destroy();
+    this.syncHUD(); this.checkTier();
+    this.tweens.add({ targets:o, alpha:0, scale:0, y:o.y-16, duration:350, onComplete:()=>{
+      o.setVisible(false);
+      this.time.delayedCall(60000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1).setPosition(o.meta.hx,o.meta.hy);
+        this.tweens.add({ targets:o, y:o.y-4, alpha:{from:0.6,to:1}, duration:800, yoyo:true, repeat:-1 }); });
+    }});
+  }
+
+  burst(x,y,color) {
+    const p = this.add.particles(x,y,'spark',{ speed:{min:50,max:140}, angle:{min:0,max:360}, scale:{start:1.5,end:0}, alpha:{start:1,end:0}, lifespan:550, quantity:20, tint:color, blendMode:'ADD' }).setDepth(9999);
+    this.time.delayedCall(600, ()=>p.destroy());
+  }
+
+  openChest(c) {
+    if (c.meta.opened) return;
+    c.meta.opened = true;
+    if (!window.S.openedChests) window.S.openedChests = [];
+    window.S.openedChests.push(c.meta.id);
+    addXP(20);
+    save();
+    this.burst(c.x, c.y, 0xf0d060);
+    c.setVisible(false);
+    openChestModal(AUDIO[Phaser.Math.Between(0, AUDIO.length-1)]);
+  }
+
+  doInteract() {
+    const z = this.nearBuilding();
+    if (z) {
+      if (z.shop === 'audio') completeQuest('castle');
+      openShop(z.shop);
+    }
+  }
+
+  repositionPlayer() {
+    const p = this.wpos(this.col, this.row);
+    const d = isoDepth(this.col, this.row, 82);
+    this.player.setPosition(p.x, p.y - 12).setDepth(d);
+    this.playerSh.setPosition(p.x, p.y + 4).setDepth(d - 2);
+    this.glow.setPosition(p.x, p.y).setDepth(d - 1);
+    this.updatePlayerTag();
+    if (this.playerTag) this.playerTag.setPosition(p.x, p.y - 52).setDepth(d + 1);
+  }
+
+  drawMinimap() {
+    const cv = document.getElementById('minimap'), ctx = cv.getContext('2d'), sc = 120/MAP;
+    ctx.fillStyle = '#0a0a12'; ctx.fillRect(0,0,120,120);
+    for (let r=0;r<MAP;r++) for (let c=0;c<MAP;c++) {
+      const k = tileKind(c,r);
+      ctx.fillStyle = k==='t_grass'||k==='t_grass2'?'#4a9e4a':k==='t_stone'?'#707080':k==='t_dirt'?'#ae8f5a':'#6a8020';
+      ctx.fillRect(c*sc, r*sc, sc+0.5, sc+0.5);
+    }
+    BUILDINGS.forEach(b => {
+      ctx.fillStyle = b.shop==='audio'?'#c9a227':b.shop==='skins'?'#7b3fa0':'#3de8f0';
+      ctx.fillRect(b.col*sc-1, b.row*sc-1, sc*2.5, sc*2.5);
+    });
+    this.chests.filter(c=>!c.meta.opened).forEach(c=>{ ctx.fillStyle='#ffd700'; ctx.fillRect(c.meta.col*sc, c.meta.row*sc, sc, sc); });
+    ctx.fillStyle='#fff'; ctx.fillRect(NPC.col*sc, NPC.row*sc, sc, sc);
+    const blink = Math.sin(Date.now()/280)*0.35+0.65;
+    ctx.fillStyle='rgba(240,208,96,'+blink+')';
+    ctx.beginPath(); ctx.arc(this.col*sc+sc/2, this.row*sc+sc/2, sc*1.4, 0, Math.PI*2); ctx.fill();
+  }
+
+  update(_, delta) {
+    if (window.S.modal) { window.mobileInput.act = false; return; }
+    this.updateFakePlayers(delta);
+    const dt = delta / 1000;
+    let dc = 0, dr = 0;
+    if (this.keys.W.isDown) { dc -= 1; dr -= 1; this.targetCol = null; }
+    if (this.keys.S.isDown) { dc += 1; dr += 1; this.targetCol = null; }
+    if (this.keys.A.isDown) { dc -= 1; dr += 1; this.targetCol = null; }
+    if (this.keys.D.isDown) { dc += 1; dr -= 1; this.targetCol = null; }
+    if (Math.abs(window.mobileInput.dx) > 0.08 || Math.abs(window.mobileInput.dy) > 0.08) {
+      dc = window.mobileInput.dx; dr = window.mobileInput.dy; this.targetCol = null;
+    }
+    if (this.targetCol !== null && this.targetRow !== null) {
+      dc = this.targetCol - this.col;
+      dr = this.targetRow - this.row;
+      if (Math.hypot(dc, dr) < 0.2) { this.targetCol = null; this.targetRow = null; dc = dr = 0; }
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.E) || window.mobileInput.act) {
+      this.doInteract(); window.mobileInput.act = false;
+    }
+
+    const z = this.nearBuilding();
+    if (z) this.hudTxt.tip.setText('Presiona E — ' + z.name).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+    else this.hudTxt.tip.setAlpha(0);
+
+    const bubble = document.getElementById('npc-bubble');
+    if (bubble) bubble.style.display = dist(this.col, this.row, NPC.col, NPC.row) < 2 ? 'block' : 'none';
+
+    this.chests.forEach(c => {
+      if (!c.meta.opened && dist(this.col, this.row, c.meta.col, c.meta.row) < 0.9) this.openChest(c);
+    });
+
+    if (dc !== 0 || dr !== 0) {
+      const len = Math.hypot(dc, dr);
+      const spd = SPEED / TW * dt;
+      dc = dc / len * spd; dr = dr / len * spd;
+      const nc = this.col + dc, nr = this.row + dr;
+      if (!this.isBlocked(nc, this.row)) this.col = nc;
+      if (!this.isBlocked(this.col, nr)) this.row = nr;
+      this.walkTimer += delta;
+      if (this.walkTimer > 160) { this.walkTimer = 0; this.walkFrame = 1 - this.walkFrame; this.setSkin(); }
+      this.repositionPlayer();
+      this.applyFacing(dc, dr);
+      if (Math.floor(this.col) !== window.S._lc || Math.floor(this.row) !== window.S._lr) this.syncHUD();
+      window.S._lc = Math.floor(this.col); window.S._lr = Math.floor(this.row);
+    } else {
+      this.walkFrame = 0; this.setSkin();
+    }
+  }
+}
+
+let phaserGame = null;
+function startPhaser() {
+  if (phaserGame) return;
+  renderQuests();
+  updateProfileBtn();
+  phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: 'game-root',
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundColor: '#6ab4d4',
+    pixelArt: false,
+    roundPixels: true,
+    scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
+    scene: [Boot, Game],
+  });
+}
+
+function initProfile() {
+  const overlay = document.getElementById('profile-overlay');
+  const authStep = document.getElementById('auth-step');
+  const avatarStep = document.getElementById('avatar-step');
+  const pick = document.getElementById('avatar-pick');
+  const nameIn = document.getElementById('profile-name');
+  const startBtn = document.getElementById('profile-start');
+  let authMode = 'login';
+
+  SKIN_COLORS.forEach((c,i)=>{
+    const d = document.createElement('div');
+    d.className = 'av-opt'+(window.S.avatar===i?' selected':'');
+    d.style.background = '#'+c.body.toString(16).padStart(6,'0');
+    d.onclick = ()=>{
+      window.S.avatar = i;
+      document.querySelectorAll('.av-opt').forEach(x=>x.classList.remove('selected'));
+      d.classList.add('selected');
+    };
+    pick.appendChild(d);
+  });
+  nameIn.oninput = ()=>{ startBtn.disabled = nameIn.value.trim().length < 2; };
+
+  function showAvatarStep() {
+    authStep.style.display = 'none';
+    avatarStep.style.display = 'block';
+    if (window.S.username && !window.S.username.startsWith('viajero_')) nameIn.value = window.S.username;
+    startBtn.disabled = nameIn.value.trim().length < 2;
+  }
+
+  function enterWorld() {
+    window.S.profileReady = true;
+    window.S.profileId = window.S.profileId || window.S.userId || uid();
+    window.S.level = window.S.level ?? 0;
+    window.S.xp = window.S.xp ?? 0;
+    save();
+    if (sb && window.S.userId) cloudSave();
+    overlay.classList.add('hidden');
+    startPhaser();
+  }
+
+  document.querySelectorAll('.auth-tab').forEach(t=>{
+    t.onclick = ()=>{
+      authMode = t.dataset.mode;
+      document.querySelectorAll('.auth-tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('auth-submit').textContent = authMode === 'register' ? '✦ Crear cuenta' : '✦ Entrar al Mundo';
+    };
+  });
+
+  document.getElementById('auth-submit').onclick = async ()=>{
+    const email = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-pass').value;
+    const msg = document.getElementById('auth-msg');
+    msg.textContent = '';
+    msg.className = 'auth-msg';
+    if (!sb) { msg.textContent = 'Configura config.js con Supabase primero.'; return; }
+    if (!email || pass.length < 6) { msg.textContent = 'Email y contraseña (mín. 6) requeridos.'; return; }
+    msg.textContent = 'Conectando…';
+    try {
+      let res;
+      if (authMode === 'register') {
+        res = await sb.auth.signUp({ email, password: pass });
+      } else {
+        res = await sb.auth.signInWithPassword({ email, password: pass });
+      }
+      if (res.error) throw res.error;
+      window.S.userId = res.data.user.id;
+      window.S.cloud = true;
+      await cloudLoad(window.S.userId);
+      if (authMode === 'register' || !window.S.username || window.S.username.startsWith('viajero_')) {
+        showAvatarStep();
+        msg.textContent = '';
+      } else {
+        enterWorld();
+      }
+    } catch(e) {
+      msg.textContent = e.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos.' : (e.message || 'Error de conexión');
+    }
+  };
+
+  document.getElementById('local-play').onclick = ()=>{
+    showAvatarStep();
+    document.getElementById('cloud-badge').style.display = 'none';
+  };
+
+  startBtn.onclick = async ()=>{
+    const n = nameIn.value.trim().slice(0,16);
+    if (n.length < 2) return;
+    window.S.username = n;
+    if (sb && window.S.userId) {
+      const { error } = await sb.from('player_profiles').update({ username: n, avatar: window.S.avatar }).eq('id', window.S.userId);
+      if (error && error.code === '23505') {
+        if (window.G) window.G.showToast('Ese nombre ya existe — elige otro');
+        else alert('Ese nombre ya existe');
+        return;
+      }
+    }
+    enterWorld();
+  };
+
+  document.getElementById('logout-btn').onclick = async ()=>{
+    if (sb) await sb.auth.signOut();
+    window.S.userId = '';
+    window.S.cloud = false;
+    window.S.profileReady = false;
+    localStorage.removeItem('erior');
+    location.reload();
+  };
+
+  async function bootSession() {
+    if (!sb) {
+      if (window.S.profileReady && window.S.username) {
+        overlay.classList.add('hidden');
+        startPhaser();
+      }
+      return;
+    }
+    const { data:{ session } } = await sb.auth.getSession();
+    if (session?.user) {
+      window.S.userId = session.user.id;
+      window.S.cloud = true;
+      await cloudLoad(session.user.id);
+      if (window.S.username && !window.S.username.startsWith('viajero_') && window.S.profileReady) {
+        overlay.classList.add('hidden');
+        startPhaser();
+        return;
+      }
+      showAvatarStep();
+      return;
+    }
+    if (window.S.profileReady && window.S.username && !window.S.userId) {
+      overlay.classList.add('hidden');
+      startPhaser();
+    }
+  }
+
+  renderQuests();
+  updateProfileBtn();
+  bootSession();
+}
+initProfile();
+window.closeAll = closeAll;
+})();
+</script>
+</body>
+</html>
