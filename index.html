@@ -93,7 +93,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 #sync-dot{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:501;font-size:.6rem;padding:3px 8px;border-radius:10px;background:rgba(0,0,0,.7);color:#888;display:none}
 #sync-dot.synced{color:#4ade80;display:block}
 #sync-dot.syncing{color:#f0d060;display:block}
+#interact-prompt{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:600;display:none;padding:12px 20px;border:2px solid #f0d060;border-radius:14px;background:linear-gradient(160deg,rgba(26,20,8,.95),rgba(10,10,10,.95));color:#f0d060;font-size:.85rem;font-weight:bold;cursor:pointer;box-shadow:0 0 24px rgba(201,162,39,.35);animation:ipulse 1.2s ease infinite}
+#interact-prompt span{display:inline-block;background:#c9a227;color:#000;border-radius:6px;padding:2px 8px;margin-right:8px;font-weight:bold}
+@keyframes ipulse{0%,100%{box-shadow:0 0 16px rgba(201,162,39,.3)}50%{box-shadow:0 0 28px rgba(240,208,96,.55)}}
+#daily-banner{position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:600;display:none;padding:10px 18px;border:2px solid #7b3fa0;border-radius:12px;background:rgba(0,0,0,.85);color:#f0d060;font-size:.78rem;text-align:center;max-width:90vw}
+#daily-banner b{color:#3de8f0}
+#hub-signs{pointer-events:none}
 #logout-btn{position:fixed;top:58px;left:10px;z-index:500;padding:4px 8px;border:1px solid #666;border-radius:8px;background:rgba(0,0,0,.7);color:#aaa;font-size:.6rem;cursor:pointer;display:none}
+.shop-spotlight{width:100%;max-width:1100px;margin:0 auto 14px;padding:14px;border:2px solid #c9a227;border-radius:14px;background:linear-gradient(135deg,rgba(201,162,39,.12),rgba(123,63,160,.12));text-align:center;flex-shrink:0}
+.shop-spotlight h3{color:#f0d060;font-size:.95rem;margin-bottom:6px}
+.shop-spotlight p{color:#aaa;font-size:.78rem;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -137,6 +146,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 <canvas id="minimap" width="120" height="120"></canvas>
 <div id="joy-zone"><div id="joy-knob"></div></div>
 <button id="act-btn">E</button>
+<button id="interact-prompt"><span>E</span><span id="interact-label">Entrar</span></button>
+<div id="daily-banner"></div>
 <div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
 <div id="build-bar">
 <button class="build-slot" data-build=""><span>🚶</span>Mover</button>
@@ -211,11 +222,17 @@ const QUESTS = [
   { id:'build3', text:'🏗️ Construye 3 objetos', reward:20, xp:40, target:3 },
   { id:'crystals10', text:'💎 Recolecta 10 cristales', reward:25, xp:50, target:10 },
   { id:'shop', text:'🛒 Abre la Tienda de Audios', reward:15, xp:35 },
+  { id:'cabin', text:'🔮 Visita la Cabaña de Skins', reward:12, xp:28 },
+  { id:'level3', text:'⬆️ Alcanza Nivel 3', reward:30, xp:0, target:3, type:'level' },
+  { id:'tower', text:'🗼 Completa el Quiz Cuántico', reward:18, xp:35 },
 ];
 const BUILDINGS = [
-  { id:'castle', name:'Castillo Erior', col:40, row:40, r:3, shop:'audio', tex:'b_castle' },
-  { id:'cabin', name:'Cabaña Mística', col:15, row:15, r:2, shop:'skins', tex:'b_cabin' },
-  { id:'tower', name:'Torre Cuántica', col:65, row:20, r:2, shop:'quiz', tex:'b_tower' },
+  { id:'castle', name:'Castillo Erior', col:40, row:40, r:3, shop:'audio', tex:'b_castle',
+    points:[{col:40,row:44,r:5},{col:43,row:41,r:4},{col:37,row:41,r:4},{col:40,row:37,r:4}] },
+  { id:'cabin', name:'Cabaña Mística', col:15, row:15, r:2, shop:'skins', tex:'b_cabin',
+    points:[{col:15,row:18,r:4},{col:18,row:15,r:4}] },
+  { id:'tower', name:'Torre Cuántica', col:65, row:20, r:2, shop:'quiz', tex:'b_tower',
+    points:[{col:65,row:23,r:4},{col:68,row:20,r:4}] },
 ];
 const NPC = { col:38, row:42 };
 const CHESTS = [{col:10,row:50},{col:25,row:70},{col:55,row:10},{col:70,row:60},{col:35,row:25}];
@@ -293,7 +310,7 @@ window.S = {
   crystals:0, skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
   stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
-  pendingSkins:[],
+  pendingSkins:[], streak:0, lastDaily:'',
 };
 try {
   const saved = JSON.parse(localStorage.getItem('erior')||'{}');
@@ -407,6 +424,7 @@ function saveLocal() {
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
     stats:window.S.stats||{}, pendingSkins:window.S.pendingSkins||[],
+    streak:window.S.streak||0, lastDaily:window.S.lastDaily||'',
   }));
   sessionStorage.setItem('erior_chests', JSON.stringify(window.S.openedChests||[]));
   updateProfileBtn();
@@ -492,7 +510,9 @@ function completeQuest(id) {
   if (!q) return;
   if (q.target) {
     if (id==='build3' && (window.S.buildCount||0) < q.target) return;
-    if (id==='crystals10' && (window.S.stats?.crystalsTotal ?? window.S.crystals) < q.target) return;
+    const ct = window.S.stats?.crystalsTotal ?? window.S.crystals;
+    if (id==='crystals10' && ct < q.target) return;
+    if (q.type==='level' && (window.S.level||0) < q.target) return;
   }
   window.S.questsDone.push(id);
   window.S.crystals += q.reward;
@@ -508,7 +528,45 @@ function checkQuests() {
   if (window.S.buildCount >= 3) completeQuest('build3');
   const ct = window.S.stats?.crystalsTotal ?? window.S.crystals;
   if (ct >= 10) completeQuest('crystals10');
+  if ((window.S.level||0) >= 3) completeQuest('level3');
   renderQuests();
+}
+function featuredAudio() {
+  const day = Math.floor(Date.now() / 86400000);
+  return AUDIO[day % AUDIO.length];
+}
+function applyDailyBonus() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (window.S.lastDaily === today) return;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const yesterday = y.toISOString().slice(0, 10);
+  window.S.streak = window.S.lastDaily === yesterday ? (window.S.streak || 0) + 1 : 1;
+  window.S.lastDaily = today;
+  const bonus = Math.min(60, 12 + window.S.streak * 6);
+  window.S.crystals += bonus;
+  addXP(15 + window.S.streak * 3);
+  save();
+  const el = document.getElementById('daily-banner');
+  if (el) {
+    el.innerHTML = '🎁 <b>Bonus diario</b> · Día '+window.S.streak+' · +'+bonus+'💎 · ¡Racha activa!';
+    el.style.display = 'block';
+    setTimeout(()=>{ el.style.display = 'none'; }, 6000);
+  }
+  if (window.G) {
+    window.G.crystals = window.S.crystals;
+    window.G.syncHUD();
+    window.G.showToast('🎁 Bonus diario: +'+bonus+' cristales (racha '+window.S.streak+')');
+  }
+}
+function updateInteractPrompt(zone) {
+  const el = document.getElementById('interact-prompt');
+  const lbl = document.getElementById('interact-label');
+  if (!el) return;
+  if (zone && !window.S.modal) {
+    el.style.display = 'block';
+    lbl.textContent = zone.name;
+    el.onclick = ()=>{ if (window.G) window.G.doInteract(); };
+  } else el.style.display = 'none';
 }
 function renderQuests() {
   const el = document.getElementById('quest-list');
@@ -518,6 +576,7 @@ function renderQuests() {
     let prog = '';
     if (q.id==='build3' && !done) prog = ' ('+(window.S.buildCount||0)+'/3)';
     if (q.id==='crystals10' && !done) prog = ' ('+(window.S.stats?.crystalsTotal ?? window.S.crystals)+'/10)';
+    if (q.id==='level3' && !done) prog = ' (Lvl '+(window.S.level||0)+'/3)';
     return '<div class="quest-item'+(done?' done':'')+'">'+q.text+prog+(done?' ✓':'')+'</div>';
   }).join('');
 }
@@ -700,11 +759,24 @@ function closeAll() {
   window.buildMode='';
   document.querySelectorAll('.build-slot').forEach(b=>b.classList.remove('active'));
   const hint=document.getElementById('build-hint'); if(hint)hint.style.display='none';
+  updateInteractPrompt(window.G ? window.G.nearBuilding() : null);
 }
 function renderShop() {
   const t=tier();
   const un = window.S.username ? window.S.username : 'Viajero';
   document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+'Bienvenido, '+un+' — audios exclusivos Erior';
+  const feat = featuredAudio();
+  const fd = disc(feat);
+  let spot = document.getElementById('shop-spotlight');
+  if (!spot) {
+    spot = document.createElement('div');
+    spot.id = 'shop-spotlight';
+    spot.className = 'shop-spotlight';
+    document.getElementById('shop-overlay').insertBefore(spot, document.querySelector('#shop-overlay .shop-tabs'));
+  }
+  spot.innerHTML = '<h3>⚡ Audio destacado de hoy — '+feat.e+' '+feat.n+'</h3><p>'+feat.d+'</p>'+
+    '<p style="color:#3de8f0;font-weight:bold">'+(fd.rate?price(fd.final)+' (-'+Math.round(fd.rate*100)+'%)':price(feat.p))+'</p>'+
+    '<a class="poke-btn poke-btn-wa" style="display:inline-block;padding:10px 20px" href="'+wa(feat.n,'Audio destacado ERIOR WORLD')+'" target="_blank">💬 Quiero este audio</a>';
   const items=shopCat==='TODOS'?AUDIO:AUDIO.filter(i=>i.cat===shopCat);
   document.getElementById('shop-cards').innerHTML=items.map(it=>{
     const d=disc(it), suf=it.s||'';
@@ -774,6 +846,7 @@ function renderQuiz() {
       '<p style="color:#3de8f0;font-size:1.1rem">'+(d.rate?price(d.final):price(it.p))+'</p>'+
       '<a class="poke-btn poke-btn-wa" style="display:inline-block;padding:12px 24px;margin-top:10px" href="'+wa(it.n,'Quiz Torre Cuántica')+'" target="_blank">💬 WhatsApp</a>'+
       '<br><button class="gold-btn" onclick="closeAll()">Cerrar</button>';
+    completeTowerQuest();
   }
 }
 function openChestModal(it) {
@@ -792,15 +865,21 @@ function openShop(type) {
   if(type==='audio'){
     window.S.stats.shopVisits=(window.S.stats.shopVisits||0)+1;
     completeQuest('shop');
+    completeQuest('castle');
     renderShop();
     document.getElementById('shop-overlay').classList.add('open');
+    if (window.G) window.G.burst(window.G.player.x, window.G.player.y, 0xc9a227);
   }
   else if(type==='skins'){
+    completeQuest('cabin');
     const open = ()=>{ renderSkins(); document.getElementById('cabin-overlay').classList.add('open'); };
     if (sb && window.S.userId) loadPurchases(window.S.userId).then(open);
     else open();
   }
   else if(type==='quiz'){quizA=[];renderQuiz();document.getElementById('quiz-overlay').classList.add('open');}
+}
+function completeTowerQuest() {
+  if (quizA.length >= QUIZ.length) completeQuest('tower');
 }
 
 function initDOM() {
@@ -812,7 +891,14 @@ function initDOM() {
   ['shop-x','cabin-x','quiz-x','chest-x','howto-x','skin-pay-x'].forEach(id=>document.getElementById(id).onclick=closeAll);
   document.getElementById('howto-btn').onclick=()=>{window.S.modal=true;document.getElementById('howto-overlay').classList.add('open');};
   document.getElementById('howto-ok').onclick=closeAll;
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape')closeAll();
+    if((e.key==='e'||e.key==='E')&&!window.S.modal){
+      const a=document.activeElement;
+      if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
+      if(window.G) window.G.doInteract();
+    }
+  });
   const upd=()=>document.getElementById('fomo-online').textContent='🟢 '+Phaser.Math.Between(28,47)+' jugadores online';
   upd(); setInterval(upd,30000);
   const feed=()=>{
@@ -892,12 +978,22 @@ class Game extends Phaser.Scene {
       for(let dr=-b.r;dr<=b.r;dr++)for(let dc=-b.r;dc<=b.r;dc++){
         const c=b.col+dc,rr=b.row+dr; if(c>=0&&rr>=0&&c<MAP&&rr<MAP)this.walk[rr][c]=false;
       }
-      this.zones.push({col:b.col,row:b.row,shop:b.shop,name:b.name});
+      this.zones.push({col:b.col,row:b.row,shop:b.shop,name:b.name,points:b.points,r:b.r});
       const p=this.wpos(b.col,b.row);
-      this.add.image(p.x,p.y-20,b.tex).setOrigin(0.5,0.88).setDepth(isoDepth(b.col,b.row,50));
+      const img=this.add.image(p.x,p.y-20,b.tex).setOrigin(0.5,0.88).setDepth(isoDepth(b.col,b.row,50));
+      img.setInteractive({ useHandCursor:true, pixelPerfect:false });
+      img.on('pointerdown',(e)=>{
+        e.stopPropagation();
+        if(window.S.modal)return;
+        const reach=(b.r||2)+5;
+        if(dist(this.col,this.row,b.col,b.row)<=reach) openShop(b.shop);
+        else this.showToast('Acércate al '+b.name+' (camina hacia la puerta)');
+      });
       if(b.id==='castle'){
         const f=this.add.sprite(p.x+20,p.y-70,'flag').setOrigin(0,1).setDepth(isoDepth(b.col,b.row,55));
         this.tweens.add({targets:f,x:f.x+5,duration:1200,yoyo:true,repeat:-1});
+        const ep=this.wpos(40,44);
+        this.add.text(ep.x,ep.y-60,'🏰 TIENDA ERIOR\n↓ Camina aquí ↓',{fontFamily:'Segoe UI',fontSize:'11px',color:'#f0d060',stroke:'#000',strokeThickness:4,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(40,44,52));
       }
     });
 
@@ -939,6 +1035,7 @@ class Game extends Phaser.Scene {
     });
     this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
     this.syncHUD(); this.checkTier();
+    this.time.delayedCall(1200, ()=>this.showToast('🏰 Camina al sur del Castillo · Pulsa E para la Tienda Erior'));
   }
 
   setZoom(){this.cameras.main.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width,this.scale.height)/520,1.3,2.8));}
@@ -1047,6 +1144,10 @@ class Game extends Phaser.Scene {
     this.burst(this.player.x, this.player.y, 0xf0d060);
     this.updatePlayerTag();
     this.syncHUD();
+    checkQuests();
+    if (window.S.level === 2) this.showToast('💡 Tip: Camina al sur del Castillo y pulsa E');
+    if (window.S.level === 3) this.showToast('🏰 ¡Audios Erior con descuento en el Castillo!');
+    if (window.S.level === 5) this.showToast('🔮 Skins premium en la Cabaña — PayPal o cristales');
   }
 
   updatePlayerTag() {
@@ -1124,10 +1225,14 @@ class Game extends Phaser.Scene {
   }
 
   nearBuilding() {
-    let best = null, d = Infinity;
+    let best = null, bestD = Infinity;
     this.zones.forEach(z => {
-      const dd = dist(this.col, this.row, z.col, z.row);
-      if (dd <= 3 && dd < d) { d = dd; best = z; }
+      const pts = z.points || [{ col: z.col, row: z.row, r: (z.r || 2) + 3 }];
+      pts.forEach(p => {
+        const dd = dist(this.col, this.row, p.col, p.row);
+        const reach = p.r || 4;
+        if (dd <= reach && dd < bestD) { bestD = dd; best = z; }
+      });
     });
     return best;
   }
@@ -1139,6 +1244,18 @@ class Game extends Phaser.Scene {
   }
 
   spawnFakePlayers() {
+    const hubSpots = [[39,43],[41,43],[39,45],[41,45],[38,44],[42,44],[40,46],[37,43]];
+    hubSpots.forEach((pos,i)=>{
+      const skin = i % 6;
+      const p = this.wpos(pos[0], pos[1]);
+      const d = isoDepth(pos[0], pos[1], 70);
+      const sh = this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 2);
+      const spr = this.add.sprite(p.x, p.y - 12, 'bot' + skin + '_0').setOrigin(0.5, 0.92).setDepth(d);
+      const lvl = Phaser.Math.Between(12, 40);
+      const name = FAKE_NAMES[i % FAKE_NAMES.length];
+      const tag = this.add.text(p.x, p.y - 48, 'Lvl ' + lvl + '\n' + name, { fontFamily: 'Segoe UI', fontSize: '9px', color: '#fff', stroke: '#000', strokeThickness: 2, align: 'center' }).setOrigin(0.5, 1).setDepth(d + 1);
+      this.fakePlayers.push({ col:pos[0], row:pos[1], skin, sh, spr, tag, lvl, name, frame:0, timer:0, wait:Phaser.Math.Between(2000,5000), tx:pos[0], ty:pos[1], speed:0.6 });
+    });
     for (let i = 0; i < 22; i++) {
       const pos = this.seededPos(1, 9000 + i * 13)[0];
       if (!pos) continue;
@@ -1302,8 +1419,13 @@ class Game extends Phaser.Scene {
   doInteract() {
     const z = this.nearBuilding();
     if (z) {
-      if (z.shop === 'audio') completeQuest('castle');
       openShop(z.shop);
+    } else if (dist(this.col, this.row, NPC.col, NPC.row) < 2.5) {
+      window.S.stats.aliciaVisits = (window.S.stats.aliciaVisits||0)+1;
+      completeQuest('alicia');
+      window.open(ALICIA_IA, '_blank');
+    } else {
+      this.showToast('Camina a la plaza del Castillo (sur) o a un edificio ✦');
     }
   }
 
@@ -1359,7 +1481,8 @@ class Game extends Phaser.Scene {
     }
 
     const z = this.nearBuilding();
-    if (z) this.hudTxt.tip.setText('Presiona E — ' + z.name).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+    updateInteractPrompt(z);
+    if (z) this.hudTxt.tip.setText('Presiona E o clic abajo — ' + z.name).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
     else this.hudTxt.tip.setAlpha(0);
 
     const bubble = document.getElementById('npc-bubble');
@@ -1444,6 +1567,7 @@ function initProfile() {
     if (sb && window.S.userId) cloudSave();
     overlay.classList.add('hidden');
     startPhaser();
+    setTimeout(applyDailyBonus, 800);
   }
 
   document.querySelectorAll('.auth-tab').forEach(t=>{
@@ -1531,6 +1655,7 @@ function initProfile() {
       if (window.S.username && !window.S.username.startsWith('viajero_') && window.S.profileReady) {
         overlay.classList.add('hidden');
         startPhaser();
+        setTimeout(applyDailyBonus, 800);
         return;
       }
       showAvatarStep();
@@ -1539,6 +1664,7 @@ function initProfile() {
     if (window.S.profileReady && window.S.username && !window.S.userId) {
       overlay.classList.add('hidden');
       startPhaser();
+      setTimeout(applyDailyBonus, 800);
     }
   }
 
