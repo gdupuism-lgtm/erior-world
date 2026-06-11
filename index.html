@@ -2,11 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
 <title>ERIOR WORLD ✦</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',Tahoma,sans-serif}
+html{height:-webkit-fill-available}
+body{min-height:100vh;min-height:-webkit-fill-available}
 #game-root{position:fixed;inset:0;z-index:1}
 #game-root canvas{display:block;width:100%!important;height:100%!important;touch-action:none;image-rendering:auto}
 #vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.25) 100%)}
@@ -101,6 +106,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
   #quest-panel{display:block!important}
   #build-bar{display:flex!important}
 }
+#load-error{display:none;position:fixed;inset:0;z-index:9999;background:#0a0a0a;color:#f0d060;padding:24px;text-align:center;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+#load-error.show{display:flex}
+#load-error p{color:#aaa;font-size:.85rem;max-width:320px;line-height:1.5}
+#load-error button{padding:12px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;cursor:pointer}
 #profile-overlay{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#0a0812,#1a1028 40%,#0d1a2e);display:flex;align-items:center;justify-content:center;padding:20px}
 #profile-overlay.hidden{display:none}
 .profile-card{max-width:420px;width:100%;background:linear-gradient(160deg,#1a1408,#0d0d12);border:2px solid #c9a227;border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 0 60px rgba(201,162,39,.2)}
@@ -145,6 +154,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 </style>
 </head>
 <body>
+<div id="load-error">
+<h2>ERIOR WORLD ✦</h2>
+<p id="load-error-msg">No se pudo cargar el mundo en este dispositivo.</p>
+<button type="button" onclick="location.reload()">Reintentar</button>
+</div>
 <div id="profile-overlay">
 <div class="profile-card">
 <h1>ERIOR WORLD ✦</h1>
@@ -235,7 +249,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Se
 <button class="gold-btn" id="howto-ok">¡Explorar!</button></div>
 </div>
 
-<script src="config.js"></script>
+<script>window.ERIOR_CONFIG=window.ERIOR_CONFIG||{};</script>
+<script src="config.js" onerror="window.ERIOR_CONFIG=window.ERIOR_CONFIG||{}"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -609,6 +624,26 @@ function applyDailyBonus() {
 function isMobileUI() {
   return window.matchMedia('(max-width:768px)').matches || window.matchMedia('(pointer:coarse)').matches;
 }
+function isIOSDevice() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function showLoadError(msg) {
+  const el = document.getElementById('load-error');
+  const tx = document.getElementById('load-error-msg');
+  if (tx) tx.textContent = msg || 'Error al cargar el juego.';
+  el?.classList.add('show');
+  document.getElementById('profile-overlay')?.classList.add('hidden');
+}
+window.addEventListener('error', (e) => {
+  if (e.message && /WebGL|texture|Phaser/i.test(e.message) && !window._gameBooted) {
+    showLoadError('Gráficos no compatibles. Abre en Safari y recarga la página.');
+  }
+});
+setTimeout(() => {
+  if (!window._gameBooted && document.getElementById('profile-overlay')?.classList.contains('hidden')) {
+    showLoadError('El mundo tardó mucho en cargar. En iPhone usa Safari (no Instagram) y recarga.');
+  }
+}, 15000);
 function updateInteractPrompt(zone) {
   const el = document.getElementById('interact-prompt');
   const lbl = document.getElementById('interact-label');
@@ -1110,14 +1145,9 @@ class Game extends Phaser.Scene {
       this.sky.add(s); this.tweens.add({targets:s,alpha:s.alpha*0.3,duration:Phaser.Math.Between(2000,5000),yoyo:true,repeat:-1});
     }
 
-    this.ground = this.add.renderTexture(0,0,this.wW,this.wH).setOrigin(0,0).setDepth(0);
-    const stamp = this.make.image({x:0,y:0,key:'t_grass',add:false});
-    for (let sum=0;sum<MAP*2;sum++) for (let c=0;c<MAP;c++){
-      const r=sum-c; if(r<0||r>=MAP)continue;
-      this.walk[r]=this.walk[r]||[]; this.walk[r][c]=true;
-      stamp.setTexture(tileKind(c,r));
-      const p=this.wpos(c,r); this.ground.draw(stamp,p.x-TW/2,p.y-TH/2);
-    }
+    this.ground = this.add.container(0, 0).setDepth(0);
+    const stamp = this.make.image({ x:0, y:0, key:'t_grass', add:false });
+    this.buildGroundMap(stamp);
     stamp.destroy();
 
     BUILDINGS.forEach(b=>{
@@ -1173,9 +1203,13 @@ class Game extends Phaser.Scene {
     this.facing='SE';
     this.setSkin(); this.updateAura();
 
-    this.keys=this.input.keyboard.addKeys({W:'W',A:'A',S:'S',D:'D',E:'E'});
+    this.keys = null;
+    if (this.input.keyboard) {
+      this.keys = this.input.keyboard.addKeys({ W:'W', A:'A', S:'S', D:'D', E:'E' });
+    }
     this.buildHUD();
-    this.fireflies=this.add.particles(0,0,'firefly',{x:{min:this.offX,max:this.wW},y:{min:this.offY,max:this.wH},speed:{min:4,max:12},scale:{start:0.6,end:0},alpha:{start:0.5,end:0},lifespan:{min:3000,max:6000},frequency:400,blendMode:'ADD',tint:[0xa8e6cf,0xf0d060,0x3de8f0]}).setDepth(9000);
+    const particleCfg = { x:{min:this.offX,max:this.wW}, y:{min:this.offY,max:this.wH}, speed:{min:4,max:12}, scale:{start:0.6,end:0}, alpha:{start:0.5,end:0}, lifespan:{min:3000,max:6000}, frequency: isIOSDevice() ? 900 : 400, blendMode:'ADD', tint:[0xa8e6cf,0xf0d060,0x3de8f0] };
+    this.fireflies = this.add.particles(0, 0, 'firefly', particleCfg).setDepth(9000);
     this.cameras.main.startFollow(this.player,true,0.07,0.07);
     this.setZoom();
     this.input.on('pointerdown',ptr=>{
@@ -1185,6 +1219,8 @@ class Game extends Phaser.Scene {
     });
     this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
     this.syncHUD(); this.checkTier();
+    window._gameBooted = true;
+    document.getElementById('load-error')?.classList.remove('show');
     this.time.delayedCall(1200, ()=>{
       if (isMobileUI()) this.showToast('📱 Joystick = mover · Botón dorado = ENTRAR · Toca 🛒 ENTRAR en edificios');
       else this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris');
@@ -1193,6 +1229,38 @@ class Game extends Phaser.Scene {
 
   isInHubPlaza() {
     return dist(this.col, this.row, HUB.col, HUB.row) <= HUB.interactR;
+  }
+
+  buildGroundMap(stamp) {
+    const maxTex = this.game.renderer.getMaxTextureSize ? this.game.renderer.getMaxTextureSize() : 4096;
+    const chunkSize = Math.min(2048, Math.max(512, maxTex - 128));
+    const chunks = [];
+    const cols = Math.ceil(this.wW / chunkSize);
+    const rows = Math.ceil(this.wH / chunkSize);
+    for (let cy = 0; cy < rows; cy++) {
+      for (let cx = 0; cx < cols; cx++) {
+        const cw = Math.min(chunkSize, this.wW - cx * chunkSize);
+        const ch = Math.min(chunkSize, this.wH - cy * chunkSize);
+        const rt = this.add.renderTexture(cx * chunkSize, cy * chunkSize, cw, ch).setOrigin(0, 0).setDepth(0);
+        this.ground.add(rt);
+        chunks.push({ rt, ox: cx * chunkSize, oy: cy * chunkSize, w: cw, h: ch });
+      }
+    }
+    for (let sum = 0; sum < MAP * 2; sum++) for (let c = 0; c < MAP; c++) {
+      const r = sum - c;
+      if (r < 0 || r >= MAP) continue;
+      this.walk[r] = this.walk[r] || [];
+      this.walk[r][c] = true;
+      stamp.setTexture(tileKind(c, r));
+      const p = this.wpos(c, r);
+      const dx = p.x - TW / 2;
+      const dy = p.y - TH / 2;
+      for (const ch of chunks) {
+        if (dx + TW > ch.ox && dx < ch.ox + ch.w && dy + TH > ch.oy && dy < ch.oy + ch.h) {
+          ch.rt.draw(stamp, dx - ch.ox, dy - ch.oy);
+        }
+      }
+    }
   }
 
   placeShopMarkers() {
@@ -1770,10 +1838,12 @@ class Game extends Phaser.Scene {
     this.updateFakePlayers(delta);
     const dt = delta / 1000;
     let dc = 0, dr = 0;
-    if (this.keys.W.isDown) { dc -= 1; dr -= 1; this.targetCol = null; }
-    if (this.keys.S.isDown) { dc += 1; dr += 1; this.targetCol = null; }
-    if (this.keys.A.isDown) { dc -= 1; dr += 1; this.targetCol = null; }
-    if (this.keys.D.isDown) { dc += 1; dr -= 1; this.targetCol = null; }
+    if (this.keys) {
+      if (this.keys.W.isDown) { dc -= 1; dr -= 1; this.targetCol = null; }
+      if (this.keys.S.isDown) { dc += 1; dr += 1; this.targetCol = null; }
+      if (this.keys.A.isDown) { dc -= 1; dr += 1; this.targetCol = null; }
+      if (this.keys.D.isDown) { dc += 1; dr -= 1; this.targetCol = null; }
+    }
     if (Math.abs(window.mobileInput.dx) > 0.08 || Math.abs(window.mobileInput.dy) > 0.08) {
       dc = window.mobileInput.dx; dr = window.mobileInput.dy; this.targetCol = null;
     }
@@ -1783,7 +1853,7 @@ class Game extends Phaser.Scene {
       if (Math.hypot(dc, dr) < 0.2) { this.targetCol = null; this.targetRow = null; dc = dr = 0; }
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.E) || window.mobileInput.act) {
+    if ((this.keys && Phaser.Input.Keyboard.JustDown(this.keys.E)) || window.mobileInput.act) {
       this.doInteract(); window.mobileInput.act = false;
     }
 
@@ -1849,17 +1919,50 @@ function startPhaser() {
   if (phaserGame) return;
   renderQuests();
   updateProfileBtn();
-  phaserGame = new Phaser.Game({
-    type: Phaser.AUTO,
+  const touchDevice = isMobileUI() || isIOSDevice();
+  const viewH = window.innerHeight || document.documentElement.clientHeight || 640;
+  const viewW = window.innerWidth || document.documentElement.clientWidth || 360;
+  const cfg = {
+    type: Phaser.WEBGL,
     parent: 'game-root',
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: viewW,
+    height: viewH,
     backgroundColor: '#6ab4d4',
     pixelArt: false,
     roundPixels: true,
     scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
+    input: { keyboard: !touchDevice, activePointers: 3 },
+    render: { antialias: !isIOSDevice(), powerPreference: 'default', batchSize: isIOSDevice() ? 2048 : 4096 },
     scene: [Boot, Game],
-  });
+    callbacks: {
+      postBoot: (game) => {
+        window._gameBooted = true;
+        document.getElementById('load-error')?.classList.remove('show');
+      },
+    },
+  };
+  try {
+    phaserGame = new Phaser.Game(cfg);
+  } catch (err) {
+    try {
+      const cfgCanvas = Object.assign({}, cfg, { type: Phaser.CANVAS });
+      phaserGame = new Phaser.Game(cfgCanvas);
+    } catch (err2) {
+      showLoadError('Tu iPhone no pudo iniciar el motor gráfico. Abre en Safari (no Instagram) y recarga.');
+      return;
+    }
+  }
+  phaserGame.events.once('ready', () => { window._gameBooted = true; });
+  if (isIOSDevice()) {
+    const fixIOSHeight = () => {
+      if (!phaserGame) return;
+      const h = window.innerHeight || document.documentElement.clientHeight;
+      const w = window.innerWidth || document.documentElement.clientWidth;
+      phaserGame.scale.resize(w, h);
+    };
+    window.addEventListener('resize', fixIOSHeight);
+    window.addEventListener('orientationchange', () => setTimeout(fixIOSHeight, 250));
+  }
 }
 
 function initProfile() {
