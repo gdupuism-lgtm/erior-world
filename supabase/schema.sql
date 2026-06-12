@@ -197,6 +197,8 @@ create policy "parcels_update_own" on public.world_parcels
 -- alter table public.player_profiles add column if not exists audio_unlocks text[] not null default '{}';
 -- alter table public.player_profiles add column if not exists inventory jsonb not null default '[]'::jsonb;
 -- alter table public.player_profiles add column if not exists guide_done boolean not null default false;
+-- alter table public.player_profiles add column if not exists hp int not null default 100;
+-- alter table public.player_profiles add column if not exists max_hp int not null default 100;
 
 -- Pauline aprueba:
 -- update public.skin_purchases set status = 'approved' where id = 'UUID';

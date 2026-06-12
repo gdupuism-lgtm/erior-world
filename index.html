@@ -15,8 +15,28 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #game-root{position:fixed;inset:0;z-index:1}
 #game-root canvas{display:block;width:100%!important;height:100%!important;touch-action:none;image-rendering:auto}
 #vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.25) 100%);transition:opacity 1.2s ease}
-#day-clock{position:fixed;top:8px;right:130px;z-index:502;padding:4px 12px;border-radius:14px;background:rgba(0,0,0,.65);border:1px solid rgba(201,162,39,.35);color:#f0d060;font-size:.62rem;pointer-events:none;white-space:nowrap;transition:opacity .8s}
-@media(max-width:768px),(pointer:coarse){#day-clock{top:22px;right:6px;font-size:.55rem;padding:3px 8px}}
+#day-clock{padding:4px 10px;border-radius:14px;background:rgba(0,0,0,.65);border:1px solid rgba(201,162,39,.35);color:#f0d060;font-size:.62rem;white-space:nowrap}
+#top-right-cluster{position:fixed;top:8px;right:8px;z-index:502;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:min(340px,52vw)}
+#top-right-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+#howto-btn,#inv-btn{padding:6px 10px;border-radius:14px;background:rgba(0,0,0,.82);color:#f0d060;font-size:.68rem;cursor:pointer;font-weight:bold;white-space:nowrap}
+#howto-btn{border:2px solid #c9a227}
+#inv-btn{border:2px solid #7b3fa0}
+#fomo-online{padding:4px 9px;border-radius:14px;background:rgba(0,0,0,.8);color:#4ade80;font-size:.65rem;border:1px solid rgba(74,222,128,.3);pointer-events:none;text-align:right}
+#hp-bar-wrap{position:fixed;top:52px;left:10px;z-index:501;width:min(140px,36vw);height:8px;border-radius:6px;background:rgba(0,0,0,.55);border:1px solid rgba(201,162,39,.35);overflow:hidden;display:none}
+#hp-bar{height:100%;width:100%;background:linear-gradient(90deg,#ef4444,#4ade80);transition:width .25s ease}
+#hp-bar-wrap.low #hp-bar{background:linear-gradient(90deg,#ef4444,#f97316)}
+#account-row{position:fixed;top:52px;left:10px;z-index:501;display:none;gap:6px;align-items:center;flex-wrap:wrap}
+#logout-btn{padding:4px 8px;border:1px solid #666;border-radius:8px;background:rgba(0,0,0,.75);color:#ccc;font-size:.58rem;cursor:pointer}
+#logout-btn:hover{border-color:#c9a227;color:#f0d060}
+#death-overlay{display:none;position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:16px}
+#death-overlay.open{display:flex}
+.death-card{max-width:460px;width:100%;background:linear-gradient(160deg,#1a0808,#0d0d12);border:2px solid #ef4444;border-radius:18px;padding:24px 20px;text-align:center;color:#ccc}
+.death-card h2{color:#f0d060;margin-bottom:8px}
+.death-card p{font-size:.85rem;line-height:1.5;margin:10px 0}
+.death-btns{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.death-btns .gold-btn{width:100%}
+.death-audio{background:linear-gradient(135deg,#7b3fa0,#4a1a6b)!important;color:#fff!important}
+@media(max-width:768px),(pointer:coarse){#day-clock{font-size:.55rem;padding:3px 8px}#top-right-cluster{top:6px;right:6px;max-width:58vw}#howto-btn,#inv-btn{font-size:.6rem;padding:5px 8px}#hp-bar-wrap{top:44px;width:100px}#account-row{top:44px}}
 .overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);flex-direction:column;align-items:center;padding:12px;overflow:hidden}
 .overlay.open{display:flex}
 .modal-close{position:fixed;top:14px;right:14px;z-index:1001;width:42px;height:42px;border-radius:50%;border:2px solid #c9a227;background:rgba(0,0,0,.85);color:#f0d060;font-size:1.2rem;cursor:pointer}
@@ -51,8 +71,8 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .skin-card canvas{image-rendering:pixelated;margin:6px auto;display:block}
 .quiz-opt{display:block;width:100%;padding:10px;margin:5px 0;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:rgba(20,20,20,.9);color:#ccc;cursor:pointer;text-align:left;font-size:.82rem}
 .quiz-opt:hover{border-color:#c9a227;background:rgba(201,162,39,.12);color:#f0d060}
-#howto-btn{position:fixed;top:10px;right:10px;z-index:500;padding:7px 12px;border:2px solid #c9a227;border-radius:18px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.72rem;cursor:pointer;font-weight:bold}
-#inv-btn{position:fixed;top:10px;right:68px;z-index:500;padding:7px 12px;border:2px solid #7b3fa0;border-radius:18px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.72rem;cursor:pointer;font-weight:bold}
+#howto-btn{position:static}
+#inv-btn{position:static}
 #inv-panel{position:fixed;top:48px;right:10px;z-index:550;width:220px;max-height:50vh;overflow-y:auto;display:none;background:rgba(0,0,0,.88);border:2px solid rgba(123,63,160,.55);border-radius:12px;padding:10px;font-size:.68rem;color:#ccc}
 #inv-panel.open{display:block}
 #inv-panel h4{color:#f0d060;font-size:.75rem;margin-bottom:8px}
@@ -72,10 +92,10 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #guide-skip{background:transparent;border:1px solid #666!important;color:#aaa}
 #hub-chat.visible{display:flex!important}
 @media(max-width:768px),(pointer:coarse){
-  #inv-btn{top:auto;bottom:168px;right:12px;font-size:.65rem;padding:6px 10px}
+  #inv-btn,#howto-btn{position:static}
   #inv-panel{top:auto;bottom:210px;right:6px;left:6px;width:auto}
 }
-#fomo-online{position:fixed;top:10px;right:70px;z-index:500;padding:5px 10px;border-radius:14px;background:rgba(0,0,0,.8);color:#4ade80;font-size:.72rem;border:1px solid rgba(74,222,128,.3);pointer-events:none}
+#fomo-online{position:static}
 #fomo-feed{position:fixed;left:6px;top:50%;transform:translateY(-50%);z-index:500;width:210px;max-height:180px;overflow:hidden;pointer-events:none}
 .fomo-item{padding:5px 8px;margin-bottom:5px;border-radius:7px;background:rgba(0,0,0,.75);border-left:3px solid #7b3fa0;color:#aaa;font-size:.65rem;animation:fi .4s ease}
 .fomo-item b{color:#f0d060}
@@ -100,11 +120,13 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .countdown{font-size:1.3rem;color:#ff5555;font-weight:bold;font-family:monospace;margin:8px 0}
 @media(max-width:768px),(pointer:coarse){
   #joy-zone,#act-btn{display:flex}
-  #howto-btn{display:none}
-  #fomo-online{top:6px;right:6px;left:auto;font-size:.58rem;padding:3px 7px;max-width:46vw}
+  #howto-btn,#inv-btn{display:inline-flex}
+  #top-right-cluster{top:38px;right:6px}
+  #fomo-online{font-size:.55rem;padding:3px 7px}
   #fomo-feed{display:none!important}
   #profile-btn{top:6px;left:6px;font-size:.58rem;padding:4px 8px;max-width:110px;line-height:1.2}
-  #logout-btn{top:46px;left:6px;font-size:.55rem;padding:3px 6px}
+  #logout-btn{position:static;font-size:.55rem;padding:3px 6px}
+  #account-row{display:flex!important;top:38px;left:6px;right:auto}
   #sync-dot{top:28px;font-size:.55rem;padding:2px 6px}
   #minimap{width:56px!important;height:56px!important;top:38px;left:6px;bottom:auto;right:auto}
   #quest-toggle{display:block;top:38px;right:6px;font-size:.72rem;padding:6px 9px}
@@ -166,22 +188,22 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #sync-dot{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:501;font-size:.6rem;padding:3px 8px;border-radius:10px;background:rgba(0,0,0,.7);color:#888;display:none}
 #sync-dot.synced{color:#4ade80;display:block}
 #sync-dot.syncing{color:#f0d060;display:block}
-#interact-prompt{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:600;display:none;padding:12px 20px;border:2px solid #f0d060;border-radius:14px;background:linear-gradient(160deg,rgba(26,20,8,.95),rgba(10,10,10,.95));color:#f0d060;font-size:.85rem;font-weight:bold;cursor:pointer;box-shadow:0 0 24px rgba(201,162,39,.35);animation:ipulse 1.2s ease infinite}
+#interact-prompt{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:620;display:none;padding:10px 18px;border:2px solid #f0d060;border-radius:14px;background:linear-gradient(160deg,rgba(26,20,8,.95),rgba(10,10,10,.95));color:#f0d060;font-size:.82rem;font-weight:bold;cursor:pointer;box-shadow:0 0 24px rgba(201,162,39,.35);animation:ipulse 1.2s ease infinite;max-width:92vw;text-align:center}
 #interact-prompt span{display:inline-block;background:#c9a227;color:#000;border-radius:6px;padding:2px 8px;margin-right:8px;font-weight:bold}
 @keyframes ipulse{0%,100%{box-shadow:0 0 16px rgba(201,162,39,.3)}50%{box-shadow:0 0 28px rgba(240,208,96,.55)}}
 #daily-banner{position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:600;display:none;padding:10px 18px;border:2px solid #7b3fa0;border-radius:12px;background:rgba(0,0,0,.85);color:#f0d060;font-size:.78rem;text-align:center;max-width:90vw}
 #daily-banner b{color:#3de8f0}
 #hub-signs{pointer-events:none}
-#logout-btn{position:fixed;top:58px;left:10px;z-index:500;padding:4px 8px;border:1px solid #666;border-radius:8px;background:rgba(0,0,0,.7);color:#aaa;font-size:.6rem;cursor:pointer;display:none}
+#logout-btn{display:none}
 .shop-spotlight{width:100%;max-width:1100px;margin:0 auto 14px;padding:14px;border:2px solid #c9a227;border-radius:14px;background:linear-gradient(135deg,rgba(201,162,39,.12),rgba(123,63,160,.12));text-align:center;flex-shrink:0}
 .shop-spotlight h3{color:#f0d060;font-size:.95rem;margin-bottom:6px}
 .shop-spotlight p{color:#aaa;font-size:.78rem;margin-bottom:8px}
-#hub-chat{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:650;width:min(420px,94vw);display:none;flex-direction:column;gap:6px}
+#hub-chat{position:fixed;bottom:14px;right:140px;z-index:640;width:min(320px,42vw);display:none;flex-direction:column;gap:4px;align-items:flex-end}
 #hub-chat.visible{display:flex}
-#hub-chat-toggle{align-self:flex-end;padding:6px 12px;border:2px solid #c9a227;border-radius:12px;background:rgba(0,0,0,.85);color:#f0d060;font-size:.72rem;cursor:pointer}
-#hub-chat-panel{display:none;background:rgba(0,0,0,.88);border:2px solid rgba(201,162,39,.5);border-radius:12px;padding:8px;max-height:28vh}
+#hub-chat-toggle{padding:5px 10px;border:2px solid #c9a227;border-radius:12px;background:rgba(0,0,0,.85);color:#f0d060;font-size:.68rem;cursor:pointer}
+#hub-chat-panel{display:none;background:rgba(0,0,0,.88);border:2px solid rgba(201,162,39,.5);border-radius:12px;padding:8px;max-height:22vh;width:100%}
 #hub-chat.open #hub-chat-panel{display:flex;flex-direction:column;gap:6px}
-#hub-chat-msgs{overflow-y:auto;max-height:120px;font-size:.68rem;color:#ccc;line-height:1.4}
+#hub-chat-msgs{overflow-y:auto;max-height:90px;font-size:.65rem;color:#ccc;line-height:1.35}
 .hub-msg{margin-bottom:4px;padding:4px 6px;border-radius:6px;background:rgba(123,63,160,.15)}
 .hub-msg b{color:#f0d060}
 .hub-msg.me{background:rgba(201,162,39,.12)}
@@ -189,8 +211,9 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #hub-chat-input{flex:1;padding:8px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:#0a0a0a;color:#f0d060;font-size:.75rem}
 #hub-chat-send{padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;font-size:.72rem;cursor:pointer}
 @media(max-width:768px),(pointer:coarse){
-  #hub-chat.visible{bottom:100px}
-  #hub-chat-panel{max-height:22vh}
+  #hub-chat.visible{bottom:96px;right:6px;left:6px;width:auto}
+  #hub-chat-panel{max-height:18vh}
+  #interact-prompt{bottom:168px;font-size:.75rem;padding:8px 14px}
 }
 </style>
 </head>
@@ -226,7 +249,7 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 </div>
 <button id="profile-btn" style="display:none"></button>
-<button id="logout-btn">Cerrar sesión</button>
+<div id="account-row"><div id="hp-bar-wrap"><div id="hp-bar"></div></div><button id="logout-btn" type="button">Cerrar sesión</button></div>
 <div id="sync-dot"></div>
 <button id="quest-toggle" type="button">📜 Misiones<span class="badge" id="quest-badge"></span></button>
 <div id="quest-panel" class="collapsed-mobile">
@@ -235,8 +258,10 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 <div id="game-root"></div>
 <div id="vignette"></div>
-<button id="howto-btn">📖 Guía</button>
-<button id="inv-btn" type="button">🎒 Inventario</button>
+<div id="top-right-cluster">
+<div id="fomo-online">🟢 35 jugadores online</div>
+<div id="top-right-row"><span id="day-clock">☀️ Día</span><button id="inv-btn" type="button">🎒 Inventario</button><button id="howto-btn" type="button">📖 Guía</button></div>
+</div>
 <div id="inv-panel"><h4>🎒 Inventario</h4><div id="inv-list"></div></div>
 <div id="guide-overlay">
 <div class="guide-card">
@@ -249,8 +274,17 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 </div>
 </div>
-<div id="fomo-online">🟢 35 jugadores online</div>
-<div id="day-clock">☀️ Día</div>
+<div id="death-overlay">
+<div class="death-card">
+<h2>💀 Caíste en la noche cuántica</h2>
+<p id="death-msg">Los audios Erior refuerzan tu campo energético y te protegen de zombies y aliens.</p>
+<div class="death-btns">
+<button type="button" class="gold-btn" id="death-respawn">🔄 Reaparecer en la plaza (gratis)</button>
+<button type="button" class="gold-btn" id="death-revive">💎 Revivir aquí · 20 cristales</button>
+<button type="button" class="gold-btn death-audio" id="death-shop">🎧 Comprar Audio Erior — +protección VIP</button>
+</div>
+</div>
+</div>
 <div id="fomo-feed"></div>
 <canvas id="minimap" width="120" height="120"></canvas>
 <div id="joy-zone"><div id="joy-knob"></div></div>
@@ -519,7 +553,7 @@ const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND
 window.S = {
   userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
   crystals:0, gold:0, audiosPurchased:0, tools:[], inventory:[],
-  guideDone:false, guestId:'',
+  guideDone:false, guestId:'', hp:100, maxHp:100,
   skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
   stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
@@ -553,6 +587,18 @@ if (!window.S.guestId) {
   window.S.guestId = 'guest-' + Math.random().toString(36).slice(2, 10);
   sessionStorage.setItem('erior_guest', window.S.guestId);
 }
+function getMaxHp() {
+  const ap = window.S.audiosPurchased || 0;
+  if (ap >= 5) return 150;
+  if (ap >= 1) return 120;
+  return 100;
+}
+function initHpState() {
+  window.S.maxHp = getMaxHp();
+  if (window.S.hp === undefined || window.S.hp === null) window.S.hp = window.S.maxHp;
+  window.S.hp = Math.min(Math.max(0, window.S.hp), window.S.maxHp);
+}
+initHpState();
 try { window.S.openedChests = JSON.parse(sessionStorage.getItem('erior_chests')||'[]'); } catch(e){ window.S.openedChests = []; }
 
 const CFG = window.ERIOR_CONFIG || {};
@@ -562,6 +608,82 @@ if (CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_URL.includes('supa
 }
 let cloudTimer = null;
 
+function updateHpBar() {
+  initHpState();
+  const wrap = document.getElementById('hp-bar-wrap');
+  const bar = document.getElementById('hp-bar');
+  if (!wrap || !bar || !window.S.profileReady) return;
+  wrap.style.display = 'block';
+  const pct = Math.max(0, Math.min(100, (window.S.hp / window.S.maxHp) * 100));
+  bar.style.width = pct + '%';
+  wrap.classList.toggle('low', pct < 35);
+}
+function healPlayer(amount, reason) {
+  initHpState();
+  const before = window.S.hp;
+  window.S.hp = Math.min(window.S.maxHp, window.S.hp + amount);
+  if (window.S.hp <= before) return false;
+  save();
+  updateHpBar();
+  if (window.G) window.G.syncHUD();
+  if (window.G && reason) window.G.showToast(reason + ' · HP ' + Math.round(window.S.hp) + '/' + window.S.maxHp);
+  return true;
+}
+function useLanternHeal() {
+  if (!gadgetCount('lantern')) {
+    if (window.G) window.G.showToast('Necesitas 🏮 Linterna en inventario (Casino o derrotar aliens)');
+    return false;
+  }
+  if (window.S.hp >= window.S.maxHp) {
+    if (window.G) window.G.showToast('Vida al máximo');
+    return false;
+  }
+  useGadget('lantern');
+  return healPlayer(50, '🏮 Linterna cuántica');
+}
+function showDeathOverlay() {
+  window.S.modal = true;
+  document.getElementById('death-overlay')?.classList.add('open');
+  const msg = document.getElementById('death-msg');
+  if (msg) {
+    const ap = window.S.audiosPurchased || 0;
+    msg.textContent = ap >= 1
+      ? 'Tus audios Erior te dan resistencia — compra más para mayor protección nocturna.'
+      : 'Los audios Erior refuerzan tu campo energético (+20 HP por audio). Compra uno y vuelve más fuerte.';
+  }
+}
+function hideDeathOverlay() {
+  document.getElementById('death-overlay')?.classList.remove('open');
+  window.S.modal = false;
+}
+function initDeathScreen() {
+  document.getElementById('death-respawn')?.addEventListener('click', () => {
+    if (window.G) window.G.respawnPlayer(true);
+  });
+  document.getElementById('death-revive')?.addEventListener('click', () => {
+    if ((window.S.crystals || 0) < 20) {
+      if (window.G) window.G.showToast('Necesitas 20 💎 para revivir aquí');
+      return;
+    }
+    window.S.crystals -= 20;
+    if (window.G) window.G.respawnPlayer(false);
+  });
+  document.getElementById('death-shop')?.addEventListener('click', () => {
+    hideDeathOverlay();
+    openShop('audio');
+  });
+}
+async function doLogout() {
+  if (window.G?.game) {
+    try { window.G.scene.stop(); window.G.game.destroy(true); } catch (e) {}
+    window.G = null;
+  }
+  if (sb) await sb.auth.signOut();
+  localStorage.removeItem('erior');
+  sessionStorage.removeItem('erior_guest');
+  sessionStorage.removeItem('erior_chests');
+  location.reload();
+}
 function hasSkin(id) {
   return (window.S.skins||[]).includes(id) || (window.S.premiumSkins||[]).includes(id);
 }
@@ -615,7 +737,10 @@ function renderInventory() {
     const g = GADGETS.find(x => x.id === it.id);
     return '<div class="inv-slot"><b>' + (g ? g.icon + ' ' + g.name : it.id) + '</b> ×' + it.qty +
       (g ? '<br><span style="color:#888;font-size:.6rem">' + g.desc + '</span>' : '') + '</div>';
-  }).join('');
+  }).join('') +
+    (window.S.hp < window.S.maxHp && gadgetCount('lantern') > 0
+      ? '<button type="button" class="gold-btn" id="inv-heal-btn" style="width:100%;margin-top:8px;font-size:.72rem">🏮 Curar +50 HP</button>' : '');
+  document.getElementById('inv-heal-btn')?.addEventListener('click', useLanternHeal);
 }
 let guideIdx = 0;
 function showGuide(at) {
@@ -723,6 +848,8 @@ function gamePayload() {
     tools: window.S.tools || [],
     inventory: window.S.inventory || [],
     guide_done: !!window.S.guideDone,
+    hp: window.S.hp ?? getMaxHp(),
+    max_hp: window.S.maxHp ?? getMaxHp(),
     active_skin: window.S.activeSkin,
     skins: window.S.skins || [],
     premium_skins: window.S.premiumSkins || [],
@@ -748,6 +875,9 @@ function applyCloudRow(row) {
   window.S.tools = row.tools || [];
   window.S.inventory = row.inventory || window.S.inventory || [];
   window.S.guideDone = row.guide_done ?? window.S.guideDone;
+  window.S.hp = row.hp ?? window.S.hp ?? getMaxHp();
+  window.S.maxHp = row.max_hp ?? getMaxHp();
+  initHpState();
   if ((window.S.audiosPurchased || 0) >= 3 && !window.S.tools.includes('axe')) window.S.tools.push('axe');
   window.S.activeSkin = row.active_skin || 'default';
   window.S.skins = row.skins || [];
@@ -806,7 +936,7 @@ function saveLocal() {
   localStorage.setItem('erior', JSON.stringify({
     userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
     level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
-    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'',
+    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'', hp:window.S.hp, maxHp:window.S.maxHp,
     skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
@@ -1032,10 +1162,17 @@ function renderQuests() {
 function updateProfileBtn() {
   const b = document.getElementById('profile-btn');
   const lo = document.getElementById('logout-btn');
+  const ar = document.getElementById('account-row');
   if (!b || !window.S.profileReady) return;
   b.style.display = 'block';
-  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🪙'+(window.S.gold||0)+(window.S.cloud?' · ☁️':'');
-  if (lo) lo.style.display = window.S.userId ? 'block' : 'none';
+  initHpState();
+  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · ❤️'+Math.round(window.S.hp)+' · 💎'+window.S.crystals+' · 🪙'+(window.S.gold||0)+(window.S.cloud?' · ☁️':'');
+  if (ar) ar.style.display = 'flex';
+  if (lo) {
+    lo.style.display = 'inline-block';
+    lo.textContent = window.S.userId ? 'Cerrar sesión' : 'Salir / Cambiar cuenta';
+  }
+  updateHpBar();
 }
 
 function rng(n) { let s = SEED + n * 9301 + 49297; s = (s * 233280 + 12345) & 0x7fffffff; return (s % 10000) / 10000; }
@@ -1431,6 +1568,7 @@ function initDOM() {
   document.getElementById('howto-ok').onclick=closeAll;
   document.getElementById('casino-spin').onclick=spinCasino;
   initGuide();
+  initDeathScreen();
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape')closeAll();
     if((e.key==='e'||e.key==='E')&&!window.S.modal){
@@ -1494,6 +1632,7 @@ class Game extends Phaser.Scene {
     this.targetCol = null; this.targetRow = null; this.vx = 0; this.vy = 0;
     this.pendingShop = null; this.shopMarkers = [];
     this.nightMobs = []; this.nightMobTimer = 0; this.nightFactor = 0;
+    this.playerDead = false; this.hitFlash = 0; this.hubHealAcc = 0;
 
     const corners = [iso(0,0), iso(MAP-1,0), iso(0,MAP-1), iso(MAP-1,MAP-1)];
     const pad = TW * 4;
@@ -1613,7 +1752,7 @@ class Game extends Phaser.Scene {
           const { data:{ session } } = await sb.auth.getSession();
           if (session?.access_token) sb.realtime.setAuth(session.access_token);
         }
-        this.mpChannel = sb.channel('plaza-castle', { config: { presence: { key: selfKey } } });
+        this.mpChannel = sb.channel('erior-world-v1', { config: { presence: { key: selfKey } } });
         this.mpChannel
           .on('presence', { event: 'sync' }, () => this.refreshRemotePlayers())
           .on('presence', { event: 'join' }, () => this.refreshRemotePlayers())
@@ -1653,14 +1792,13 @@ class Game extends Phaser.Scene {
       (arr || []).forEach(p => {
         const selfId = window.S.userId || window.S.guestId;
         if (!p || p.user_id === selfId) return;
-        if (!p.in_hub) return;
         seen.add(p.user_id);
         realOthers++;
         this.upsertRemotePlayer(p);
       });
     });
     Object.keys(this.remotePlayers).forEach(uid => { if (!seen.has(uid)) this.removeRemotePlayer(uid); });
-    window._realOnline = realOthers + (this.isNearHub() ? 1 : 0);
+    window._realOnline = realOthers + 1;
     updateOnlineCount();
   }
 
@@ -1726,8 +1864,7 @@ class Game extends Phaser.Scene {
     if (hint) hint.textContent = window.S.userId ? 'Chat global · jugadores en la plaza' : 'Chat local · crea cuenta Erior para ver a otros online';
     if (show && !this._chatHinted) {
       this._chatHinted = true;
-      hub.classList.add('open');
-      this.showToast('💬 Chat de la plaza — escribe aquí');
+      this.showToast('💬 Chat de plaza — pulsa Chat Plaza');
     }
     if (!show) hub.classList.remove('open');
   }
@@ -1739,10 +1876,6 @@ class Game extends Phaser.Scene {
     if (this.mpSyncAcc >= 280) {
       this.mpSyncAcc = 0;
       this.mpTrack();
-      if (this.isNearHub() !== this.mpWasInHub) {
-        this.mpWasInHub = this.isNearHub();
-        this.refreshRemotePlayers();
-      }
     }
     Object.values(this.remotePlayers).forEach(r => {
       r.dc += (r.col - r.dc) * Math.min(1, delta / 180);
@@ -2112,7 +2245,7 @@ class Game extends Phaser.Scene {
     const need = xpNeed(lv);
     const xp = window.S.xp || 0;
     this.hudTxt.level.setText('✦ ' + (window.S.username || 'Viajero') + ' · Lvl ' + lv);
-    this.hudTxt.crys.setText('💎 '+this.crystals+' · 🪙 '+(window.S.gold||0)+' · XP '+xp+'/'+need);
+    this.hudTxt.crys.setText('💎 '+this.crystals+' · 🪙 '+(window.S.gold||0)+' · ❤️ '+Math.round(window.S.hp)+'/'+window.S.maxHp+' · XP '+xp+'/'+need);
     const t = tier();
     const ab = audioBuyerTier();
     this.hudTxt.badge.setText(ab ? ab.badge : (t ? t.badge : 'Explora y recolecta cristales'));
@@ -2124,6 +2257,7 @@ class Game extends Phaser.Scene {
     this.xpGfx.fillStyle(0x7b3fa0, 1).fillRect(16, 48, 188 * Math.min(1, xp / need), 5);
     save();
     updateProfileBtn();
+    updateHpBar();
     this.updatePlayerTag();
     this.drawMinimap();
   }
@@ -2409,7 +2543,52 @@ class Game extends Phaser.Scene {
       o.setVisible(false);
       this.time.delayedCall(60000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1).setPosition(o.meta.hx,o.meta.hy);
         this.tweens.add({ targets:o, y:o.y-4, alpha:{from:0.6,to:1}, duration:800, yoyo:true, repeat:-1 }); });
-    }});
+    }    });
+  }
+
+  playerTakeDamage(amount, kind) {
+    if (this.playerDead || window.S.modal) return;
+    if (this.hitFlash > 0) return;
+    initHpState();
+    const reduce = (window.S.audiosPurchased || 0) >= 1 ? 0.85 : 1;
+    window.S.hp = Math.max(0, window.S.hp - Math.round(amount * reduce));
+    this.hitFlash = 400;
+    this.player.setTint(0xff6666);
+    this.cameras.main.shake(120, 0.004);
+    this.showToast((kind === 'zombie' ? '🧟' : '👽') + ' · -' + Math.round(amount * reduce) + ' HP');
+    updateHpBar();
+    save();
+    if (window.S.hp <= 0) this.playerDeath();
+    else this.syncHUD();
+  }
+
+  playerDeath() {
+    this.playerDead = true;
+    window.S.hp = 0;
+    updateHpBar();
+    this.nightMobs.forEach(m => this.destroyNightMob(m));
+    this.nightMobs = [];
+    this.player.setAlpha(0.35);
+    showDeathOverlay();
+    save();
+  }
+
+  respawnPlayer(toHub) {
+    hideDeathOverlay();
+    this.playerDead = false;
+    initHpState();
+    window.S.hp = window.S.maxHp;
+    if (toHub) {
+      this.col = HUB.col + 1;
+      this.row = HUB.row + 2;
+    }
+    this.unstuckPlayer(true);
+    this.player.setAlpha(1).clearTint();
+    this.syncHUD();
+    updateHpBar();
+    save();
+    if (sb && window.S.userId) cloudSave();
+    this.showToast(toHub ? '✦ Reapareciste en la plaza segura' : '💎 Revivido con energía cuántica');
   }
 
   collectGold(o) {
@@ -2500,11 +2679,20 @@ class Game extends Phaser.Scene {
         const away = Math.atan2(mob.r - HUB.row, mob.c - HUB.col);
         mob.c += Math.cos(away) * mob.speed * delta * 0.04;
         mob.r += Math.sin(away) * mob.speed * delta * 0.04;
-      } else if (dist(this.col, this.row, mob.c, mob.r) < 20 && !inSafe) {
-        const ang = Math.atan2(this.row - mob.r, this.col - mob.c);
-        const nc = mob.c + Math.cos(ang) * mob.speed * delta;
-        const nr = mob.r + Math.sin(ang) * mob.speed * delta;
-        if (this.walk[Math.round(nr)]?.[Math.round(nc)]) { mob.c = nc; mob.r = nr; }
+      } else if (!this.playerDead && !inSafe) {
+        const dToPlayer = dist(this.col, this.row, mob.c, mob.r);
+        if (dToPlayer > 2.2) {
+          const ang = Math.atan2(this.row - mob.r, this.col - mob.c);
+          const nc = mob.c + Math.cos(ang) * mob.speed * delta;
+          const nr = mob.r + Math.sin(ang) * mob.speed * delta;
+          if (this.walk[Math.round(nr)]?.[Math.round(nc)]) { mob.c = nc; mob.r = nr; }
+        } else if (dToPlayer <= 2.5) {
+          mob.atkCd = (mob.atkCd || 0) - delta;
+          if (mob.atkCd <= 0) {
+            mob.atkCd = mob.kind === 'zombie' ? 1500 : 1200;
+            this.playerTakeDamage(mob.kind === 'zombie' ? 10 : 14, mob.kind);
+          }
+        }
       }
       mob.walkT += delta;
       const pos = this.wpos(mob.c, mob.r);
@@ -2614,7 +2802,20 @@ class Game extends Phaser.Scene {
   }
 
   update(_, delta) {
+    if (this.playerDead) { window.mobileInput.act = false; return; }
     if (window.S.modal) { window.mobileInput.act = false; return; }
+    if (this.hitFlash > 0) {
+      this.hitFlash -= delta;
+      if (this.hitFlash <= 0) this.player.clearTint();
+    }
+    if (this.isNearHub() && window.S.hp < window.S.maxHp) {
+      this.hubHealAcc += delta;
+      if (this.hubHealAcc >= 500) {
+        this.hubHealAcc = 0;
+        window.S.hp = Math.min(window.S.maxHp, window.S.hp + 2);
+        updateHpBar();
+      }
+    } else this.hubHealAcc = 0;
     this.updateDayNight(delta);
     this.updateMultiplayer(delta);
     this.updateFakePlayers(delta);
@@ -2849,14 +3050,7 @@ function initProfile() {
     enterWorld();
   };
 
-  document.getElementById('logout-btn').onclick = async ()=>{
-    if (sb) await sb.auth.signOut();
-    window.S.userId = '';
-    window.S.cloud = false;
-    window.S.profileReady = false;
-    localStorage.removeItem('erior');
-    location.reload();
-  };
+  document.getElementById('logout-btn').onclick = () => doLogout();
 
   async function bootSession() {
     if (!sb) {
@@ -2866,6 +3060,9 @@ function initProfile() {
       }
       return;
     }
+    document.getElementById('local-play').style.display = 'none';
+    const authIntro = document.querySelector('#auth-step > p');
+    if (authIntro) authIntro.innerHTML = 'Inicia sesión con tu <b style="color:#f0d060">cuenta Erior</b> — progreso, inventario, vida y multiplayer en tiempo real guardados en la nube.';
     const { data:{ session } } = await sb.auth.getSession();
     if (session?.user) {
       window.S.userId = session.user.id;
@@ -2880,10 +3077,12 @@ function initProfile() {
       showAvatarStep();
       return;
     }
-    if (window.S.profileReady && window.S.username && !window.S.userId) {
-      overlay.classList.add('hidden');
-      startPhaser();
-      setTimeout(applyDailyBonus, 800);
+    authStep.style.display = 'block';
+    avatarStep.style.display = 'none';
+    overlay.classList.remove('hidden');
+    if (window.S.profileReady && !window.S.userId) {
+      window.S.profileReady = false;
+      saveLocal();
     }
   }
 
