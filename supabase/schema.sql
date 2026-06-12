@@ -1,5 +1,5 @@
 -- ERIOR WORLD — ejecuta en Supabase → SQL Editor
--- Crea tablas, políticas RLS y trigger de aprobación de skins PayPal
+-- Crea tablas, políticas RLS y triggers de aprobación PayPal
 
 -- Perfil de jugador (1 por cuenta auth)
 create table if not exists public.player_profiles (
@@ -9,6 +9,10 @@ create table if not exists public.player_profiles (
   level int not null default 0,
   xp int not null default 0,
   crystals int not null default 0,
+  gold int not null default 0,
+  audios_purchased int not null default 0,
+  tools text[] not null default '{}',
+  audio_unlocks text[] not null default '{}',
   active_skin text not null default 'default',
   skins text[] not null default '{}',
   premium_skins text[] not null default '{}',
@@ -40,7 +44,40 @@ create table if not exists public.skin_purchases (
 create index if not exists idx_skin_purchases_user on public.skin_purchases(user_id);
 create index if not exists idx_skin_purchases_status on public.skin_purchases(status);
 
--- Al aprobar compra → desbloquea skin en la cuenta
+-- Compras de audios (Pauline aprueba → audios_purchased + desbloqueos)
+create table if not exists public.audio_purchases (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  audio_name text not null,
+  amount_mxn numeric(10,2) not null default 1190,
+  paypal_txn text,
+  payer_email text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  notes text,
+  created_at timestamptz not null default now(),
+  approved_at timestamptz
+);
+
+create index if not exists idx_audio_purchases_user on public.audio_purchases(user_id);
+create index if not exists idx_audio_purchases_status on public.audio_purchases(status);
+
+-- Parcelas / mundos visitables (fase futura: pagar para entrar y chatear)
+create table if not exists public.world_parcels (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  name text not null default 'Mi Mundo',
+  col int not null,
+  row int not null,
+  radius int not null default 6,
+  visit_price_mxn numeric(10,2) not null default 49,
+  builds jsonb not null default '[]'::jsonb,
+  is_public boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_world_parcels_owner on public.world_parcels(owner_id);
+
+-- Al aprobar compra skin → desbloquea en cuenta
 create or replace function public.handle_skin_purchase_approval()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -63,7 +100,35 @@ create trigger trg_skin_purchase_approval
   before update on public.skin_purchases
   for each row execute function public.handle_skin_purchase_approval();
 
--- Auto-crear perfil al registrarse (username temporal, se cambia en el juego)
+-- Al aprobar compra audio → cuenta + hacha (3+) + skin dorada (5+)
+create or replace function public.handle_audio_purchase_approval()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.status = 'approved' and (old.status is distinct from 'approved') then
+    update public.player_profiles
+    set audios_purchased = audios_purchased + 1, updated_at = now()
+    where id = new.user_id;
+    update public.player_profiles
+    set tools = case when 'axe' = any(tools) then tools else array_append(tools, 'axe') end
+    where id = new.user_id and audios_purchased >= 3;
+    update public.player_profiles
+    set premium_skins = case
+      when 'dorada' = any(premium_skins) then premium_skins
+      else array_append(premium_skins, 'dorada')
+    end
+    where id = new.user_id and audios_purchased >= 5;
+    new.approved_at = coalesce(new.approved_at, now());
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_audio_purchase_approval on public.audio_purchases;
+create trigger trg_audio_purchase_approval
+  before update on public.audio_purchases
+  for each row execute function public.handle_audio_purchase_approval();
+
+-- Auto-crear perfil al registrarse
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -82,6 +147,8 @@ create trigger on_auth_user_created
 -- RLS
 alter table public.player_profiles enable row level security;
 alter table public.skin_purchases enable row level security;
+alter table public.audio_purchases enable row level security;
+alter table public.world_parcels enable row level security;
 
 drop policy if exists "profiles_select_own" on public.player_profiles;
 create policy "profiles_select_own" on public.player_profiles
@@ -103,5 +170,32 @@ drop policy if exists "purchases_insert_own" on public.skin_purchases;
 create policy "purchases_insert_own" on public.skin_purchases
   for insert with check (auth.uid() = user_id);
 
--- Helper para Pauline: aprobar por ID de compra
--- update public.skin_purchases set status = 'approved' where id = 'UUID-AQUI';
+drop policy if exists "audio_purchases_select_own" on public.audio_purchases;
+create policy "audio_purchases_select_own" on public.audio_purchases
+  for select using (auth.uid() = user_id);
+
+drop policy if exists "audio_purchases_insert_own" on public.audio_purchases;
+create policy "audio_purchases_insert_own" on public.audio_purchases
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "parcels_select_public" on public.world_parcels;
+create policy "parcels_select_public" on public.world_parcels
+  for select using (is_public = true or auth.uid() = owner_id);
+
+drop policy if exists "parcels_insert_own" on public.world_parcels;
+create policy "parcels_insert_own" on public.world_parcels
+  for insert with check (auth.uid() = owner_id);
+
+drop policy if exists "parcels_update_own" on public.world_parcels;
+create policy "parcels_update_own" on public.world_parcels
+  for update using (auth.uid() = owner_id);
+
+-- Migración si ya tenías player_profiles sin columnas v6:
+-- alter table public.player_profiles add column if not exists gold int not null default 0;
+-- alter table public.player_profiles add column if not exists audios_purchased int not null default 0;
+-- alter table public.player_profiles add column if not exists tools text[] not null default '{}';
+-- alter table public.player_profiles add column if not exists audio_unlocks text[] not null default '{}';
+
+-- Pauline aprueba:
+-- update public.skin_purchases set status = 'approved' where id = 'UUID';
+-- update public.audio_purchases set status = 'approved' where id = 'UUID';

@@ -151,6 +151,22 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .shop-spotlight{width:100%;max-width:1100px;margin:0 auto 14px;padding:14px;border:2px solid #c9a227;border-radius:14px;background:linear-gradient(135deg,rgba(201,162,39,.12),rgba(123,63,160,.12));text-align:center;flex-shrink:0}
 .shop-spotlight h3{color:#f0d060;font-size:.95rem;margin-bottom:6px}
 .shop-spotlight p{color:#aaa;font-size:.78rem;margin-bottom:8px}
+#hub-chat{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:650;width:min(420px,94vw);display:none;flex-direction:column;gap:6px}
+#hub-chat.visible{display:flex}
+#hub-chat-toggle{align-self:flex-end;padding:6px 12px;border:2px solid #c9a227;border-radius:12px;background:rgba(0,0,0,.85);color:#f0d060;font-size:.72rem;cursor:pointer}
+#hub-chat-panel{display:none;background:rgba(0,0,0,.88);border:2px solid rgba(201,162,39,.5);border-radius:12px;padding:8px;max-height:28vh}
+#hub-chat.open #hub-chat-panel{display:flex;flex-direction:column;gap:6px}
+#hub-chat-msgs{overflow-y:auto;max-height:120px;font-size:.68rem;color:#ccc;line-height:1.4}
+.hub-msg{margin-bottom:4px;padding:4px 6px;border-radius:6px;background:rgba(123,63,160,.15)}
+.hub-msg b{color:#f0d060}
+.hub-msg.me{background:rgba(201,162,39,.12)}
+#hub-chat-form{display:flex;gap:6px}
+#hub-chat-input{flex:1;padding:8px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:#0a0a0a;color:#f0d060;font-size:.75rem}
+#hub-chat-send{padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;font-size:.72rem;cursor:pointer}
+@media(max-width:768px),(pointer:coarse){
+  #hub-chat.visible{bottom:100px}
+  #hub-chat-panel{max-height:22vh}
+}
 </style>
 </head>
 <body>
@@ -204,6 +220,13 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div id="daily-banner"></div>
 <div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
 <button id="build-toggle" type="button">🏗️ Construir</button>
+<div id="hub-chat">
+<button type="button" id="hub-chat-toggle">💬 Chat Plaza Castillo</button>
+<div id="hub-chat-panel">
+<div id="hub-chat-msgs"></div>
+<form id="hub-chat-form"><input id="hub-chat-input" maxlength="120" placeholder="Escribe en la plaza del Castillo…" autocomplete="off"><button type="submit" id="hub-chat-send">Enviar</button></form>
+</div>
+</div>
 <div id="build-bar" class="collapsed-mobile">
 <button class="build-slot" data-build=""><span>🚶</span>Mover</button>
 <button class="build-slot" data-build="fence"><span>🪵</span>Cerca<br>5💎</button>
@@ -301,6 +324,14 @@ const TIERS = [
   { n:10, badge:'🔮 Iniciado', audio:.05, pack:0, color:'#9ca3af' },
 ];
 
+const AUDIO_BUYER_TIERS = [
+  { n:1, badge:'🎧 Oyente Erior', desc:'Primer audio comprado — bienvenido/a al viaje cuántico' },
+  { n:3, badge:'🪓 Hachero Cuántico', desc:'Desbloqueas hacha para talar árboles y ganar oro 🪙' },
+  { n:5, badge:'🏡 Anfitrión Erior', desc:'Skin Dorada + abrir tu mundo a visitas de pago' },
+  { n:10, badge:'👑 VIP Cuántico', desc:'Acceso premium a eventos y parcelas Erior' },
+];
+const BOT_POPULATION = 30;
+
 const SKINS = [
   { id:'purpura', name:'Alicia Púrpura', cost:75, priceMXN:149, key:'sk_p', dress:0x7b3fa0, hair:0x4a1a6b, aura:0x9b59b6 },
   { id:'dorada', name:'Alicia Dorada', cost:100, priceMXN:199, key:'sk_d', dress:0xc9a227, hair:0x8b6914, aura:0xffe066 },
@@ -364,7 +395,8 @@ const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND
 
 window.S = {
   userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
-  crystals:0, skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
+  crystals:0, gold:0, audiosPurchased:0, tools:[],
+  skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
   stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
   pendingSkins:[], streak:0, lastDaily:'',
@@ -386,6 +418,9 @@ try {
   if (window.S.xp === undefined) window.S.xp = 0;
   if (!window.S.premiumSkins) window.S.premiumSkins = [];
   if (!window.S.pendingSkins) window.S.pendingSkins = [];
+  if (window.S.gold === undefined) window.S.gold = 0;
+  if (window.S.audiosPurchased === undefined) window.S.audiosPurchased = 0;
+  if (!window.S.tools) window.S.tools = [];
 } catch(e){}
 try { window.S.openedChests = JSON.parse(sessionStorage.getItem('erior_chests')||'[]'); } catch(e){ window.S.openedChests = []; }
 
@@ -399,6 +434,54 @@ let cloudTimer = null;
 function hasSkin(id) {
   return (window.S.skins||[]).includes(id) || (window.S.premiumSkins||[]).includes(id);
 }
+function audioBuyerTier() {
+  const n = window.S.audiosPurchased || 0;
+  let t = null;
+  AUDIO_BUYER_TIERS.forEach(x => { if (n >= x.n) t = x; });
+  return t;
+}
+function hasTool(id) {
+  return (window.S.tools||[]).includes(id);
+}
+function updateOnlineCount() {
+  const el = document.getElementById('fomo-online');
+  if (!el) return;
+  const real = window._realOnline || 0;
+  const n = Math.max(28, BOT_POPULATION + real + Phaser.Math.Between(3, 11));
+  el.textContent = '🟢 ' + n + ' jugadores online';
+}
+function appendHubChatMsg(name, msg, isMe) {
+  const box = document.getElementById('hub-chat-msgs');
+  if (!box) return;
+  const d = document.createElement('div');
+  d.className = 'hub-msg' + (isMe ? ' me' : '');
+  d.innerHTML = '<b>' + name + ':</b> ' + msg.replace(/</g, '&lt;');
+  box.appendChild(d);
+  while (box.children.length > 40) box.firstChild.remove();
+  box.scrollTop = box.scrollHeight;
+}
+function initHubChat() {
+  const hub = document.getElementById('hub-chat');
+  const toggle = document.getElementById('hub-chat-toggle');
+  const form = document.getElementById('hub-chat-form');
+  toggle?.addEventListener('click', () => hub?.classList.toggle('open'));
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const inp = document.getElementById('hub-chat-input');
+    const msg = (inp?.value || '').trim();
+    if (!msg) return;
+    if (!window.S.userId) {
+      if (window.G) window.G.showToast('Inicia sesión para chatear en la plaza');
+      return;
+    }
+    if (!window.G?.isInHubPlaza()) {
+      if (window.G) window.G.showToast('Acércate a la plaza del Castillo para chatear');
+      return;
+    }
+    window.G.sendHubChat(msg);
+    if (inp) inp.value = '';
+  });
+}
 function gamePayload() {
   return {
     username: window.S.username,
@@ -406,6 +489,9 @@ function gamePayload() {
     level: window.S.level,
     xp: window.S.xp,
     crystals: window.S.crystals,
+    gold: window.S.gold || 0,
+    audios_purchased: window.S.audiosPurchased || 0,
+    tools: window.S.tools || [],
     active_skin: window.S.activeSkin,
     skins: window.S.skins || [],
     premium_skins: window.S.premiumSkins || [],
@@ -426,6 +512,10 @@ function applyCloudRow(row) {
   window.S.level = row.level ?? 0;
   window.S.xp = row.xp ?? 0;
   window.S.crystals = row.crystals ?? 0;
+  window.S.gold = row.gold ?? 0;
+  window.S.audiosPurchased = row.audios_purchased ?? 0;
+  window.S.tools = row.tools || [];
+  if ((window.S.audiosPurchased || 0) >= 3 && !window.S.tools.includes('axe')) window.S.tools.push('axe');
   window.S.activeSkin = row.active_skin || 'default';
   window.S.skins = row.skins || [];
   window.S.premiumSkins = row.premium_skins || [];
@@ -483,7 +573,8 @@ function saveLocal() {
   localStorage.setItem('erior', JSON.stringify({
     userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
     level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
-    crystals:window.S.crystals, skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
+    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[],
+    skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
     stats:window.S.stats||{}, pendingSkins:window.S.pendingSkins||[],
@@ -710,7 +801,7 @@ function updateProfileBtn() {
   const lo = document.getElementById('logout-btn');
   if (!b || !window.S.profileReady) return;
   b.style.display = 'block';
-  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · 💎'+window.S.crystals+(window.S.cloud?' · ☁️':'');
+  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🪙'+(window.S.gold||0)+(window.S.cloud?' · ☁️':'');
   if (lo) lo.style.display = window.S.userId ? 'block' : 'none';
 }
 
@@ -835,6 +926,12 @@ function makeTextures(scene) {
   g.lineStyle(2, 0xf0d060, 0.6); g.strokePath();
   g.generateTexture('crystal', 24, 28);
 
+  g.clear();
+  g.fillStyle(0xf0d060, 1); g.fillCircle(10, 10, 9);
+  g.fillStyle(0xc9a227, 1); g.fillCircle(10, 10, 6);
+  g.fillStyle(0xffffff, 0.6); g.fillCircle(7, 7, 2);
+  g.generateTexture('goldcoin', 20, 20);
+
   g.clear(); g.fillStyle(0x888899, 1);
   for (let i = 0; i < 4; i++) block(4 + i * 6, 16 + (i % 2) * 4, 8, 10, 0xaaaabb, 0x666677);
   g.generateTexture('rock', 36, 32);
@@ -942,7 +1039,19 @@ function closeAll() {
 function renderShop() {
   const t=tier();
   const un = window.S.username ? window.S.username : 'Viajero';
-  document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+'Bienvenido, '+un+' — audios exclusivos Erior';
+  const ab = audioBuyerTier();
+  const nextAudio = AUDIO_BUYER_TIERS.find(x => (window.S.audiosPurchased||0) < x.n);
+  document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+(ab?'🎧 '+ab.badge+' ('+(window.S.audiosPurchased||0)+' audios) · ':'')+'Bienvenido, '+un;
+  if (nextAudio) {
+    const hint = document.getElementById('shop-audio-hint');
+    if (!hint) {
+      const h = document.createElement('p');
+      h.id = 'shop-audio-hint';
+      h.style.cssText = 'color:#4ade80;font-size:.72rem;margin-top:6px';
+      document.getElementById('shop-tier').after(h);
+    }
+    document.getElementById('shop-audio-hint').textContent = '🎁 Compra '+nextAudio.n+' audio(s) Erior → '+nextAudio.badge+': '+nextAudio.desc;
+  }
   const feat = featuredAudio();
   const fd = disc(feat);
   let spot = document.getElementById('shop-spotlight');
@@ -1077,8 +1186,8 @@ function initDOM() {
       if(window.G) window.G.doInteract();
     }
   });
-  const upd=()=>document.getElementById('fomo-online').textContent='🟢 '+Phaser.Math.Between(28,47)+' jugadores online';
-  upd(); setInterval(upd,30000);
+  const upd=()=>updateOnlineCount();
+  upd(); setInterval(upd, 30000);
   const feed=()=>{
     const d=document.createElement('div'); d.className='fomo-item'; d.innerHTML=FOMO_MSGS[Phaser.Math.Between(0,FOMO_MSGS.length-1)];
     const f=document.getElementById('fomo-feed'); f.insertBefore(d,f.firstChild); while(f.children.length>3)f.lastChild.remove();
@@ -1097,6 +1206,7 @@ function initDOM() {
   document.getElementById('act-btn').onpointerdown=()=>{window.mobileInput.act=true;};
   document.getElementById('act-btn').onclick=()=>{ if(window.G && !window.S.modal) window.G.doInteract(); };
   initMobileUI();
+  initHubChat();
   window.buildMode = '';
   document.querySelectorAll('.build-slot').forEach(btn=>{
     btn.onclick=()=>{
@@ -1108,8 +1218,8 @@ function initDOM() {
   });
   document.getElementById('profile-btn').onclick = () => {
     if (!window.G) return;
-    const s = window.S.stats || {};
-    window.G.showToast('✦ '+window.S.username+' · Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🏗️'+(window.S.buildCount||0));
+    const ab = audioBuyerTier();
+    window.G.showToast('✦ '+window.S.username+' · Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🪙'+window.S.gold+(ab?' · '+ab.badge:''));
   };
 }
 initDOM();
@@ -1225,10 +1335,156 @@ class Game extends Phaser.Scene {
       if (isMobileUI()) this.showToast('📱 Joystick = mover · Botón dorado = ENTRAR · Toca 🛒 ENTRAR en edificios');
       else this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris');
     });
+    this.initMultiplayer();
   }
 
   isInHubPlaza() {
     return dist(this.col, this.row, HUB.col, HUB.row) <= HUB.interactR;
+  }
+
+  initMultiplayer() {
+    this.remotePlayers = {};
+    this.mpChannel = null;
+    this.mpSyncAcc = 0;
+    this.mpWasInHub = false;
+    if (!sb || !window.S.userId) return;
+    (async () => {
+      try {
+        const { data:{ session } } = await sb.auth.getSession();
+        if (session?.access_token) sb.realtime.setAuth(session.access_token);
+        this.mpChannel = sb.channel('plaza-castle', { config: { presence: { key: window.S.userId } } });
+        this.mpChannel
+          .on('presence', { event: 'sync' }, () => this.refreshRemotePlayers())
+          .on('presence', { event: 'join' }, () => this.refreshRemotePlayers())
+          .on('presence', { event: 'leave' }, () => this.refreshRemotePlayers())
+          .on('broadcast', { event: 'chat' }, ({ payload }) => this.onRemoteChat(payload))
+          .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') await this.mpChannel.track(this.buildPresence());
+          });
+      } catch (e) { /* offline */ }
+    })();
+  }
+
+  buildPresence() {
+    return {
+      user_id: window.S.userId,
+      username: window.S.username || 'Viajero',
+      avatar: window.S.avatar || 0,
+      col: this.col,
+      row: this.row,
+      level: window.S.level || 0,
+      in_hub: this.isInHubPlaza(),
+      ts: Date.now(),
+    };
+  }
+
+  async mpTrack() {
+    if (!this.mpChannel) return;
+    try { await this.mpChannel.track(this.buildPresence()); } catch (e) {}
+  }
+
+  refreshRemotePlayers() {
+    if (!this.mpChannel) return;
+    const state = this.mpChannel.presenceState();
+    const seen = new Set();
+    let realOthers = 0;
+    Object.values(state).forEach(arr => {
+      (arr || []).forEach(p => {
+        if (!p || p.user_id === window.S.userId) return;
+        if (!p.in_hub) return;
+        seen.add(p.user_id);
+        realOthers++;
+        this.upsertRemotePlayer(p);
+      });
+    });
+    Object.keys(this.remotePlayers).forEach(uid => { if (!seen.has(uid)) this.removeRemotePlayer(uid); });
+    window._realOnline = realOthers + (window.S.userId && this.isInHubPlaza() ? 1 : 0);
+    updateOnlineCount();
+  }
+
+  upsertRemotePlayer(p) {
+    let r = this.remotePlayers[p.user_id];
+    if (!r) {
+      const pos = this.wpos(p.col, p.row);
+      const d = isoDepth(Math.round(p.col), Math.round(p.row), 74);
+      const skinIdx = (p.avatar || 0) % 6;
+      const sh = this.add.image(pos.x, pos.y + 4, 'shadow').setDepth(d - 1);
+      const spr = this.add.sprite(pos.x, pos.y - 12, 'bot' + skinIdx + '_0').setOrigin(0.5, 0.92).setDepth(d).setTint(0xbbddff);
+      const tag = this.add.text(pos.x, pos.y - 48, 'Lvl ' + (p.level || 0) + '\n' + (p.username || '?'), {
+        fontFamily: 'Segoe UI', fontSize: '9px', color: '#3de8f0', stroke: '#000', strokeThickness: 2, align: 'center',
+      }).setOrigin(0.5, 1).setDepth(d + 1);
+      const bubble = this.add.text(pos.x, pos.y - 66, '', {
+        fontFamily: 'Segoe UI', fontSize: '8px', color: '#fff', backgroundColor: '#000000cc',
+        padding: { x: 5, y: 3 }, align: 'center', wordWrap: { width: 130 },
+      }).setOrigin(0.5, 1).setDepth(d + 2).setVisible(false);
+      r = { spr, sh, tag, bubble, col: p.col, row: p.row, dc: p.col, dr: p.row, bubbleT: 0 };
+      this.remotePlayers[p.user_id] = r;
+    }
+    r.col = p.col;
+    r.row = p.row;
+  }
+
+  removeRemotePlayer(uid) {
+    const r = this.remotePlayers[uid];
+    if (!r) return;
+    r.spr.destroy(); r.sh.destroy(); r.tag.destroy(); r.bubble.destroy();
+    delete this.remotePlayers[uid];
+  }
+
+  onRemoteChat(payload) {
+    if (!payload?.msg) return;
+    appendHubChatMsg(payload.username || 'Viajero', payload.msg, payload.user_id === window.S.userId);
+    const r = this.remotePlayers[payload.user_id];
+    if (r) {
+      r.bubble.setText(payload.msg).setVisible(true);
+      r.bubbleT = 6000;
+    }
+  }
+
+  sendHubChat(msg) {
+    if (!this.mpChannel || !msg.trim()) return;
+    const text = msg.trim().slice(0, 120);
+    this.mpChannel.send({
+      type: 'broadcast', event: 'chat',
+      payload: { user_id: window.S.userId, username: window.S.username, msg: text, ts: Date.now() },
+    });
+    appendHubChatMsg(window.S.username || 'Tú', text, true);
+  }
+
+  updateHubChatUI() {
+    const hub = document.getElementById('hub-chat');
+    if (!hub) return;
+    const show = this.isInHubPlaza() && !!window.S.userId;
+    hub.classList.toggle('visible', show);
+    if (!show) hub.classList.remove('open');
+  }
+
+  updateMultiplayer(delta) {
+    this.updateHubChatUI();
+    if (!this.mpChannel) return;
+    this.mpSyncAcc += delta;
+    if (this.mpSyncAcc >= 280) {
+      this.mpSyncAcc = 0;
+      this.mpTrack();
+      if (this.isInHubPlaza() !== this.mpWasInHub) {
+        this.mpWasInHub = this.isInHubPlaza();
+        this.refreshRemotePlayers();
+      }
+    }
+    Object.values(this.remotePlayers).forEach(r => {
+      r.dc += (r.col - r.dc) * Math.min(1, delta / 180);
+      r.dr += (r.row - r.dr) * Math.min(1, delta / 180);
+      const p = this.wpos(r.dc, r.dr);
+      const d = isoDepth(Math.round(r.dc), Math.round(r.dr), 74);
+      r.spr.setPosition(p.x, p.y - 12).setDepth(d);
+      r.sh.setPosition(p.x, p.y + 4).setDepth(d - 1);
+      r.tag.setPosition(p.x, p.y - 48).setDepth(d + 1);
+      r.bubble.setPosition(p.x, p.y - 66).setDepth(d + 2);
+      if (r.bubbleT > 0) {
+        r.bubbleT -= delta;
+        if (r.bubbleT <= 0) r.bubble.setVisible(false);
+      }
+    });
   }
 
   buildGroundMap(stamp) {
@@ -1355,6 +1611,7 @@ class Game extends Phaser.Scene {
       ...this.seededPos(80,2000).map(p=>({...p,type:'tree',tex:'tree'})),
       ...this.seededPos(50,3000).map(p=>({...p,type:'rock',tex:'rock'})),
       ...this.seededPos(40,4000).map(p=>({...p,type:'deco',tex:rng(p.c*99+p.r)>.5?'flower':'mushroom'})),
+      ...this.seededPos(35,5000).map(p=>({...p,type:'goldcoin',tex:'goldcoin'})),
     ];
     list.forEach(pos => {
       if (blocked.has(pos.c+','+pos.r)) return;
@@ -1376,6 +1633,23 @@ class Game extends Phaser.Scene {
         const gl = this.add.circle(p.x, p.y-4, 8, 0x3de8f0, 0.08).setDepth(d-1);
         this.tweens.add({ targets:gl, alpha:0.2, scale:1.4, duration:900, yoyo:true, repeat:-1 });
         o.meta.glow = gl;
+      } else if (pos.type==='goldcoin') {
+        o.setInteractive({ useHandCursor: true });
+        o.on('pointerdown', (e) => {
+          e.stopPropagation();
+          if (window.S.modal) return;
+          if (dist(this.col, this.row, o.meta.c, o.meta.r) <= 3.5) this.collectGold(o);
+          else this.showToast('¡Acércate a la moneda de oro!');
+        });
+        this.tweens.add({ targets:o, y:o.y-3, duration:900, yoyo:true, repeat:-1 });
+      } else if (pos.type==='tree') {
+        o.setInteractive({ useHandCursor: true });
+        o.on('pointerdown', (e) => {
+          e.stopPropagation();
+          if (window.S.modal) return;
+          if (dist(this.col, this.row, o.meta.c, o.meta.r) <= 3.5) this.chopTree(o);
+          else this.showToast('Acércate al árbol');
+        });
       } else if (pos.type!=='deco') {
         this.tweens.add({ targets:o, y:o.y-3, duration:1200+rng(pos.c+pos.r)*600, yoyo:true, repeat:-1 });
       }
@@ -1465,9 +1739,10 @@ class Game extends Phaser.Scene {
     const need = xpNeed(lv);
     const xp = window.S.xp || 0;
     this.hudTxt.level.setText('✦ ' + (window.S.username || 'Viajero') + ' · Lvl ' + lv);
-    this.hudTxt.crys.setText('💎 Cristales: '+this.crystals+' · XP '+xp+'/'+need);
+    this.hudTxt.crys.setText('💎 '+this.crystals+' · 🪙 '+(window.S.gold||0)+' · XP '+xp+'/'+need);
     const t = tier();
-    this.hudTxt.badge.setText(t?t.badge:'Explora y recolecta cristales');
+    const ab = audioBuyerTier();
+    this.hudTxt.badge.setText(ab ? ab.badge : (t ? t.badge : 'Explora y recolecta cristales'));
     if (t) this.hudTxt.badge.setColor(t.color);
     this.hudTxt.coord.setText('X: '+Math.round(this.col)+'  Y: '+Math.round(this.row));
     this.hudTxt.pdf.setVisible(!!(t&&t.pdf)).setText(t&&t.pdf?'📄 Descargar Cupón PDF':'');
@@ -1764,6 +2039,50 @@ class Game extends Phaser.Scene {
     }});
   }
 
+  collectGold(o) {
+    if (o.meta.gone) return;
+    o.meta.gone = true;
+    const gain = Phaser.Math.Between(1, 3);
+    window.S.gold = (window.S.gold || 0) + gain;
+    addXP(3);
+    this.showToast('+' + gain + ' 🪙 Oro · +3 XP');
+    this.burst(o.x, o.y, 0xf0d060);
+    this.syncHUD();
+    this.tweens.add({ targets:o, alpha:0, scale:0, y:o.y-12, duration:300, onComplete:()=>{
+      o.setVisible(false);
+      this.time.delayedCall(90000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1); });
+    }});
+  }
+
+  chopTree(o) {
+    if (o.meta.gone || o.meta.chopping) return;
+    if (!hasTool('axe')) {
+      this.showToast('🪓 Compra 3 audios Erior en el Castillo para desbloquear la hacha');
+      return;
+    }
+    if (dist(this.col, this.row, o.meta.c, o.meta.r) > 3.5) {
+      this.showToast('Acércate al árbol');
+      return;
+    }
+    o.meta.chopping = true;
+    this.tweens.add({ targets:this.player, angle:{ from:0, to:-12 }, duration:120, yoyo:true, repeat:3 });
+    this.time.delayedCall(750, () => {
+      if (o.meta.gone) return;
+      o.meta.gone = true;
+      const gain = Phaser.Math.Between(2, 6);
+      window.S.gold = (window.S.gold || 0) + gain;
+      addXP(8);
+      this.showToast('🪓 +' + gain + ' 🪙 Oro · +8 XP');
+      this.burst(o.x, o.y, 0xc9a227);
+      this.syncHUD();
+      this.tweens.add({ targets:o, alpha:0, scaleY:0.2, duration:400, onComplete:()=>{
+        o.setVisible(false);
+        o.meta.chopping = false;
+        this.time.delayedCall(120000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1); });
+      }});
+    });
+  }
+
   burst(x,y,color) {
     const p = this.add.particles(x,y,'spark',{ speed:{min:50,max:140}, angle:{min:0,max:360}, scale:{start:1.5,end:0}, alpha:{start:1,end:0}, lifespan:550, quantity:20, tint:color, blendMode:'ADD' }).setDepth(9999);
     this.time.delayedCall(600, ()=>p.destroy());
@@ -1835,6 +2154,7 @@ class Game extends Phaser.Scene {
 
   update(_, delta) {
     if (window.S.modal) { window.mobileInput.act = false; return; }
+    this.updateMultiplayer(delta);
     this.updateFakePlayers(delta);
     const dt = delta / 1000;
     let dc = 0, dr = 0;
