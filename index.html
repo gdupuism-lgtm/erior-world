@@ -251,6 +251,21 @@ body{min-height:100vh;min-height:-webkit-fill-available}
   #hub-chat-panel{max-height:16vh}
   #interact-prompt{display:none!important}
 }
+#emote-bar{display:none;position:fixed;bottom:max(108px,calc(92px + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%);z-index:608;gap:6px;padding:6px 12px;border-radius:22px;background:rgba(0,0,0,.78);border:1px solid rgba(201,162,39,.45);align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.45)}
+#emote-bar.visible{display:flex}
+#emote-bar button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(201,162,39,.45);background:rgba(18,18,24,.95);font-size:1.15rem;cursor:pointer;line-height:1;transition:transform .12s,border-color .12s}
+#emote-bar button:hover,#emote-bar button:active{transform:scale(1.1);border-color:#f0d060}
+#emote-bar button[data-emote="chop"]{border-color:rgba(160,82,45,.65)}
+#music-toggle{display:none;position:fixed;z-index:621;width:38px;height:38px;border-radius:50%;border:2px solid rgba(201,162,39,.5);background:rgba(0,0,0,.82);cursor:pointer;font-size:1rem;line-height:1}
+#music-toggle.visible{display:block}
+#music-toggle.off{opacity:.55;border-color:#555}
+@media(min-width:769px){
+  #emote-bar{bottom:72px}
+  #music-toggle{top:10px;right:118px}
+}
+@media(max-width:768px),(pointer:coarse){
+  #music-toggle{top:calc(50px + env(safe-area-inset-top));right:10px}
+}
 </style>
 </head>
 <body>
@@ -358,6 +373,13 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 <div id="fomo-feed"></div>
 <canvas id="minimap" width="120" height="120"></canvas>
+<div id="emote-bar">
+<button type="button" data-emote="wave" title="Saludar">👋</button>
+<button type="button" data-emote="dance" title="Bailar">💃</button>
+<button type="button" data-emote="meditate" title="Meditar">🧘</button>
+<button type="button" data-emote="chop" title="Talar árbol">🪓</button>
+</div>
+<button id="music-toggle" type="button" aria-label="Música ambiente" title="Música">🎵</button>
 <div id="joy-zone"><div id="joy-knob"></div></div>
 <button id="act-btn" type="button"><span id="act-icon">E</span><span id="act-label"></span></button>
 <button id="interact-prompt" type="button"><span>E</span><span id="interact-label">Entrar</span></button>
@@ -375,9 +397,11 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div id="build-bar" class="collapsed-mobile">
 <button class="build-slot" data-build=""><span>🚶</span>Mover</button>
 <button class="build-slot" data-build="fence"><span>🪵</span>Cerca<br>5💎</button>
-<button class="build-slot" data-build="house"><span>🏠</span>Casa<br>15💎</button>
-<button class="build-slot" data-build="table"><span>🪑</span>Mesa<br>8💎</button>
+<button class="build-slot" data-build="house"><span>🏠</span>Casa<br>15💎+10🪵</button>
+<button class="build-slot" data-build="table"><span>🪑</span>Mesa<br>8💎+4🪵</button>
 <button class="build-slot" data-build="tree"><span>🌲</span>Árbol<br>3💎</button>
+<button class="build-slot" data-build="campfire"><span>🔥</span>Fogata<br>5💎+8🪵</button>
+<button class="build-slot" data-build="villa"><span>🏡</span>Villa VIP<br>25💎+20🪵</button>
 </div>
 
 <div id="shop-overlay" class="overlay">
@@ -443,7 +467,9 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 'use strict';
 
 const TW = 64, TH = 32, MAP = 80, SPEED = 220, SEED = 77777;
-const BUILD_COST = { fence:5, house:15, table:8, tree:3 };
+const BUILD_COST = { fence:5, house:15, table:8, tree:3, campfire:5, villa:25 };
+const BUILD_WOOD = { fence:0, house:10, table:4, tree:0, campfire:8, villa:20 };
+const EMOTE_ICONS = { wave:'👋', dance:'💃', meditate:'🧘', chop:'🪓' };
 const FAKE_NAMES = ['Dencrew','Valeria','Carlos','Sofía','Miguel','Camila','Diego','Pablo','Lucía','Andrea','Fernanda','Roberto','Mariana','Tomás','Isabel','Natalia','Carmen','Andrés','Daniela','Mateo','Elena','Gabriel','Paula','Jorge','Ana'];
 const SKIN_COLORS = [
   { body:0x3498db, head:0xffccaa, hair:0x2c1810, hat:0 },
@@ -455,6 +481,108 @@ const SKIN_COLORS = [
 ];
 const WA = '524432289203', EMAIL = 'eriorcenter@gmail.com', PAYPAL = 'https://paypal.me/sheismagique';
 const ALICIA_IA = 'https://eriorcenterguiaaudios.netlify.app/#alicia';
+
+const EriorMusic = {
+  ctx: null, playing: false, muted: false, started: false,
+  _timer: null, _nodes: [], _step: 0,
+  init() {
+    if (this.ctx) return;
+    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  },
+  async resume() {
+    this.init();
+    if (this.ctx?.state === 'suspended') await this.ctx.resume();
+  },
+  async start() {
+    await this.resume();
+    if (!this.ctx || this.playing || this.muted) return;
+    this.playing = true;
+    this.started = true;
+    this._step = 0;
+    this._scheduleLoop();
+    this._updateBtn();
+  },
+  stop() {
+    this.playing = false;
+    if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    this._nodes.forEach(n => { try { n.stop?.(); n.disconnect?.(); } catch (e) {} });
+    this._nodes = [];
+    this._updateBtn();
+  },
+  toggle() {
+    this.muted = !this.muted;
+    if (this.muted) this.stop();
+    else this.start();
+    this._updateBtn();
+  },
+  setNight(n) { this._night = n; },
+  _updateBtn() {
+    const b = document.getElementById('music-toggle');
+    if (!b) return;
+    b.textContent = this.muted || !this.playing ? '🔇' : '🎵';
+    b.classList.toggle('off', this.muted || !this.playing);
+    b.title = this.muted ? 'Activar música' : 'Música ambiente Erior';
+  },
+  _scheduleLoop() {
+    if (!this.playing || !this.ctx) return;
+    const bpm = this._night ? 72 : 88;
+    const beat = 60 / bpm;
+    this._playBar(beat);
+    this._timer = setInterval(() => {
+      if (!this.playing) return;
+      this._playBar(beat);
+    }, beat * 1000 * 4);
+  },
+  _playBar(beat) {
+    const ctx = this.ctx, t = ctx.currentTime + 0.05;
+    const night = !!this._night;
+    const chords = night
+      ? [[220,261.63,329.63],[196,246.94,293.66],[174.61,220,261.63],[196,246.94,329.63]]
+      : [[261.63,329.63,392],[220,277.18,329.63],[246.94,311.13,369.99],[220,261.63,329.63]];
+    const ch = chords[this._step % chords.length];
+    this._step++;
+    ch.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = i === 0 ? 'triangle' : 'sine';
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(night ? 0.018 : 0.024, t + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.001, t + beat * 3.5);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + beat * 4);
+      this._nodes.push(osc);
+    });
+    for (let i = 0; i < 8; i++) {
+      const arp = ch[i % 3] * (i > 3 ? 2 : 1);
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'square';
+      o.frequency.value = arp;
+      const st = t + i * beat * 0.45;
+      g.gain.setValueAtTime(0, st);
+      g.gain.linearRampToValueAtTime(night ? 0.008 : 0.012, st + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, st + beat * 0.35);
+      o.connect(g).connect(ctx.destination);
+      o.start(st); o.stop(st + beat * 0.4);
+      this._nodes.push(o);
+    }
+    [0, 2].forEach(bi => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = night ? 55 : 65;
+      const st = t + bi * beat * 2;
+      g.gain.setValueAtTime(0, st);
+      g.gain.linearRampToValueAtTime(night ? 0.06 : 0.08, st + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, st + beat * 0.9);
+      o.connect(g).connect(ctx.destination);
+      o.start(st); o.stop(st + beat);
+      this._nodes.push(o);
+    });
+    if (this._nodes.length > 80) this._nodes.splice(0, 40);
+  },
+};
 
 const HUB = { col: 40, row: 40, radius: 8, interactR: 12 };
 const NPC = { col: 36, row: 43 };
@@ -644,7 +772,7 @@ const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND
 
 window.S = {
   userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
-  crystals:0, gold:0, audiosPurchased:0, tools:[], inventory:[],
+  crystals:0, gold:0, wood:0, audiosPurchased:0, tools:[], inventory:[],
   guideDone:false, guestId:'', hp:100, maxHp:100, manifestFocus:'', manifestAudio:'',
   skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
@@ -669,6 +797,7 @@ try {
   if (!window.S.premiumSkins) window.S.premiumSkins = [];
   if (!window.S.pendingSkins) window.S.pendingSkins = [];
   if (window.S.gold === undefined) window.S.gold = 0;
+  if (window.S.wood === undefined) window.S.wood = 0;
   if (window.S.audiosPurchased === undefined) window.S.audiosPurchased = 0;
   if (!window.S.tools) window.S.tools = [];
   if (!window.S.inventory) window.S.inventory = [];
@@ -794,9 +923,22 @@ function nextPassportTier() {
 }
 function showGameDock(on) {
   const d = document.getElementById('game-dock');
-  if (!d) return;
-  if (isMobileUI()) { d.classList.remove('visible'); return; }
-  d.classList.toggle('visible', !!on);
+  if (d && !isMobileUI()) d.classList.toggle('visible', !!on);
+  document.getElementById('emote-bar')?.classList.toggle('visible', !!on);
+  document.getElementById('music-toggle')?.classList.toggle('visible', !!on);
+}
+function initEmotes() {
+  document.querySelectorAll('[data-emote]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.G) window.G.playEmote(btn.dataset.emote);
+    });
+  });
+}
+function initMusicUI() {
+  const btn = document.getElementById('music-toggle');
+  if (!btn) return;
+  btn.addEventListener('click', () => EriorMusic.toggle());
+  EriorMusic._updateBtn();
 }
 function updateMobileHUD() {
   if (!isMobileUI() || !window.S.profileReady) return;
@@ -804,7 +946,7 @@ function updateMobileHUD() {
   const mn = document.getElementById('mobile-name');
   const mm = document.getElementById('mobile-meta');
   if (mn) mn.textContent = window.S.username || 'Viajero';
-  if (mm) mm.textContent = audioPassportLevel().badge.replace(/^[^\s]+\s/, '') + ' · Lvl ' + (window.S.level || 0) + ' · 💎' + (window.S.crystals || 0);
+  if (mm) mm.textContent = audioPassportLevel().badge.replace(/^[^\s]+\s/, '') + ' · Lvl ' + (window.S.level || 0) + ' · 💎' + (window.S.crystals || 0) + ' · 🪵' + (window.S.wood || 0);
   const fill = document.getElementById('mobile-hp-fill');
   const bar = document.getElementById('mobile-hp-bar');
   if (fill && bar) {
@@ -960,7 +1102,9 @@ function audioBuyerTier() {
   return t;
 }
 function hasTool(id) {
-  return (window.S.tools||[]).includes(id);
+  if ((window.S.tools || []).includes(id)) return true;
+  if (id === 'axe') return gadgetCount('axe') > 0;
+  return false;
 }
 function updateOnlineCount() {
   const el = document.getElementById('fomo-online');
@@ -1105,6 +1249,7 @@ function gamePayload() {
     xp: window.S.xp,
     crystals: window.S.crystals,
     gold: window.S.gold || 0,
+    wood: window.S.wood || 0,
     audios_purchased: window.S.audiosPurchased || 0,
     tools: window.S.tools || [],
     inventory: window.S.inventory || [],
@@ -1132,6 +1277,7 @@ function applyCloudRow(row) {
   window.S.xp = row.xp ?? 0;
   window.S.crystals = row.crystals ?? 0;
   window.S.gold = row.gold ?? 0;
+  window.S.wood = row.wood ?? window.S.wood ?? 0;
   window.S.audiosPurchased = row.audios_purchased ?? 0;
   window.S.tools = row.tools || [];
   window.S.inventory = row.inventory || window.S.inventory || [];
@@ -1197,7 +1343,7 @@ function saveLocal() {
   localStorage.setItem('erior', JSON.stringify({
     userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
     level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
-    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'', hp:window.S.hp, maxHp:window.S.maxHp, manifestFocus:window.S.manifestFocus||'', manifestAudio:window.S.manifestAudio||'',
+    crystals:window.S.crystals, gold:window.S.gold||0, wood:window.S.wood||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'', hp:window.S.hp, maxHp:window.S.maxHp, manifestFocus:window.S.manifestFocus||'', manifestAudio:window.S.manifestAudio||'',
     skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
@@ -1443,7 +1589,7 @@ function updateProfileBtn() {
   } else {
     b.style.display = 'block';
     initHpState();
-    b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>'+audioPassportLevel().badge+' · Lvl '+window.S.level+' · ❤️'+Math.round(window.S.hp)+' · 💎'+window.S.crystals+(window.S.cloud?' · ☁️':'');
+    b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>'+audioPassportLevel().badge+' · Lvl '+window.S.level+' · ❤️'+Math.round(window.S.hp)+' · 💎'+window.S.crystals+' · 🪵'+(window.S.wood||0)+(window.S.cloud?' · ☁️':'');
   }
   if (ar && !isMobileUI()) ar.style.display = 'flex';
   else if (ar) ar.style.display = 'none';
@@ -1614,6 +1760,19 @@ function makeTextures(scene) {
     g.fillStyle(0x3de8f0, 1); g.fillCircle(14, 20, 3); g.fillCircle(22, 22, 3); g.generateTexture('build_table', 40, 44);
   }
   buildHouse(); buildFence(); buildTable();
+  g.clear();
+  block(10, 38, 16, 8, 0x5d4037, 0x3e2723); block(14, 34, 8, 6, 0x6d4c41, 0x4e342e);
+  g.fillStyle(0xff5722, 1); g.fillCircle(18, 28, 5); g.fillStyle(0xffeb3b, 1); g.fillCircle(18, 26, 3);
+  g.fillStyle(0xff9800, 0.7); g.fillCircle(16, 30, 2); g.fillCircle(20, 29, 2);
+  g.generateTexture('build_campfire', 36, 48);
+  g.clear();
+  block(2, 30, 44, 20, 0xd4a574, 0xb8956a);
+  g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(24, 2); g.lineTo(48, 28); g.lineTo(0, 28); g.closePath(); g.fillPath();
+  g.fillStyle(0xc9a227, 1); g.beginPath(); g.moveTo(24, 8); g.lineTo(40, 24); g.lineTo(8, 24); g.closePath(); g.fillPath();
+  block(18, 32, 14, 18, 0x4a3020, 0x2a1808);
+  g.fillStyle(0xf0d060, 0.85); g.fillRect(20, 36, 4, 4); g.fillRect(28, 36, 4, 4);
+  g.fillStyle(0x3de8f0, 0.5); g.fillRect(22, 18, 6, 8);
+  g.generateTexture('build_villa', 52, 56);
 
   g.clear();
   g.fillStyle(0x888899, 1); g.fillCircle(40, 40, 28);
@@ -1853,6 +2012,8 @@ function initDOM() {
   initGuide();
   initDeathScreen();
   initGameDock();
+  initEmotes();
+  initMusicUI();
   document.getElementById('howto-full')?.addEventListener('click', () => { closeAll(); showGuide(0); });
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape')closeAll();
@@ -1895,7 +2056,7 @@ function initDOM() {
   document.getElementById('profile-btn').onclick = () => {
     if (!window.G) return;
     const ab = audioBuyerTier();
-    window.G.showToast('✦ '+window.S.username+' · Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🪙'+window.S.gold+(ab?' · '+ab.badge:''));
+    window.G.showToast('✦ '+window.S.username+' · Lvl '+window.S.level+' · 💎'+window.S.crystals+' · 🪙'+window.S.gold+' · 🪵'+(window.S.wood||0)+(ab?' · '+ab.badge:''));
   };
 }
 initDOM();
@@ -1918,6 +2079,8 @@ class Game extends Phaser.Scene {
     this.pendingShop = null; this.shopMarkers = [];
     this.nightMobs = []; this.nightMobTimer = 0; this.nightFactor = 0;
     this.playerDead = false; this.hitFlash = 0; this.hubHealAcc = 0;
+    this.emoteLock = false; this.moving = false; this.bobPhase = 0;
+    this.emoteBubble = null;
 
     const corners = [iso(0,0), iso(MAP-1,0), iso(0,MAP-1), iso(MAP-1,MAP-1)];
     const pad = TW * 4;
@@ -2010,8 +2173,8 @@ class Game extends Phaser.Scene {
     window._gameBooted = true;
     document.getElementById('load-error')?.classList.remove('show');
     this.time.delayedCall(1200, ()=>{
-      if (isMobileUI()) this.showToast('📱 Joystick = mover · Botón dorado = ENTRAR · Toca 🛒 ENTRAR en edificios');
-      else this.showToast('🛒 El edificio DORADO = Tienda · Alicia = Guía IA · Pulsa E en la plaza gris');
+      if (isMobileUI()) this.showToast('📱 Joystick = mover · 👋💃🧘🪓 = emotes · 🎵 = música');
+      else this.showToast('👋 Emotes abajo · 🪓 Tala árboles → 🪵 madera → 🔥 fogatas y 🏡 villas');
     });
     this.initMultiplayer();
   }
@@ -2043,6 +2206,7 @@ class Game extends Phaser.Scene {
           .on('presence', { event: 'join' }, () => this.refreshRemotePlayers())
           .on('presence', { event: 'leave' }, () => this.refreshRemotePlayers())
           .on('broadcast', { event: 'chat' }, ({ payload }) => this.onRemoteChat(payload))
+          .on('broadcast', { event: 'emote' }, ({ payload }) => this.onRemoteEmote(payload))
           .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') await this.mpChannel.track(this.buildPresence());
           });
@@ -2371,6 +2535,8 @@ class Game extends Phaser.Scene {
     this.dayT = (this.dayT + delta / DAY_CYCLE_MS) % 1;
     this.applyDayPalette(sampleDayPalette(this.dayT));
     this.layoutSunMoon();
+    const night = (this.nightFactor || 0) > 0.55;
+    EriorMusic.setNight(night);
     this.updateNightMobs(delta);
   }
 
@@ -2531,7 +2697,7 @@ class Game extends Phaser.Scene {
     const need = xpNeed(lv);
     const xp = window.S.xp || 0;
     this.hudTxt.level.setText('✦ ' + (window.S.username || 'Viajero') + ' · Lvl ' + lv);
-    this.hudTxt.crys.setText('💎 '+this.crystals+' · 🪙 '+(window.S.gold||0)+' · ❤️ '+Math.round(window.S.hp)+'/'+window.S.maxHp+' · XP '+xp+'/'+need);
+    this.hudTxt.crys.setText('💎 '+this.crystals+' · 🪙 '+(window.S.gold||0)+' · 🪵 '+(window.S.wood||0)+' · ❤️ '+Math.round(window.S.hp)+'/'+window.S.maxHp+' · XP '+xp+'/'+need);
     const t = tier();
     const ab = audioBuyerTier();
     this.hudTxt.badge.setText(ab ? ab.badge : (t ? t.badge : 'Explora y recolecta cristales'));
@@ -2582,6 +2748,108 @@ class Game extends Phaser.Scene {
     this.hudTxt.toast.setText(msg).setAlpha(1).setPosition(this.cameras.main.width/2, this.cameras.main.height/2-40);
     this.tweens.killTweensOf(this.hudTxt.toast);
     this.tweens.add({ targets:this.hudTxt.toast, alpha:0, y:this.hudTxt.toast.y-20, duration:1400 });
+  }
+
+  showEmoteBubble(icon, duration) {
+    if (!this.playerTag) return;
+    const p = this.wpos(this.col, this.row);
+    const d = isoDepth(this.col, this.row, 90);
+    if (!this.emoteBubble) {
+      this.emoteBubble = this.add.text(p.x, p.y - 68, icon, {
+        fontSize: '22px', align: 'center',
+      }).setOrigin(0.5, 1).setDepth(d);
+    }
+    this.emoteBubble.setText(icon).setPosition(p.x, p.y - 68).setDepth(d).setAlpha(1).setScale(1).setVisible(true);
+    this.tweens.killTweensOf(this.emoteBubble);
+    this.tweens.add({
+      targets: this.emoteBubble, y: p.y - 78, scale: 1.15, duration: 400, yoyo: true, repeat: 1,
+      onComplete: () => {
+        this.tweens.add({ targets: this.emoteBubble, alpha: 0, duration: 500, delay: duration || 1200 });
+      },
+    });
+  }
+
+  broadcastEmote(type) {
+    if (!this.mpChannel) return;
+    try {
+      this.mpChannel.send({
+        type: 'broadcast', event: 'emote',
+        payload: { user_id: window.S.userId || window.S.guestId, username: window.S.username, type, ts: Date.now() },
+      });
+    } catch (e) {}
+  }
+
+  onRemoteEmote(payload) {
+    if (!payload?.type) return;
+    const r = this.remotePlayers[payload.user_id];
+    const icon = EMOTE_ICONS[payload.type] || '✦';
+    if (r) {
+      r.bubble.setText(icon).setVisible(true);
+      r.bubbleT = 2500;
+      if (payload.type === 'dance') {
+        this.tweens.add({ targets: r.spr, angle: { from: -8, to: 8 }, duration: 200, yoyo: true, repeat: 4 });
+      }
+    }
+  }
+
+  findNearestTree(maxDist) {
+    let best = null, bd = maxDist || 4;
+    this.collectibles.forEach(o => {
+      if (o.meta.gone || o.meta.type !== 'tree' || o.meta.chopping) return;
+      const d = dist(this.col, this.row, o.meta.c, o.meta.r);
+      if (d <= bd) { bd = d; best = o; }
+    });
+    return best;
+  }
+
+  playEmote(type) {
+    if (this.emoteLock || this.playerDead || window.S.modal) return;
+    if (type === 'chop') {
+      if (!hasTool('axe') && !gadgetCount('axe')) {
+        this.showToast('🪓 Necesitas hacha — 3 audios Erior o Casino');
+        return;
+      }
+      const tree = this.findNearestTree(4);
+      if (!tree) { this.showToast('Acércate a un árbol 🌲'); return; }
+      this.emoteLock = true;
+      this.showEmoteBubble('🪓', 800);
+      this.broadcastEmote('chop');
+      this.tweens.add({ targets: this.player, angle: { from: 0, to: -18 }, duration: 100, yoyo: true, repeat: 4,
+        onComplete: () => { this.player.setAngle(0); this.chopTree(tree); this.emoteLock = false; },
+      });
+      return;
+    }
+    this.emoteLock = true;
+    this.targetCol = null; this.targetRow = null;
+    const icon = EMOTE_ICONS[type] || '✦';
+    this.showEmoteBubble(icon, 1500);
+    this.broadcastEmote(type);
+    this.tweens.killTweensOf(this.player);
+    if (type === 'wave') {
+      this.tweens.add({ targets: this.player, angle: { from: 0, to: 14 }, duration: 180, yoyo: true, repeat: 3,
+        onComplete: () => { this.player.setAngle(0); this.emoteLock = false; },
+      });
+    } else if (type === 'dance') {
+      this.tweens.add({ targets: this.player, scaleX: this.player.scaleX * 1.08, scaleY: 1.08, duration: 160, yoyo: true, repeat: 6,
+        onComplete: () => { this.setSkin(); this.emoteLock = false; },
+      });
+      const p = this.wpos(this.col, this.row);
+      this.tweens.add({ targets: this.player, y: p.y - 18, duration: 160, yoyo: true, repeat: 6,
+        onComplete: () => this.repositionPlayer(),
+      });
+    } else if (type === 'meditate') {
+      this.player.setTint(0xaa88ff);
+      const p = this.wpos(this.col, this.row);
+      this.player.setPosition(p.x, p.y - 6);
+      this.tweens.add({ targets: this.glow, alpha: 0.35, scale: 1.4, duration: 600, yoyo: true, repeat: 2 });
+      this.time.delayedCall(2400, () => {
+        this.player.clearTint();
+        this.repositionPlayer();
+        this.emoteLock = false;
+      });
+    } else {
+      this.emoteLock = false;
+    }
   }
 
   nearBuilding() {
@@ -2696,30 +2964,39 @@ class Game extends Phaser.Scene {
   placeBuild(c, r, type, persist, ownerName) {
     const ic = Math.round(c), ir = Math.round(r);
     if (ic < 0 || ir < 0 || ic >= MAP || ir >= MAP || !this.walk[ir][ic]) return false;
-    const tex = type === 'tree' ? 'tree' : 'build_' + type;
-    const blocks = type !== 'tree';
+    const tex = type === 'tree' ? 'tree' : type === 'campfire' ? 'build_campfire' : type === 'villa' ? 'build_villa' : 'build_' + type;
+    const blocks = type !== 'tree' && type !== 'campfire';
     if (blocks && !this.canPlaceBlockingAt(ic, ir)) return false;
     if (blocks) this.walk[ir][ic] = false;
     const p = this.wpos(ic, ir);
     const d = isoDepth(ic, ir, 40);
     this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 1);
-    const spr = this.add.sprite(p.x, p.y - (type === 'house' ? 16 : 8), tex).setOrigin(0.5, 0.88).setDepth(d);
-    let tag = null;
+    const yOff = type === 'house' || type === 'villa' ? 16 : type === 'campfire' ? 4 : 8;
+    const scale = type === 'villa' ? 1.15 : 1;
+    const spr = this.add.sprite(p.x, p.y - yOff, tex).setOrigin(0.5, 0.88).setDepth(d).setScale(scale);
+    let tag = null, fire = null;
     const owner = ownerName || (persist ? window.S.username : '') || '';
     if (type !== 'fence' && owner) {
-      const lift = type === 'house' ? 54 : type === 'tree' ? 48 : 44;
+      const lift = type === 'villa' ? 62 : type === 'house' ? 54 : type === 'tree' ? 48 : type === 'campfire' ? 38 : 44;
       tag = this.add.text(p.x, p.y - lift, '✦ ' + owner, {
-        fontFamily: 'Segoe UI', fontSize: type === 'house' ? '10px' : '9px',
-        color: '#f0d060', stroke: '#000', strokeThickness: 3, align: 'center',
+        fontFamily: 'Segoe UI', fontSize: type === 'villa' || type === 'house' ? '10px' : '9px',
+        color: type === 'villa' ? '#f0d060' : '#f0d060', stroke: '#000', strokeThickness: 3, align: 'center',
       }).setOrigin(0.5, 1).setDepth(d + 1);
     }
-    this.placedBuilds.push({ col: ic, row: ir, type, spr, tag, owner });
+    if (type === 'campfire') {
+      fire = this.add.particles(p.x, p.y - 10, 'spark', {
+        speed: { min: 8, max: 28 }, angle: { min: 240, max: 300 }, scale: { start: 0.8, end: 0 },
+        alpha: { start: 0.9, end: 0 }, lifespan: 600, quantity: 2, frequency: 120,
+        tint: [0xff5722, 0xffeb3b, 0xff9800], blendMode: 'ADD',
+      }).setDepth(d + 1);
+    }
+    this.placedBuilds.push({ col: ic, row: ir, type, spr, tag, owner, fire });
     if (persist) {
       window.S.builds = window.S.builds || [];
       window.S.builds.push({ col: ic, row: ir, type, owner: window.S.username || 'Viajero' });
       window.S.buildCount = (window.S.buildCount || 0) + 1;
-      if (type === 'house') this.autoFence(ic, ir);
-      addXP(type === 'house' ? 25 : 12);
+      if (type === 'house' || type === 'villa') this.autoFence(ic, ir);
+      addXP(type === 'villa' ? 40 : type === 'house' ? 25 : type === 'campfire' ? 15 : 12);
       checkQuests();
       save();
       if (!this.hasWalkableNeighbor()) this.unstuckPlayer(false);
@@ -2753,10 +3030,14 @@ class Game extends Phaser.Scene {
       return;
     }
     const cost = BUILD_COST[type];
-    if (this.crystals < cost) { this.showToast('Necesitas ' + cost + ' cristales'); return; }
+    const woodNeed = BUILD_WOOD[type] || 0;
+    if (this.crystals < cost) { this.showToast('Necesitas ' + cost + ' 💎 cristales'); return; }
+    if ((window.S.wood || 0) < woodNeed) { this.showToast('Necesitas ' + woodNeed + ' 🪵 madera — tala árboles con 🪓'); return; }
     if (this.placeBuild(ic, ir, type, true)) {
       this.crystals -= cost;
-      this.showToast('¡Construido! · ✦ ' + (window.S.username || 'Tú'));
+      if (woodNeed) window.S.wood = (window.S.wood || 0) - woodNeed;
+      const labels = { campfire:'🔥 Fogata', villa:'🏡 Villa Premium', house:'🏠 Casa', fence:'🪵 Cerca', table:'🪑 Mesa', tree:'🌲 Árbol' };
+      this.showToast('¡' + (labels[type] || 'Construido') + '! · ✦ ' + (window.S.username || 'Tú'));
       this.syncHUD();
     }
   }
@@ -2972,24 +3253,26 @@ class Game extends Phaser.Scene {
 
   chopTree(o) {
     if (o.meta.gone || o.meta.chopping) return;
-    if (!hasTool('axe')) {
-      this.showToast('🪓 Compra 3 audios Erior en el Castillo para desbloquear la hacha');
+    if (!hasTool('axe') && !gadgetCount('axe')) {
+      this.showToast('🪓 Necesitas hacha — 3 audios Erior o Casino');
       return;
     }
-    if (dist(this.col, this.row, o.meta.c, o.meta.r) > 3.5) {
+    if (dist(this.col, this.row, o.meta.c, o.meta.r) > 4) {
       this.showToast('Acércate al árbol');
       return;
     }
     o.meta.chopping = true;
-    this.tweens.add({ targets:this.player, angle:{ from:0, to:-12 }, duration:120, yoyo:true, repeat:3 });
-    this.time.delayedCall(750, () => {
+    this.tweens.add({ targets:this.player, angle:{ from:0, to:-16 }, duration:100, yoyo:true, repeat:4 });
+    this.time.delayedCall(850, () => {
       if (o.meta.gone) return;
       o.meta.gone = true;
-      const gain = Phaser.Math.Between(2, 6);
-      window.S.gold = (window.S.gold || 0) + gain;
-      addXP(8);
-      this.showToast('🪓 +' + gain + ' 🪙 Oro · +8 XP');
-      this.burst(o.x, o.y, 0xc9a227);
+      const woodGain = Phaser.Math.Between(3, 7);
+      const goldGain = Phaser.Math.Between(1, 3);
+      window.S.wood = (window.S.wood || 0) + woodGain;
+      window.S.gold = (window.S.gold || 0) + goldGain;
+      addXP(10);
+      this.showToast('🪓 +' + woodGain + ' 🪵 Madera · +' + goldGain + ' 🪙 · +10 XP');
+      this.burst(o.x, o.y, 0x8b4513);
       this.syncHUD();
       this.tweens.add({ targets:o, alpha:0, scaleY:0.2, duration:400, onComplete:()=>{
         o.setVisible(false);
@@ -3039,11 +3322,13 @@ class Game extends Phaser.Scene {
   repositionPlayer() {
     const p = this.wpos(this.col, this.row);
     const d = isoDepth(this.col, this.row, 82);
-    this.player.setPosition(p.x, p.y - 12).setDepth(d);
+    const bob = this.moving ? Math.sin(this.bobPhase * 0.025) * 4 : 0;
+    this.player.setPosition(p.x, p.y - 12 + bob).setDepth(d);
     this.playerSh.setPosition(p.x, p.y + 4).setDepth(d - 2);
     this.glow.setPosition(p.x, p.y).setDepth(d - 1);
     this.updatePlayerTag();
-    if (this.playerTag) this.playerTag.setPosition(p.x, p.y - 52).setDepth(d + 1);
+    if (this.playerTag) this.playerTag.setPosition(p.x, p.y - 52 + bob).setDepth(d + 1);
+    if (this.emoteBubble?.visible) this.emoteBubble.setPosition(p.x, p.y - 68 + bob).setDepth(d + 2);
   }
 
   drawMinimap() {
@@ -3147,6 +3432,8 @@ class Game extends Phaser.Scene {
       if (!c.meta.opened && dist(this.col, this.row, c.meta.col, c.meta.row) < 0.9) this.openChest(c);
     });
 
+    if (this.emoteLock) { window.mobileInput.act = false; return; }
+
     if (dc !== 0 || dr !== 0) {
       const len = Math.hypot(dc, dr);
       const spd = SPEED / TW * dt;
@@ -3154,14 +3441,18 @@ class Game extends Phaser.Scene {
       const nc = this.col + dc, nr = this.row + dr;
       if (!this.isBlocked(nc, this.row)) this.col = nc;
       if (!this.isBlocked(this.col, nr)) this.row = nr;
+      this.moving = true;
+      this.bobPhase += delta;
       this.walkTimer += delta;
-      if (this.walkTimer > 160) { this.walkTimer = 0; this.walkFrame = 1 - this.walkFrame; this.setSkin(); }
+      if (this.walkTimer > 120) { this.walkTimer = 0; this.walkFrame = 1 - this.walkFrame; this.setSkin(); }
       this.repositionPlayer();
       this.applyFacing(dc, dr);
       if (Math.floor(this.col) !== window.S._lc || Math.floor(this.row) !== window.S._lr) this.syncHUD();
       window.S._lc = Math.floor(this.col); window.S._lr = Math.floor(this.row);
     } else {
+      this.moving = false;
       this.walkFrame = 0; this.setSkin();
+      this.repositionPlayer();
     }
     if (this.isBlocked(this.col, this.row) || !this.hasWalkableNeighbor()) {
       this._stuckMs = (this._stuckMs || 0) + delta;
@@ -3259,6 +3550,7 @@ function initProfile() {
     if (sb && window.S.userId) cloudSave();
     overlay.classList.add('hidden');
     startPhaser();
+    EriorMusic.start();
     setTimeout(applyDailyBonus, 800);
     if (!window.S.guideDone) setTimeout(() => showGuide(0), 1400);
   }
