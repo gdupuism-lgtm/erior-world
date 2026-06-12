@@ -36,7 +36,64 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .death-btns{display:flex;flex-direction:column;gap:8px;margin-top:14px}
 .death-btns .gold-btn{width:100%}
 .death-audio{background:linear-gradient(135deg,#7b3fa0,#4a1a6b)!important;color:#fff!important}
-@media(max-width:768px),(pointer:coarse){#day-clock{font-size:.55rem;padding:3px 8px}#top-right-cluster{top:6px;right:6px;max-width:58vw}#howto-btn,#inv-btn{font-size:.6rem;padding:5px 8px}#hp-bar-wrap{top:44px;width:100px}#account-row{top:44px}}
+#game-dock{position:fixed;bottom:12px;right:132px;z-index:510;display:none;flex-direction:column;gap:5px}
+#game-dock.visible{display:flex}
+#game-dock button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(201,162,39,.55);background:rgba(0,0,0,.85);color:#f0d060;font-size:1.05rem;cursor:pointer;line-height:1;transition:transform .15s,border-color .15s}
+#game-dock button:hover,#game-dock button:active{transform:scale(1.06);border-color:#f0d060}
+#game-dock button.dock-audio{border-color:rgba(123,63,160,.7);background:rgba(30,10,40,.9)}
+.guide-card p{white-space:pre-line;max-height:42vh;overflow-y:auto;text-align:left}
+.passport-card{margin:10px 0;padding:10px;border-radius:10px;border:1px solid rgba(201,162,39,.35);background:rgba(201,162,39,.08);text-align:left}
+.passport-card b{color:#f0d060}
+.zone-item{margin:8px 0;padding:8px 10px;border-radius:8px;background:rgba(123,63,160,.1);border-left:3px solid #7b3fa0;font-size:.78rem;text-align:left}
+@media(max-width:768px),(pointer:coarse){#game-dock{display:none!important}#game-dock.visible{display:none!important}}
+/* ── Mobile premium HUD ── */
+#mobile-top-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:620;height:44px;padding:6px 10px 4px;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,.88),rgba(0,0,0,.55));border-bottom:1px solid rgba(201,162,39,.25);padding-top:max(6px,env(safe-area-inset-top))}
+#mobile-stats{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+#mobile-stats b{color:#f0d060;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#mobile-stats span{color:#9ca3af;font-size:.58rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mobile-menu-btn{flex-shrink:0;width:40px;height:36px;border:2px solid rgba(201,162,39,.55);border-radius:10px;background:rgba(20,20,20,.9);color:#f0d060;font-size:1.15rem;cursor:pointer;line-height:1}
+#mobile-hp-bar{display:none;position:fixed;top:calc(44px + env(safe-area-inset-top,0px));left:0;right:0;z-index:619;height:4px;background:rgba(0,0,0,.6)}
+#mobile-hp-fill{height:100%;width:100%;background:linear-gradient(90deg,#ef4444,#4ade80);transition:width .25s}
+#mobile-hp-bar.low #mobile-hp-fill{background:linear-gradient(90deg,#ef4444,#f97316)}
+#mobile-menu-backdrop{display:none;position:fixed;inset:0;z-index:680;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;pointer-events:none}
+#mobile-menu-backdrop.open{display:block;opacity:1;pointer-events:auto}
+#mobile-menu-sheet{display:none;position:fixed;left:0;right:0;bottom:0;z-index:690;max-height:min(78vh,520px);background:linear-gradient(160deg,#121018,#0a0a10);border-top:2px solid rgba(201,162,39,.45);border-radius:18px 18px 0 0;padding:8px 12px 16px;padding-bottom:max(16px,env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s ease;overflow:hidden;flex-direction:column}
+#mobile-menu-sheet.open{display:flex;transform:translateY(0)}
+.mobile-menu-handle{width:36px;height:4px;border-radius:4px;background:rgba(255,255,255,.2);margin:0 auto 8px}
+.mobile-menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.65rem;color:#888;padding:0 2px}
+.mobile-menu-head span{color:#4ade80}
+.mobile-menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.mobile-menu-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;border:1px solid rgba(201,162,39,.35);border-radius:12px;background:rgba(0,0,0,.45);color:#f0d060;font-size:1.15rem;cursor:pointer;min-height:58px}
+.mobile-menu-grid button small{font-size:.52rem;color:#aaa;font-weight:normal}
+.mobile-menu-grid button.menu-audio{border-color:rgba(123,63,160,.55);background:rgba(30,10,40,.5)}
+.mobile-menu-grid button .menu-badge{position:absolute;top:4px;right:4px;background:#7b3fa0;color:#fff;font-size:.5rem;border-radius:8px;padding:1px 5px}
+.mobile-menu-grid button{position:relative}
+#mobile-menu-expand{flex:1;overflow-y:auto;display:none;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:4px;max-height:38vh}
+#mobile-menu-expand.open{display:block}
+#mobile-menu-expand h4{color:#f0d060;font-size:.75rem;margin-bottom:8px}
+.mobile-menu-logout{width:100%;margin-top:8px;padding:10px;border:1px solid #555;border-radius:10px;background:transparent;color:#aaa;font-size:.72rem;cursor:pointer}
+@media(max-width:768px),(pointer:coarse){
+  #mobile-top-bar,#mobile-hp-bar{display:flex}
+  #profile-btn,#account-row,#quest-toggle,#build-toggle,#game-dock,#top-right-cluster,#sync-dot{display:none!important}
+  #hp-bar-wrap{display:none!important}
+  #inv-panel{position:fixed;left:8px;right:8px;bottom:auto;top:50%;transform:translateY(-50%);z-index:700;max-height:50vh;width:auto}
+  #minimap{bottom:100px!important;right:8px!important;top:auto!important;left:auto!important;width:52px!important;height:52px!important;z-index:510}
+  #joy-zone{bottom:max(8px,env(safe-area-inset-bottom));left:8px;width:88px;height:88px;z-index:600}
+  #act-btn{bottom:max(8px,env(safe-area-inset-bottom));right:8px;z-index:600;width:72px;height:72px;min-width:72px;min-height:72px}
+  #build-hint{bottom:108px;left:50%;transform:translateX(-50%);font-size:.6rem;z-index:505;max-width:88vw}
+  #hub-chat.visible{bottom:max(96px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
+  #quest-panel{position:static!important;transform:none!important;width:100%!important;max-height:none!important;display:block!important;background:transparent;border:none;padding:0;font-size:.65rem}
+  #quest-panel.collapsed-mobile{display:none!important}
+  body.mobile-quests-open #quest-panel.collapsed-mobile{display:block!important}
+  #build-bar{position:static!important;transform:none!important;width:100%!important;display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px;padding:0;background:transparent;border:none;max-height:none}
+  #build-bar.collapsed-mobile{display:none!important}
+  body.mobile-build-open #build-bar.collapsed-mobile{display:flex!important}
+  #inv-panel.open{z-index:700}
+  .overlay{padding:8px;padding-top:max(8px,env(safe-area-inset-top))}
+}
+@media(min-width:769px){
+  #mobile-top-bar,#mobile-hp-bar,#mobile-menu-backdrop,#mobile-menu-sheet{display:none!important}
+}
 .overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);flex-direction:column;align-items:center;padding:12px;overflow:hidden}
 .overlay.open{display:flex}
 .modal-close{position:fixed;top:14px;right:14px;z-index:1001;width:42px;height:42px;border-radius:50%;border:2px solid #c9a227;background:rgba(0,0,0,.85);color:#f0d060;font-size:1.2rem;cursor:pointer}
@@ -120,29 +177,8 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .countdown{font-size:1.3rem;color:#ff5555;font-weight:bold;font-family:monospace;margin:8px 0}
 @media(max-width:768px),(pointer:coarse){
   #joy-zone,#act-btn{display:flex}
-  #howto-btn,#inv-btn{display:inline-flex}
-  #top-right-cluster{top:38px;right:6px}
-  #fomo-online{font-size:.55rem;padding:3px 7px}
   #fomo-feed{display:none!important}
-  #profile-btn{top:6px;left:6px;font-size:.58rem;padding:4px 8px;max-width:110px;line-height:1.2}
-  #logout-btn{position:static;font-size:.55rem;padding:3px 6px}
-  #account-row{display:flex!important;top:38px;left:6px;right:auto}
-  #sync-dot{top:28px;font-size:.55rem;padding:2px 6px}
-  #minimap{width:56px!important;height:56px!important;top:38px;left:6px;bottom:auto;right:auto}
-  #quest-toggle{display:block;top:38px;right:6px;font-size:.72rem;padding:6px 9px}
-  #quest-panel{display:block;position:fixed;top:auto;bottom:96px;right:6px;left:6px;width:auto;max-width:none;transform:none;max-height:26vh;overflow-y:auto;font-size:.62rem;padding:8px;z-index:550;border-radius:12px}
-  #quest-panel.collapsed-mobile{display:none!important}
-  #build-bar.collapsed-mobile{display:none!important}
-  #build-toggle{display:block;bottom:112px;left:50%;transform:translateX(-50%);font-size:.72rem;padding:6px 12px}
-  #build-bar{position:fixed;bottom:152px;left:6px;right:6px;transform:none;width:auto;flex-wrap:wrap;justify-content:center;gap:5px;padding:6px;max-height:22vh;overflow-y:auto;border-radius:12px}
-  #build-bar .build-slot{min-width:54px;padding:5px 6px;font-size:.58rem}
-  #build-bar .build-slot span{font-size:1rem}
-  #build-hint{bottom:196px;font-size:.62rem;max-width:90vw;text-align:center}
-  #interact-prompt{display:none!important}
-  #joy-zone{width:92px;height:92px;bottom:8px;left:8px}
-  #joy-knob{width:38px;height:38px}
-  #act-btn{bottom:8px;right:8px;min-width:80px;min-height:80px;font-size:.8rem}
-  #daily-banner{top:32px;font-size:.68rem;padding:7px 10px;max-width:92vw}
+  #daily-banner{top:52px;font-size:.65rem;padding:6px 8px;max-width:92vw}
   .overlay{padding:8px}
   .cards{grid-template-columns:1fr}
   .shop-tabs{gap:4px}
@@ -211,9 +247,9 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #hub-chat-input{flex:1;padding:8px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:#0a0a0a;color:#f0d060;font-size:.75rem}
 #hub-chat-send{padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;font-size:.72rem;cursor:pointer}
 @media(max-width:768px),(pointer:coarse){
-  #hub-chat.visible{bottom:96px;right:6px;left:6px;width:auto}
-  #hub-chat-panel{max-height:18vh}
-  #interact-prompt{bottom:168px;font-size:.75rem;padding:8px 14px}
+  #hub-chat.visible{bottom:max(96px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
+  #hub-chat-panel{max-height:16vh}
+  #interact-prompt{display:none!important}
 }
 </style>
 </head>
@@ -227,7 +263,11 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div class="profile-card">
 <h1>ERIOR WORLD ✦</h1>
 <div id="auth-step">
-<p>Crea tu <b style="color:#f0d060">cuenta única Erior</b> — juega, compra audios y desbloquea skins premium en todos tus dispositivos.</p>
+<p>Crea tu <b style="color:#f0d060">cuenta Erior</b> — tu Pasaporte Manifestor (no crypto). Compra audios cuánticos para desbloquear protección, herramientas y zonas como en Kintara, pero enfocado en tu transformación.</p>
+<div id="passport-preview" class="passport-card" style="font-size:.72rem;color:#aaa;margin-bottom:10px">
+<b>🎧 Pasaporte Manifestor</b> = 1+ audio Erior aprobado → acceso nocturno, +HP y misiones VIP.<br>
+<span style="color:#666">Gratis: explorar hub, quiz, tienda y chat.</span>
+</div>
 <div class="auth-tabs">
 <button type="button" class="auth-tab active" data-mode="login">Iniciar sesión</button>
 <button type="button" class="auth-tab" data-mode="register">Crear cuenta</button>
@@ -249,6 +289,28 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 </div>
 <button id="profile-btn" style="display:none"></button>
+<div id="mobile-top-bar">
+<div id="mobile-stats"><b id="mobile-name">Viajero</b><span id="mobile-meta">Lvl 0 · ❤️100 · 💎0</span></div>
+<button type="button" id="mobile-menu-btn" aria-label="Menú">☰</button>
+</div>
+<div id="mobile-hp-bar"><div id="mobile-hp-fill"></div></div>
+<div id="mobile-menu-backdrop"></div>
+<div id="mobile-menu-sheet">
+<div class="mobile-menu-handle"></div>
+<div class="mobile-menu-head"><span id="mobile-menu-online">🟢 online</span><span id="mobile-menu-clock">☀️ Día</span></div>
+<div class="mobile-menu-grid">
+<button type="button" data-mmenu="audio" class="menu-audio">🎧<small>Audios</small></button>
+<button type="button" data-mmenu="manifest">📊<small>Manifiesto</small></button>
+<button type="button" data-mmenu="inv">🎒<small>Inventario</small></button>
+<button type="button" data-mmenu="build">🏗️<small>Construir</small></button>
+<button type="button" data-mmenu="outfits">👤<small>Skins</small></button>
+<button type="button" data-mmenu="chat">💬<small>Chat</small></button>
+<button type="button" data-mmenu="quests">📜<small>Misiones</small><span class="menu-badge" id="mobile-quest-badge"></span></button>
+<button type="button" data-mmenu="guide">📖<small>Guía</small></button>
+</div>
+<div id="mobile-menu-expand"></div>
+<button type="button" class="mobile-menu-logout" id="mobile-menu-logout">Cerrar sesión</button>
+</div>
 <div id="account-row"><div id="hp-bar-wrap"><div id="hp-bar"></div></div><button id="logout-btn" type="button">Cerrar sesión</button></div>
 <div id="sync-dot"></div>
 <button id="quest-toggle" type="button">📜 Misiones<span class="badge" id="quest-badge"></span></button>
@@ -260,7 +322,16 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div id="vignette"></div>
 <div id="top-right-cluster">
 <div id="fomo-online">🟢 35 jugadores online</div>
-<div id="top-right-row"><span id="day-clock">☀️ Día</span><button id="inv-btn" type="button">🎒 Inventario</button><button id="howto-btn" type="button">📖 Guía</button></div>
+<div id="top-right-row"><span id="day-clock">☀️ Día</span></div>
+</div>
+<div id="game-dock">
+<button type="button" data-dock="audio" class="dock-audio" title="Tienda Audios">🎧</button>
+<button type="button" data-dock="manifest" title="Manifiesto">📊</button>
+<button type="button" data-dock="inv" title="Inventario">🎒</button>
+<button type="button" data-dock="build" title="Construir">🏗️</button>
+<button type="button" data-dock="outfits" title="Skins">👤</button>
+<button type="button" data-dock="chat" title="Chat">💬</button>
+<button type="button" data-dock="guide" title="Guía">📖</button>
 </div>
 <div id="inv-panel"><h4>🎒 Inventario</h4><div id="inv-list"></div></div>
 <div id="guide-overlay">
@@ -292,7 +363,7 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <button id="interact-prompt" type="button"><span>E</span><span id="interact-label">Entrar</span></button>
 <div id="daily-banner"></div>
 <div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
-<button id="build-toggle" type="button">🏗️ Construir</button>
+<button id="build-toggle" type="button" style="display:none">🏗️ Construir</button>
 <div id="hub-chat">
 <button type="button" id="hub-chat-toggle">💬 Chat Plaza</button>
 <div id="hub-chat-panel">
@@ -344,17 +415,21 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 </div>
 <div id="chest-overlay" class="overlay"><button class="modal-close" id="chest-x">✕</button><div class="gold-modal" id="chest-box"></div></div>
+<div id="manifest-overlay" class="overlay">
+<button class="modal-close" id="manifest-x">✕</button>
+<div class="gold-modal" style="max-width:540px;text-align:left">
+<h2 style="text-align:center">📊 Manifiesto Erior</h2>
+<div id="manifest-body"></div>
+<button type="button" class="gold-btn" id="manifest-shop" style="width:100%;margin-top:12px">🎧 Ir a Tienda de Audios</button>
+</div>
+</div>
 <div id="howto-overlay" class="overlay">
 <button class="modal-close" id="howto-x">✕</button>
-<div class="gold-modal"><h2>🎮 ¿Cómo Jugar?</h2>
-<p>🕹️ <b>WASD</b> o <b>Clic</b> — Mover por el mundo</p>
-<p>👤 <b>Perfil</b> — Elige nombre y avatar · empiezas Nivel 0</p>
-<p>🔮 <b>Clic</b> cerca de cristales — Recolectar (+XP)</p>
-<p>🏗️ <b>Barra inferior</b> — Construir casas (cerca auto) · lleva tu nombre ✦</p>
-<p>🆘 <b>Atascado/a</b> — El juego te mueve solo a un lugar seguro</p>
-<p>🏰 <b>Tecla E</b> en el Castillo — Tienda de audios Erior</p>
-<p>📜 <b>Misiones</b> — Panel derecho · recompensas 💎</p>
-<p>✦ <b>Alicia IA</b> — Tu guía cuántica personal</p>
+<div class="gold-modal" style="max-width:560px;text-align:left;max-height:88vh">
+<h2 style="text-align:center">✦ ¿Qué es ERIOR WORLD?</h2>
+<p style="font-size:.82rem;line-height:1.55">MMO isométrico de <b>manifestación cuántica</b> — como Kintara, pero tu moneda premium son los <b>audios Erior</b>, no crypto. Recolecta cristales, completa misiones, sobrevive la noche y transforma tu realidad.</p>
+<p style="font-size:.78rem;color:#888"><b>Acceso:</b> Cuenta Erior gratis · <b>Pasaporte Manifestor</b> (1+ audio) desbloquea selva nocturna, HP extra y herramientas.</p>
+<button class="gold-btn" id="howto-full" style="width:100%;margin:10px 0">📖 Guía completa paso a paso</button>
 <button class="gold-btn" id="howto-ok">¡Explorar!</button></div>
 </div>
 
@@ -474,17 +549,34 @@ const GADGETS = [
   { id:'chip', name:'Ficha Casino', icon:'🎰', desc:'1 giro gratis en casino' },
   { id:'coupon', name:'Cupón Audio 10%', icon:'🎧', desc:'Descuento en tienda' },
 ];
+const AUDIO_PASSPORT = [
+  { n:0, badge:'🌱 Explorador', title:'Gratis', desc:'Cuenta Erior · plaza segura, quiz, tienda, chat y casino con cristales.' },
+  { n:1, badge:'🎧 Pasaporte Manifestor', title:'1 audio Erior', desc:'Selva Cuántica de noche · +20 HP · 15% menos daño · misiones VIP.' },
+  { n:3, badge:'🪓 Constructor Cuántico', title:'3 audios', desc:'Hacha para talar · ganar oro · gadgets de manifestación.' },
+  { n:5, badge:'🏡 Anfitrión Erior', title:'5 audios', desc:'Skins premium · abrir tu mundo · eventos especiales.' },
+  { n:10, badge:'👑 VIP Cuántico', title:'10 audios', desc:'Máxima protección · parcelas · Telegram VIP.' },
+];
+const WORLD_ZONES = [
+  { id:'hub', name:'🏰 Mainland — Plaza Erior', desc:'Hub principal (como Kintara Mainland). Castillo = tienda audios, chat global, fuente curativa. Zona SEGURA de noche.' },
+  { id:'alicia', name:'✦ Alicia IA — Guía Cuántica', desc:'NPC cerca del castillo. Te orienta y abre el camino a tu audio ideal.' },
+  { id:'tower', name:'🗼 Torre Cuántica — Quiz', desc:'3 preguntas → descubre qué audio Erior (AMOR, DINERO, SALUD…) encaja con tu manifestación.' },
+  { id:'cabin', name:'🔮 Cabaña Mística — Outfits', desc:'Skins y aliens premium. Algunos con cristales, otros vía PayPal Erior.' },
+  { id:'casino', name:'🎰 Casino Cuántico', desc:'Gasta 💎 cristales. Gana oro, gadgets, cupones de audio y fichas.' },
+  { id:'wild', name:'🌙 Selva Cuántica — Wilderness', desc:'Fuera del hub de noche: zombies y aliens. Necesitas Pasaporte Manifestor (1 audio) para resistir. Si mueres → compra audio o reaparece en plaza.' },
+  { id:'build', name:'🏗️ Tu Parcela', desc:'Construye casas, cercas y mesas con cristales. Tu nombre queda en el mapa para otros jugadores.' },
+];
 const GUIDE_STEPS = [
-  { title:'✦ Bienvenido a ERIOR WORLD', text:'Explora un mundo isométrico estilo Kintara. Tu meta: descubrir audios cuánticos Erior y transformar tu realidad.' },
-  { title:'🕹️ Moverte', text:'WASD / clic en el mapa / joystick en móvil. Camina por el mundo verde y gris.' },
-  { title:'💎 Cristales (diamantes)', text:'Toca los cristales azules brillantes — subes XP y desbloqueas construcciones. ¡Son la moneda principal!' },
-  { title:'🪙 Monedas de oro', text:'Busca monedas DORADAS en el mapa (brillan). También gana oro talar árboles con hacha o en el Casino.' },
-  { title:'🏰 Castillo Erior', text:'Plaza gris del castillo = Tienda de audios + Chat con otros jugadores (cuenta Erior).' },
-  { title:'🎰 Casino Cuántico', text:'Edificio morado al sur — gasta 💎 y gana premios: oro, gadgets, cupones de audio.' },
-  { title:'🌙 Noche', text:'De noche salen 🧟 zombies y 👽 aliens. La plaza del castillo es zona segura. ¡Cuidado!' },
-  { title:'🎒 Inventario', text:'Botón Inventario arriba — guarda gadgets (hacha, linterna, fichas). Se llenan jugando y en casino.' },
-  { title:'🔮 Skins Alien', text:'Cabaña Mística — skins normales y Aliens premium. Algunos solo con PayPal Erior.' },
-  { title:'✦ ¡Listo!', text:'Pulsa 📖 Guía cuando quieras. Misiones 📜 a la derecha. ¡A explorar!' },
+  { title:'✦ ¿Qué es ERIOR WORLD?', text:'Un MMO isométrico de manifestación cuántica inspirado en Kintara.\n\nEn vez de conectar wallet crypto ($KINS), aquí tu acceso premium es el Pasaporte Manifestor: comprar y activar audios Erior con Pauline.\n\nTodo gira en torno a transformar tu realidad: amor, dinero, salud, autoestima y manifestación.' },
+  { title:'Paso 1 · Cuenta Erior (no wallet)', text:'1. Crea cuenta con email + contraseña\n2. Elige tu nombre de viajero\n3. Tu progreso se guarda en la nube ☁️\n\nGratis puedes explorar el hub, hacer el quiz, chatear y ver la tienda.\n\n🎧 Pasaporte Manifestor = 1+ audio aprobado → desbloqueas la experiencia completa (como tener $KINS en Kintara).' },
+  { title:'Paso 1 · Niveles del Pasaporte', text:'🌱 Explorador (0) — Hub, quiz, tienda, casino\n🎧 Manifestor (1 audio) — Selva nocturna, +HP, menos daño\n🪓 Constructor (3) — Hacha cuántica, talar, oro\n🏡 Anfitrión (5) — Skins VIP, parcelas\n👑 VIP (10) — Máxima protección y eventos\n\nCompras audio → envías comprobante → Pauline activa tu pasaporte.' },
+  { title:'Paso 2 · Tutorial — Herramientas', text:'Completa el tutorial como en Kintara:\n\n✦ Alicia IA — habla con ella (guía personal)\n🗼 Torre Cuántica — quiz de 3 preguntas → tu audio ideal\n🏰 Castillo — visita la tienda de audios\n💎 Recolecta 10 cristales (misiones)\n\nGadgets (inventario 🎒):\n🪓 Hacha — 3 audios o casino\n🏮 Linterna — curar +50 HP\n🎰 Fichas — casino gratis' },
+  { title:'Paso 2 · Economía del juego', text:'💎 Cristales = jugar gratis (recolectar, misiones, casino)\n🪙 Oro = secundario (monedas, árboles, casino)\n🎧 Audios Erior = acceso premium real (Pasaporte)\n\nNo pierdes audios al morir. Los cristales y oro sí puedes gastarlos — como Kintara, no lleves oro a la Selva si eres novato/a.' },
+  { title:'Paso 3 · Menú del juego (dock)', text:'Botones circulares abajo a la derecha:\n\n🎧 Audios — Tienda del Castillo\n📊 Manifiesto — tu pasaporte y camino\n🎒 Inventario — gadgets y curación\n🏗️ Construir — casas y parcela\n👤 Outfits — Cabaña de skins\n💬 Chat — plaza del castillo\n📖 Guía — este tutorial\n\n📜 Misiones — panel derecho\n🗺️ Minimap — abajo derecha' },
+  { title:'Paso 4 · Mapa — Mainland', text:'🏰 PLAZA ERIOR (centro)\nCastillo dorado = tienda audios + chat multiplayer.\nFuente curativa de noche. Zona segura.\n\nCamina al sur → 🎰 Casino Cuántico\nNoroeste → 🔮 Cabaña Mística\nNoreste → 🗼 Torre Cuántica' },
+  { title:'Paso 4 · Selva Cuántica (Wilderness)', text:'🌙 De noche, fuera del hub:\n🧟 Zombies y 👽 Aliens te atacan.\n\n⚠️ Como Kintara Wilderness: ten linterna, no vayas sin Pasaporte Manifestor.\n\nSi mueres:\n· Reaparecer gratis en plaza\n· Revivir con 20 💎\n· Comprar audio Erior → protección VIP' },
+  { title:'Paso 4 · Manifestación por categoría', text:'Audios organizados como tu camino:\n\n✨ AUTOESTIMA · 💖 AMOR · 💰 DINERO\n🌿 SALUD · 🛸 MANIFESTACIÓN\n\nEl Quiz de la Torre te recomienda uno.\nCada audio comprado sube tu Pasaporte y desbloquea más del mundo.' },
+  { title:'✦ Multiplayer en tiempo real', text:'Jugadores con cuenta se ven en el mapa en vivo.\nChat en la plaza del castillo.\nConstrucciones con tu nombre ✦.\n\nComparte la guía con nuevos viajeros — la mejor forma de aprender es explorar, manifestar y comprar tu primer audio Erior.' },
+  { title:'✦ ¡Listo, Manifestor!', text:'Quédate seguro/a en la plaza de noche al empezar.\nVisita la Torre → descubre tu audio.\nCompra 1 audio → activa tu Pasaporte Manifestor.\n\nPulsa 📖 cuando quieras repasar. ¡A transformar tu realidad!' },
 ];
 const CASINO_SPIN_COST = 15;
 const CASINO_PRIZES = [
@@ -553,7 +645,7 @@ const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND
 window.S = {
   userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
   crystals:0, gold:0, audiosPurchased:0, tools:[], inventory:[],
-  guideDone:false, guestId:'', hp:100, maxHp:100,
+  guideDone:false, guestId:'', hp:100, maxHp:100, manifestFocus:'', manifestAudio:'',
   skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
   stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
@@ -613,6 +705,11 @@ function updateHpBar() {
   const wrap = document.getElementById('hp-bar-wrap');
   const bar = document.getElementById('hp-bar');
   if (!wrap || !bar || !window.S.profileReady) return;
+  if (isMobileUI()) {
+    wrap.style.display = 'none';
+    updateMobileHUD();
+    return;
+  }
   wrap.style.display = 'block';
   const pct = Math.max(0, Math.min(100, (window.S.hp / window.S.maxHp) * 100));
   bar.style.width = pct + '%';
@@ -683,6 +780,175 @@ async function doLogout() {
   sessionStorage.removeItem('erior_guest');
   sessionStorage.removeItem('erior_chests');
   location.reload();
+}
+function audioPassportLevel() {
+  const n = window.S.audiosPurchased || 0;
+  let tier = AUDIO_PASSPORT[0];
+  AUDIO_PASSPORT.forEach(t => { if (n >= t.n) tier = t; });
+  return tier;
+}
+function hasManifestPass() { return (window.S.audiosPurchased || 0) >= 1; }
+function nextPassportTier() {
+  const n = window.S.audiosPurchased || 0;
+  return AUDIO_PASSPORT.find(t => t.n > n) || null;
+}
+function showGameDock(on) {
+  const d = document.getElementById('game-dock');
+  if (!d) return;
+  if (isMobileUI()) { d.classList.remove('visible'); return; }
+  d.classList.toggle('visible', !!on);
+}
+function updateMobileHUD() {
+  if (!isMobileUI() || !window.S.profileReady) return;
+  initHpState();
+  const mn = document.getElementById('mobile-name');
+  const mm = document.getElementById('mobile-meta');
+  if (mn) mn.textContent = window.S.username || 'Viajero';
+  if (mm) mm.textContent = audioPassportLevel().badge.replace(/^[^\s]+\s/, '') + ' · Lvl ' + (window.S.level || 0) + ' · 💎' + (window.S.crystals || 0);
+  const fill = document.getElementById('mobile-hp-fill');
+  const bar = document.getElementById('mobile-hp-bar');
+  if (fill && bar) {
+    const pct = Math.max(0, Math.min(100, ((window.S.hp || 0) / (window.S.maxHp || 100)) * 100));
+    fill.style.width = pct + '%';
+    bar.classList.toggle('low', pct < 35);
+  }
+  const mo = document.getElementById('mobile-menu-online');
+  const mc = document.getElementById('mobile-menu-clock');
+  if (mo) mo.textContent = document.getElementById('fomo-online')?.textContent || '';
+  if (mc) mc.textContent = document.getElementById('day-clock')?.textContent || '';
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu-sheet')?.classList.remove('open');
+  document.getElementById('mobile-menu-backdrop')?.classList.remove('open');
+  const expand = document.getElementById('mobile-menu-expand');
+  expand?.classList.remove('open');
+  expand && (expand.innerHTML = '');
+  restoreMobilePanels();
+}
+function restoreMobilePanels() {
+  const qp = document.getElementById('quest-panel');
+  const qt = document.getElementById('quest-toggle');
+  if (qp && qt?.parentNode && qp.parentNode !== qt.parentNode) {
+    qt.parentNode.insertBefore(qp, qt.nextSibling);
+    if (isMobileUI()) qp.classList.add('collapsed-mobile');
+  }
+  const bb = document.getElementById('build-bar');
+  const bh = document.getElementById('build-hint');
+  if (bb && bh?.parentNode && bb.parentNode !== bh.parentNode) {
+    bh.parentNode.insertBefore(bb, bh.nextSibling);
+    if (isMobileUI()) bb.classList.add('collapsed-mobile');
+  }
+}
+function openMobileMenuPanel(which) {
+  const expand = document.getElementById('mobile-menu-expand');
+  if (!expand) return;
+  expand.innerHTML = '';
+  expand.classList.remove('open');
+  restoreMobilePanels();
+  if (which === 'quests') {
+    const qp = document.getElementById('quest-panel');
+    if (qp) {
+      expand.innerHTML = '<h4>📜 Misiones Cuánticas</h4>';
+      expand.appendChild(qp);
+      qp.classList.remove('collapsed-mobile');
+      expand.classList.add('open');
+    }
+  } else if (which === 'build') {
+    const bb = document.getElementById('build-bar');
+    if (bb) {
+      expand.innerHTML = '<h4>🏗️ Construir en tu parcela</h4>';
+      expand.appendChild(bb);
+      bb.classList.remove('collapsed-mobile');
+      expand.classList.add('open');
+    }
+  }
+}
+function initMobileMenu() {
+  const sheet = document.getElementById('mobile-menu-sheet');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  const open = () => { sheet?.classList.add('open'); backdrop?.classList.add('open'); updateMobileHUD(); };
+  document.getElementById('mobile-menu-btn')?.addEventListener('click', open);
+  backdrop?.addEventListener('click', closeMobileMenu);
+  document.getElementById('mobile-menu-logout')?.addEventListener('click', () => { closeMobileMenu(); doLogout(); });
+  document.querySelectorAll('[data-mmenu]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = btn.dataset.mmenu;
+      if (a === 'quests' || a === 'build') { open(); openMobileMenuPanel(a); return; }
+      closeMobileMenu();
+      if (a === 'audio') { if (window.G) window.G.tryOpenCastle(true); else openShop('audio'); }
+      else if (a === 'manifest') openManifestPanel();
+      else if (a === 'inv') { document.getElementById('inv-panel')?.classList.add('open'); renderInventory(); }
+      else if (a === 'outfits') {
+        const cab = BUILDINGS.find(b => b.id === 'cabin');
+        if (window.G?.nearBuilding()?.shop === 'skins') openShop('skins');
+        else if (window.G && cab) { window.G.showToast('🔮 Caminando a Cabaña…'); window.G.walkToBuilding(cab); }
+      } else if (a === 'chat') {
+        const hub = document.getElementById('hub-chat');
+        if (hub?.classList.contains('visible')) hub.classList.add('open');
+        else if (window.G) window.G.showToast('Plaza del Castillo → Chat');
+      } else if (a === 'guide') showGuide(0);
+    });
+  });
+}
+function renderManifestPanel() {
+  const el = document.getElementById('manifest-body');
+  if (!el) return;
+  const pass = audioPassportLevel();
+  const next = nextPassportTier();
+  const ab = audioBuyerTier();
+  let html = '<div class="passport-card"><b>' + pass.badge + '</b> — ' + pass.title +
+    '<br><span style="color:#aaa;font-size:.75rem">' + pass.desc + '</span>' +
+    '<br><span style="color:#3de8f0;font-size:.72rem;margin-top:6px;display:block">Audios activos: ' + (window.S.audiosPurchased || 0) + '</span></div>';
+  if (next) html += '<p style="font-size:.75rem;color:#888">Siguiente: <b style="color:#f0d060">' + next.badge + '</b> con ' + next.n + ' audio(s)</p>';
+  if (window.S.manifestFocus) {
+    const rec = QUIZ_REC[window.S.manifestFocus];
+    const it = AUDIO.find(a => a.n === (window.S.manifestAudio || rec));
+    if (it) html += '<div class="passport-card"><b>🛸 Tu camino: ' + window.S.manifestFocus + '</b><br>' + it.e + ' <b>' + it.n + '</b><br><span style="color:#888;font-size:.72rem">' + it.d + '</span></div>';
+  } else {
+    html += '<p style="font-size:.75rem;color:#888">🗼 Visita la <b>Torre Cuántica</b> para descubrir qué audio encaja con tu manifestación.</p>';
+  }
+  html += '<h4 style="color:#f0d060;margin:12px 0 6px;font-size:.85rem">🗺️ Zonas del mundo</h4>';
+  html += WORLD_ZONES.map(z => '<div class="zone-item"><b>' + z.name + '</b><br><span style="color:#999">' + z.desc + '</span></div>').join('');
+  if (ab) html += '<p style="margin-top:10px;font-size:.72rem;color:#4ade80">' + ab.badge + ': ' + ab.desc + '</p>';
+  el.innerHTML = html;
+}
+function openManifestPanel() {
+  window.S.modal = true;
+  renderManifestPanel();
+  document.getElementById('manifest-overlay')?.classList.add('open');
+}
+function initGameDock() {
+  const dock = document.getElementById('game-dock');
+  if (!dock) return;
+  dock.querySelectorAll('[data-dock]').forEach(btn => {
+    btn.onclick = () => {
+      const a = btn.dataset.dock;
+      if (a === 'audio') {
+        if (window.G) window.G.tryOpenCastle(true);
+        else openShop('audio');
+      } else if (a === 'inv') {
+        document.getElementById('inv-panel')?.classList.toggle('open');
+        renderInventory();
+      } else if (a === 'build') {
+        const bb = document.getElementById('build-bar');
+        const bt = document.getElementById('build-toggle');
+        if (bb?.classList.contains('collapsed-mobile')) bb.classList.remove('collapsed-mobile');
+        else if (bt) bt.click();
+        else bb?.classList.toggle('collapsed-mobile');
+      } else if (a === 'manifest') openManifestPanel();
+      else if (a === 'outfits') {
+        const cab = BUILDINGS.find(b => b.id === 'cabin');
+        if (window.G?.nearBuilding()?.shop === 'skins') openShop('skins');
+        else if (window.G && cab) { window.G.showToast('🔮 Caminando a Cabaña Mística…'); window.G.walkToBuilding(cab); }
+      } else if (a === 'chat') {
+        const hub = document.getElementById('hub-chat');
+        if (hub?.classList.contains('visible')) hub.classList.toggle('open');
+        else if (window.G) window.G.showToast('Camina a la plaza del Castillo para chatear');
+      } else if (a === 'guide') showGuide(0);
+    };
+  });
+  document.getElementById('manifest-x')?.addEventListener('click', closeAll);
+  document.getElementById('manifest-shop')?.addEventListener('click', () => { closeAll(); openShop('audio'); });
 }
 function hasSkin(id) {
   return (window.S.skins||[]).includes(id) || (window.S.premiumSkins||[]).includes(id);
@@ -769,11 +1035,6 @@ function initGuide() {
     else { guideIdx++; renderGuideStep(); }
   };
   document.getElementById('guide-skip').onclick = closeGuide;
-  document.getElementById('howto-btn').onclick = () => showGuide(0);
-  document.getElementById('inv-btn').onclick = () => {
-    document.getElementById('inv-panel').classList.toggle('open');
-    renderInventory();
-  };
 }
 function openCasino() {
   window.S.modal = true;
@@ -936,7 +1197,7 @@ function saveLocal() {
   localStorage.setItem('erior', JSON.stringify({
     userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
     level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
-    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'', hp:window.S.hp, maxHp:window.S.maxHp,
+    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'', hp:window.S.hp, maxHp:window.S.maxHp, manifestFocus:window.S.manifestFocus||'', manifestAudio:window.S.manifestAudio||'',
     skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
@@ -1130,19 +1391,29 @@ function updateInteractPrompt(zone) {
 function initMobileUI() {
   const qp = document.getElementById('quest-panel');
   const bb = document.getElementById('build-bar');
-  const apply = ()=>{
+  const apply = () => {
     if (isMobileUI()) {
       qp?.classList.add('collapsed-mobile');
       bb?.classList.add('collapsed-mobile');
+      closeMobileMenu();
     } else {
       qp?.classList.remove('collapsed-mobile');
       bb?.classList.remove('collapsed-mobile');
+      restoreMobilePanels();
     }
+    updateMobileHUD();
   };
   apply();
   window.addEventListener('resize', apply);
-  document.getElementById('quest-toggle')?.addEventListener('click', ()=> qp?.classList.toggle('collapsed-mobile'));
-  document.getElementById('build-toggle')?.addEventListener('click', ()=> bb?.classList.toggle('collapsed-mobile'));
+  initMobileMenu();
+  document.getElementById('quest-toggle')?.addEventListener('click', () => {
+    if (isMobileUI()) { openMobileMenuPanel('quests'); document.getElementById('mobile-menu-sheet')?.classList.add('open'); document.getElementById('mobile-menu-backdrop')?.classList.add('open'); }
+    else qp?.classList.toggle('collapsed-mobile');
+  });
+  document.getElementById('build-toggle')?.addEventListener('click', () => {
+    if (isMobileUI()) { openMobileMenuPanel('build'); document.getElementById('mobile-menu-sheet')?.classList.add('open'); document.getElementById('mobile-menu-backdrop')?.classList.add('open'); }
+    else bb?.classList.toggle('collapsed-mobile');
+  });
 }
 function renderQuests() {
   const el = document.getElementById('quest-list');
@@ -1158,21 +1429,30 @@ function renderQuests() {
   const pending = QUESTS.filter(q=>!(window.S.questsDone||[]).includes(q.id)).length;
   const badge = document.getElementById('quest-badge');
   if (badge) badge.textContent = pending > 0 ? pending : '';
+  const mqb = document.getElementById('mobile-quest-badge');
+  if (mqb) { mqb.textContent = pending > 0 ? String(pending) : ''; mqb.style.display = pending > 0 ? 'inline-block' : 'none'; }
 }
 function updateProfileBtn() {
   const b = document.getElementById('profile-btn');
   const lo = document.getElementById('logout-btn');
   const ar = document.getElementById('account-row');
   if (!b || !window.S.profileReady) return;
-  b.style.display = 'block';
-  initHpState();
-  b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>Lvl '+window.S.level+' · ❤️'+Math.round(window.S.hp)+' · 💎'+window.S.crystals+' · 🪙'+(window.S.gold||0)+(window.S.cloud?' · ☁️':'');
-  if (ar) ar.style.display = 'flex';
+  if (isMobileUI()) {
+    b.style.display = 'none';
+    updateMobileHUD();
+  } else {
+    b.style.display = 'block';
+    initHpState();
+    b.innerHTML = '<b style="color:#f0d060">'+window.S.username+'</b><br>'+audioPassportLevel().badge+' · Lvl '+window.S.level+' · ❤️'+Math.round(window.S.hp)+' · 💎'+window.S.crystals+(window.S.cloud?' · ☁️':'');
+  }
+  if (ar && !isMobileUI()) ar.style.display = 'flex';
+  else if (ar) ar.style.display = 'none';
   if (lo) {
     lo.style.display = 'inline-block';
     lo.textContent = window.S.userId ? 'Cerrar sesión' : 'Salir / Cambiar cuenta';
   }
   updateHpBar();
+  showGameDock(true);
 }
 
 function rng(n) { let s = SEED + n * 9301 + 49297; s = (s * 233280 + 12345) & 0x7fffffff; return (s % 10000) / 10000; }
@@ -1417,7 +1697,7 @@ function makeTextures(scene) {
 
 let shopCat='TODOS', quizA=[], chestT=null;
 function closeAll() {
-  ['shop-overlay','cabin-overlay','quiz-overlay','chest-overlay','howto-overlay','skin-pay-overlay','casino-overlay'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  ['shop-overlay','cabin-overlay','quiz-overlay','chest-overlay','howto-overlay','skin-pay-overlay','casino-overlay','manifest-overlay'].forEach(id=>document.getElementById(id).classList.remove('open'));
   window.S.modal=false; if(chestT){clearInterval(chestT);chestT=null;}
   window.buildMode='';
   document.querySelectorAll('.build-slot').forEach(b=>b.classList.remove('active'));
@@ -1427,10 +1707,10 @@ function closeAll() {
 function renderShop() {
   const t=tier();
   const un = window.S.username ? window.S.username : 'Viajero';
-  const ab = audioBuyerTier();
-  const nextAudio = AUDIO_BUYER_TIERS.find(x => (window.S.audiosPurchased||0) < x.n);
-  document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+(ab?'🎧 '+ab.badge+' ('+(window.S.audiosPurchased||0)+' audios) · ':'')+'Bienvenido, '+un;
-  if (nextAudio) {
+  const pass = audioPassportLevel();
+  const nextP = nextPassportTier();
+  document.getElementById('shop-tier').textContent=(t?'Badge: '+t.badge+' · ':'')+pass.badge+' · Audios: '+(window.S.audiosPurchased||0)+' · '+un;
+  if (nextP) {
     const hint = document.getElementById('shop-audio-hint');
     if (!hint) {
       const h = document.createElement('p');
@@ -1438,7 +1718,7 @@ function renderShop() {
       h.style.cssText = 'color:#4ade80;font-size:.72rem;margin-top:6px';
       document.getElementById('shop-tier').after(h);
     }
-    document.getElementById('shop-audio-hint').textContent = '🎁 Compra '+nextAudio.n+' audio(s) Erior → '+nextAudio.badge+': '+nextAudio.desc;
+    document.getElementById('shop-audio-hint').textContent = '🎧 Siguiente pasaporte: '+nextP.badge+' ('+nextP.n+' audio(s)) — '+nextP.desc;
   }
   const feat = featuredAudio();
   const fd = disc(feat);
@@ -1517,6 +1797,9 @@ function renderQuiz() {
     quizA.forEach((ai,qi)=>{const o=QUIZ[qi].o[ai];sc[o.c]=(sc[o.c]||0)+o.w;});
     const cat=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0][0];
     const name=QUIZ_REC[cat], it=AUDIO.find(a=>a.n===name)||AUDIO[0], d=disc(it);
+    window.S.manifestFocus = cat;
+    window.S.manifestAudio = name;
+    save();
     el.innerHTML='<h2>✨ Tu audio cuántico</h2><div style="font-size:3rem">'+it.e+'</div><h3 style="color:#f0d060">'+it.n+'</h3><p>'+it.d+'</p>'+
       '<p style="color:#3de8f0;font-size:1.1rem">'+(d.rate?price(d.final):price(it.p))+'</p>'+
       '<a class="poke-btn poke-btn-wa" style="display:inline-block;padding:12px 24px;margin-top:10px" href="'+wa(it.n,'Quiz Torre Cuántica')+'" target="_blank">💬 WhatsApp</a>'+
@@ -1569,6 +1852,8 @@ function initDOM() {
   document.getElementById('casino-spin').onclick=spinCasino;
   initGuide();
   initDeathScreen();
+  initGameDock();
+  document.getElementById('howto-full')?.addEventListener('click', () => { closeAll(); showGuide(0); });
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape')closeAll();
     if((e.key==='e'||e.key==='E')&&!window.S.modal){
@@ -2078,6 +2363,7 @@ class Game extends Phaser.Scene {
     if (vig) vig.style.opacity = String(p.vig);
     const clk = document.getElementById('day-clock');
     if (clk) clk.textContent = p.label;
+    updateMobileHUD();
   }
 
   updateDayNight(delta) {
@@ -2543,19 +2829,21 @@ class Game extends Phaser.Scene {
       o.setVisible(false);
       this.time.delayedCall(60000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1).setPosition(o.meta.hx,o.meta.hy);
         this.tweens.add({ targets:o, y:o.y-4, alpha:{from:0.6,to:1}, duration:800, yoyo:true, repeat:-1 }); });
-    }    });
+    }});
   }
 
   playerTakeDamage(amount, kind) {
     if (this.playerDead || window.S.modal) return;
     if (this.hitFlash > 0) return;
     initHpState();
-    const reduce = (window.S.audiosPurchased || 0) >= 1 ? 0.85 : 1;
-    window.S.hp = Math.max(0, window.S.hp - Math.round(amount * reduce));
+    const reduce = hasManifestPass() ? 0.85 : 1;
+    const mult = hasManifestPass() ? 1 : 1.35;
+    const dmg = Math.round(amount * reduce * mult);
+    window.S.hp = Math.max(0, window.S.hp - dmg);
     this.hitFlash = 400;
     this.player.setTint(0xff6666);
     this.cameras.main.shake(120, 0.004);
-    this.showToast((kind === 'zombie' ? '🧟' : '👽') + ' · -' + Math.round(amount * reduce) + ' HP');
+    this.showToast((kind === 'zombie' ? '🧟' : '👽') + ' · -' + dmg + ' HP');
     updateHpBar();
     save();
     if (window.S.hp <= 0) this.playerDeath();
@@ -2816,6 +3104,12 @@ class Game extends Phaser.Scene {
         updateHpBar();
       }
     } else this.hubHealAcc = 0;
+    if ((this.nightFactor || 0) > 0.55 && !hasManifestPass() && dist(this.col, this.row, HUB.col, HUB.row) > 20) {
+      if (!this._wildWarn) {
+        this._wildWarn = true;
+        this.showToast('⚠️ Selva Cuántica: 1 audio Erior = Pasaporte Manifestor (+protección)');
+      }
+    } else if (dist(this.col, this.row, HUB.col, HUB.row) <= 18) this._wildWarn = false;
     this.updateDayNight(delta);
     this.updateMultiplayer(delta);
     this.updateFakePlayers(delta);
