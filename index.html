@@ -14,7 +14,9 @@ html{height:-webkit-fill-available}
 body{min-height:100vh;min-height:-webkit-fill-available}
 #game-root{position:fixed;inset:0;z-index:1}
 #game-root canvas{display:block;width:100%!important;height:100%!important;touch-action:none;image-rendering:auto}
-#vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.25) 100%)}
+#vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.25) 100%);transition:opacity 1.2s ease}
+#day-clock{position:fixed;top:8px;right:130px;z-index:502;padding:4px 12px;border-radius:14px;background:rgba(0,0,0,.65);border:1px solid rgba(201,162,39,.35);color:#f0d060;font-size:.62rem;pointer-events:none;white-space:nowrap;transition:opacity .8s}
+@media(max-width:768px),(pointer:coarse){#day-clock{top:22px;right:6px;font-size:.55rem;padding:3px 8px}}
 .overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);flex-direction:column;align-items:center;padding:12px;overflow:hidden}
 .overlay.open{display:flex}
 .modal-close{position:fixed;top:14px;right:14px;z-index:1001;width:42px;height:42px;border-radius:50%;border:2px solid #c9a227;background:rgba(0,0,0,.85);color:#f0d060;font-size:1.2rem;cursor:pointer}
@@ -212,6 +214,7 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div id="vignette"></div>
 <button id="howto-btn">❓</button>
 <div id="fomo-online">🟢 35 jugadores online</div>
+<div id="day-clock">☀️ Día</div>
 <div id="fomo-feed"></div>
 <canvas id="minimap" width="120" height="120"></canvas>
 <div id="joy-zone"><div id="joy-knob"></div></div>
@@ -297,6 +300,43 @@ const ALICIA_IA = 'https://eriorcenterguiaaudios.netlify.app/#alicia';
 
 const HUB = { col: 40, row: 40, radius: 8, interactR: 12 };
 const NPC = { col: 36, row: 43 };
+const DAY_CYCLE_MS = 420000;
+const DAY_KEYS = [
+  { t:0,    sky:0x0f1035, overlay:0x060818, oA:0.58, stars:1,   sun:0,   moon:0.95, ff:200, vig:0.55, label:'🌙 Noche' },
+  { t:0.10, sky:0x2a1848, overlay:0x1a0838, oA:0.38, stars:0.7, sun:0.1, moon:0.6,  ff:140, vig:0.42, label:'🌅 Amanecer' },
+  { t:0.20, sky:0xff8866, overlay:0xff5522, oA:0.10, stars:0.1, sun:0.85,moon:0,    ff:70,  vig:0.28, label:'🌅 Amanecer' },
+  { t:0.32, sky:0x87ceeb, overlay:0x4488cc, oA:0,    stars:0,   sun:1,   moon:0,    ff:45,  vig:0.22, label:'☀️ Mañana' },
+  { t:0.45, sky:0x6ab4d4, overlay:0x3388bb, oA:0,    stars:0,   sun:1,   moon:0,    ff:35,  vig:0.20, label:'☀️ Mediodía' },
+  { t:0.58, sky:0xffaa55, overlay:0xff6622, oA:0.08, stars:0,   sun:0.75,moon:0,    ff:55,  vig:0.26, label:'🌇 Atardecer' },
+  { t:0.68, sky:0xcc5544, overlay:0x3a1040, oA:0.28, stars:0.35,sun:0.2, moon:0.25, ff:100, vig:0.38, label:'🌇 Atardecer' },
+  { t:0.78, sky:0x1e2048, overlay:0x080830, oA:0.48, stars:0.9, sun:0,   moon:0.8,  ff:165, vig:0.50, label:'🌙 Noche' },
+  { t:0.90, sky:0x121030, overlay:0x040818, oA:0.55, stars:1,   sun:0,   moon:0.92, ff:190, vig:0.54, label:'🌙 Noche' },
+];
+function lerpNum(a, b, t) { return a + (b - a) * t; }
+function lerpColor(c1, c2, t) {
+  const r1=(c1>>16)&0xff,g1=(c1>>8)&0xff,b1=c1&0xff,r2=(c2>>16)&0xff,g2=(c2>>8)&0xff,b2=c2&0xff;
+  return ((Math.round(lerpNum(r1,r2,t))<<16)|(Math.round(lerpNum(g1,g2,t))<<8)|Math.round(lerpNum(b1,b2,t)))>>>0;
+}
+function sampleDayPalette(t) {
+  t = ((t % 1) + 1) % 1;
+  let a = DAY_KEYS[0], b = DAY_KEYS[DAY_KEYS.length - 1];
+  for (let i = 0; i < DAY_KEYS.length - 1; i++) {
+    if (t >= DAY_KEYS[i].t && t <= DAY_KEYS[i + 1].t) { a = DAY_KEYS[i]; b = DAY_KEYS[i + 1]; break; }
+  }
+  if (t < DAY_KEYS[0].t) { a = DAY_KEYS[DAY_KEYS.length - 1]; b = DAY_KEYS[0]; t += 1; }
+  const f = b.t === a.t ? 0 : (t - a.t) / (b.t - a.t);
+  return {
+    sky: lerpColor(a.sky, b.sky, f),
+    overlay: lerpColor(a.overlay, b.overlay, f),
+    oA: lerpNum(a.oA, b.oA, f),
+    stars: lerpNum(a.stars, b.stars, f),
+    sun: lerpNum(a.sun, b.sun, f),
+    moon: lerpNum(a.moon, b.moon, f),
+    ff: Math.round(lerpNum(a.ff, b.ff, f)),
+    vig: lerpNum(a.vig, b.vig, f),
+    label: f < 0.5 ? a.label : b.label,
+  };
+}
 const QUESTS = [
   { id:'castle', text:'🏰 Visita el Castillo Erior', reward:15, xp:30 },
   { id:'alicia', text:'✦ Habla con Alicia IA', reward:10, xp:25 },
@@ -1249,11 +1289,7 @@ class Game extends Phaser.Scene {
     this.wH = Math.max(...corners.map(c=>c.y)) + this.offY + pad + TH * 8;
 
     this.cameras.main.setBackgroundColor(0x6ab4d4).setBounds(0, 0, this.wW, this.wH);
-    this.sky = this.add.container(0,0).setScrollFactor(0).setDepth(-200);
-    for (let i=0;i<120;i++){
-      const s=this.add.circle(Phaser.Math.Between(0,this.scale.width),Phaser.Math.Between(0,this.scale.height),Phaser.Math.FloatBetween(0.4,1.2),0xffffff,Phaser.Math.FloatBetween(0.05,0.35));
-      this.sky.add(s); this.tweens.add({targets:s,alpha:s.alpha*0.3,duration:Phaser.Math.Between(2000,5000),yoyo:true,repeat:-1});
-    }
+    this.initDayNight();
 
     this.ground = this.add.container(0, 0).setDepth(0);
     const stamp = this.make.image({ x:0, y:0, key:'t_grass', add:false });
@@ -1329,6 +1365,7 @@ class Game extends Phaser.Scene {
     });
     this.scale.on('resize',()=>{this.setZoom();this.rebuildSky();});
     this.syncHUD(); this.checkTier();
+    this.updateDayNight(0);
     window._gameBooted = true;
     document.getElementById('load-error')?.classList.remove('show');
     this.time.delayedCall(1200, ()=>{
@@ -1583,7 +1620,101 @@ class Game extends Phaser.Scene {
   }
 
   setZoom(){this.cameras.main.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width,this.scale.height)/520,1.3,2.8));}
-  rebuildSky(){this.sky.removeAll(true);for(let i=0;i<120;i++){const s=this.add.circle(Phaser.Math.Between(0,this.scale.width),Phaser.Math.Between(0,this.scale.height),Phaser.Math.FloatBetween(0.4,1.2),0xffffff,Phaser.Math.FloatBetween(0.05,0.35));this.sky.add(s);this.tweens.add({targets:s,alpha:s.alpha*0.3,duration:Phaser.Math.Between(2000,5000),yoyo:true,repeat:-1});}}
+  rebuildSky(){ if (this.rebuildDayNightSky) this.rebuildDayNightSky(); }
+
+  initDayNight() {
+    this.dayT = 0.42;
+    this.sky = this.add.container(0, 0).setScrollFactor(0).setDepth(-200);
+    this.skyDust = [];
+    for (let i = 0; i < 90; i++) {
+      const ba = Phaser.Math.FloatBetween(0.04, 0.2);
+      const s = this.add.circle(0, 0, Phaser.Math.FloatBetween(0.4, 1.2), 0xffffff, ba);
+      s.setData('bx', Phaser.Math.FloatBetween(0.04, 0.96));
+      s.setData('by', Phaser.Math.FloatBetween(0.04, 0.55));
+      s.setData('baseA', ba);
+      this.sky.add(s);
+      this.skyDust.push(s);
+      this.tweens.add({ targets:s, alpha:ba * 0.5, duration:Phaser.Math.Between(2000, 5000), yoyo:true, repeat:-1 });
+    }
+    this.nightStars = [];
+    for (let i = 0; i < 70; i++) {
+      const st = this.add.circle(0, 0, Phaser.Math.FloatBetween(0.6, 1.8), 0xffffff, 0);
+      st.setData('bx', Phaser.Math.FloatBetween(0.02, 0.98));
+      st.setData('by', Phaser.Math.FloatBetween(0.02, 0.45));
+      st.setData('ba', Phaser.Math.FloatBetween(0.35, 0.95));
+      this.sky.add(st);
+      this.nightStars.push(st);
+    }
+    this.sunMoon = this.add.container(0, 0).setScrollFactor(0).setDepth(-199);
+    this.sunDisc = this.add.circle(0, 0, 26, 0xfff6a8, 0).setStrokeStyle(3, 0xffe066, 0.4);
+    this.sunHalo = this.add.circle(0, 0, 38, 0xffee88, 0.08);
+    this.moonDisc = this.add.circle(0, 0, 20, 0xe8eeff, 0).setStrokeStyle(2, 0xffffff, 0.25);
+    this.moonHalo = this.add.circle(0, 0, 32, 0xaabbff, 0.06);
+    this.sunMoon.add([this.sunHalo, this.sunDisc, this.moonHalo, this.moonDisc]);
+    const sw = this.scale.width, sh = this.scale.height;
+    this.dayOverlay = this.add.rectangle(0, 0, sw, sh, 0x1a1840, 0)
+      .setOrigin(0).setScrollFactor(0).setDepth(8500).setBlendMode(Phaser.BlendModes.MULTIPLY);
+    this.hubLights = [];
+    [[HUB.col, HUB.row], [HUB.col + 1, HUB.row + 3], [40, 44]].forEach(([c, r]) => {
+      const p = this.wpos(c, r);
+      const gl = this.add.circle(p.x, p.y - 8, 22, 0xf0d060, 0).setDepth(isoDepth(c, r, 52));
+      this.hubLights.push(gl);
+      this.tweens.add({ targets:gl, alpha:{ from:0.15, to:0.45 }, scale:{ from:0.9, to:1.15 }, duration:1100, yoyo:true, repeat:-1 });
+    });
+    this.rebuildDayNightSky();
+    this.applyDayPalette(sampleDayPalette(this.dayT));
+  }
+
+  rebuildDayNightSky() {
+    const sw = this.scale.width, sh = this.scale.height;
+    this.skyDust.forEach(s => s.setPosition(s.getData('bx') * sw, s.getData('by') * sh));
+    this.nightStars.forEach(s => s.setPosition(s.getData('bx') * sw, s.getData('by') * sh));
+    if (this.dayOverlay) this.dayOverlay.setSize(sw, sh);
+    this.layoutSunMoon();
+  }
+
+  layoutSunMoon() {
+    if (!this.sunDisc) return;
+    const sw = this.scale.width, sh = this.scale.height;
+    const sunX = sw * (0.08 + 0.84 * Phaser.Math.Clamp((this.dayT - 0.12) / 0.52, 0, 1));
+    const sunY = sh * (0.1 + 0.04 * Math.sin(Math.PI * Phaser.Math.Clamp((this.dayT - 0.12) / 0.52, 0, 1)));
+    this.sunDisc.setPosition(sunX, sunY);
+    this.sunHalo.setPosition(sunX, sunY);
+    const moonX = sw * (0.92 - 0.84 * Phaser.Math.Clamp((this.dayT - 0.62) / 0.38, 0, 1));
+    const moonY = sh * (0.11 + 0.03 * Math.sin(Math.PI * Phaser.Math.Clamp((this.dayT - 0.62) / 0.38, 0, 1)));
+    this.moonDisc.setPosition(moonX, moonY);
+    this.moonHalo.setPosition(moonX, moonY);
+  }
+
+  applyDayPalette(p) {
+    this.cameras.main.setBackgroundColor(p.sky);
+    if (this.dayOverlay) this.dayOverlay.setFillStyle(p.overlay, p.oA);
+    if (this.sunDisc) {
+      this.sunDisc.setAlpha(p.sun);
+      this.sunHalo.setAlpha(p.sun * 0.35);
+    }
+    if (this.moonDisc) {
+      this.moonDisc.setAlpha(p.moon);
+      this.moonHalo.setAlpha(p.moon * 0.4);
+    }
+    if (this.nightStars) this.nightStars.forEach(s => s.setAlpha(s.getData('ba') * p.stars));
+    if (this.hubLights) this.hubLights.forEach(gl => gl.setAlpha(p.stars * 0.55));
+    if (this.fireflies) {
+      if (typeof this.fireflies.setFrequency === 'function') this.fireflies.setFrequency(p.ff);
+      else if (this.fireflies.frequency !== undefined) this.fireflies.frequency = p.ff;
+    }
+    const vig = document.getElementById('vignette');
+    if (vig) vig.style.opacity = String(p.vig);
+    const clk = document.getElementById('day-clock');
+    if (clk) clk.textContent = p.label;
+  }
+
+  updateDayNight(delta) {
+    if (this.dayT === undefined) return;
+    this.dayT = (this.dayT + delta / DAY_CYCLE_MS) % 1;
+    this.applyDayPalette(sampleDayPalette(this.dayT));
+    this.layoutSunMoon();
+  }
 
   seededPos(n, salt) {
     const out = [];
@@ -2154,6 +2285,7 @@ class Game extends Phaser.Scene {
 
   update(_, delta) {
     if (window.S.modal) { window.mobileInput.act = false; return; }
+    this.updateDayNight(delta);
     this.updateMultiplayer(delta);
     this.updateFakePlayers(delta);
     const dt = delta / 1000;
