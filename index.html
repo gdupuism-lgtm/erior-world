@@ -263,7 +263,7 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div class="profile-card">
 <h1>ERIOR WORLD ✦</h1>
 <div id="auth-step">
-<p>Crea tu <b style="color:#f0d060">cuenta Erior</b> — tu Pasaporte Manifestor (no crypto). Compra audios cuánticos para desbloquear protección, herramientas y zonas como en Kintara, pero enfocado en tu transformación.</p>
+<p>Crea tu <b style="color:#f0d060">cuenta Erior</b> y activa tu <b>Pasaporte Manifestor</b>. Compra audios cuánticos para desbloquear zonas exclusivas, herramientas y tu camino de transformación personal.</p>
 <div id="passport-preview" class="passport-card" style="font-size:.72rem;color:#aaa;margin-bottom:10px">
 <b>🎧 Pasaporte Manifestor</b> = 1+ audio Erior aprobado → acceso nocturno, +HP y misiones VIP.<br>
 <span style="color:#666">Gratis: explorar hub, quiz, tienda y chat.</span>
@@ -347,8 +347,8 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 <div id="death-overlay">
 <div class="death-card">
-<h2>💀 Caíste en la noche cuántica</h2>
-<p id="death-msg">Los audios Erior refuerzan tu campo energético y te protegen de zombies y aliens.</p>
+<h2>✦ Energía agotada</h2>
+<p id="death-msg">Tus audios Erior refuerzan tu campo energético. Activa tu Pasaporte Manifestor para más vitalidad y beneficios VIP.</p>
 <div class="death-btns">
 <button type="button" class="gold-btn" id="death-respawn">🔄 Reaparecer en la plaza (gratis)</button>
 <button type="button" class="gold-btn" id="death-revive">💎 Revivir aquí · 20 cristales</button>
@@ -427,8 +427,8 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <button class="modal-close" id="howto-x">✕</button>
 <div class="gold-modal" style="max-width:560px;text-align:left;max-height:88vh">
 <h2 style="text-align:center">✦ ¿Qué es ERIOR WORLD?</h2>
-<p style="font-size:.82rem;line-height:1.55">MMO isométrico de <b>manifestación cuántica</b> — como Kintara, pero tu moneda premium son los <b>audios Erior</b>, no crypto. Recolecta cristales, completa misiones, sobrevive la noche y transforma tu realidad.</p>
-<p style="font-size:.78rem;color:#888"><b>Acceso:</b> Cuenta Erior gratis · <b>Pasaporte Manifestor</b> (1+ audio) desbloquea selva nocturna, HP extra y herramientas.</p>
+<p style="font-size:.82rem;line-height:1.55">Un mundo isométrico de <b>manifestación cuántica</b> donde explorar, conectar y transformar tu realidad es el juego. Recolecta cristales, completa misiones, vive el ciclo día/noche y descubre tu audio ideal.</p>
+<p style="font-size:.78rem;color:#888"><b>Acceso:</b> Cuenta Erior gratis · <b>Pasaporte Manifestor</b> (1+ audio) desbloquea la Selva nocturna, +HP y herramientas exclusivas.</p>
 <button class="gold-btn" id="howto-full" style="width:100%;margin:10px 0">📖 Guía completa paso a paso</button>
 <button class="gold-btn" id="howto-ok">¡Explorar!</button></div>
 </div>
@@ -551,32 +551,32 @@ const GADGETS = [
 ];
 const AUDIO_PASSPORT = [
   { n:0, badge:'🌱 Explorador', title:'Gratis', desc:'Cuenta Erior · plaza segura, quiz, tienda, chat y casino con cristales.' },
-  { n:1, badge:'🎧 Pasaporte Manifestor', title:'1 audio Erior', desc:'Selva Cuántica de noche · +20 HP · 15% menos daño · misiones VIP.' },
+  { n:1, badge:'🎧 Pasaporte Manifestor', title:'1 audio Erior', desc:'Selva Cuántica de noche · +20 HP · aura manifestor · misiones VIP.' },
   { n:3, badge:'🪓 Constructor Cuántico', title:'3 audios', desc:'Hacha para talar · ganar oro · gadgets de manifestación.' },
   { n:5, badge:'🏡 Anfitrión Erior', title:'5 audios', desc:'Skins premium · abrir tu mundo · eventos especiales.' },
   { n:10, badge:'👑 VIP Cuántico', title:'10 audios', desc:'Máxima protección · parcelas · Telegram VIP.' },
 ];
 const WORLD_ZONES = [
-  { id:'hub', name:'🏰 Mainland — Plaza Erior', desc:'Hub principal (como Kintara Mainland). Castillo = tienda audios, chat global, fuente curativa. Zona SEGURA de noche.' },
+  { id:'hub', name:'🏰 Plaza Central Erior', desc:'Corazón del mundo. Castillo = tienda de audios, chat global y fuente curativa. Zona segura de día y de noche.' },
   { id:'alicia', name:'✦ Alicia IA — Guía Cuántica', desc:'NPC cerca del castillo. Te orienta y abre el camino a tu audio ideal.' },
   { id:'tower', name:'🗼 Torre Cuántica — Quiz', desc:'3 preguntas → descubre qué audio Erior (AMOR, DINERO, SALUD…) encaja con tu manifestación.' },
-  { id:'cabin', name:'🔮 Cabaña Mística — Outfits', desc:'Skins y aliens premium. Algunos con cristales, otros vía PayPal Erior.' },
+  { id:'cabin', name:'🔮 Cabaña Mística — Outfits', desc:'Skins y avatares premium. Algunos con cristales, otros vía PayPal Erior.' },
   { id:'casino', name:'🎰 Casino Cuántico', desc:'Gasta 💎 cristales. Gana oro, gadgets, cupones de audio y fichas.' },
-  { id:'wild', name:'🌙 Selva Cuántica — Wilderness', desc:'Fuera del hub de noche: zombies y aliens. Necesitas Pasaporte Manifestor (1 audio) para resistir. Si mueres → compra audio o reaparece en plaza.' },
+  { id:'wild', name:'🌙 Selva Cuántica', desc:'De noche, fuera del hub: criaturas místicas deambulan bajo las estrellas. Con Pasaporte Manifestor desbloqueas misiones VIP y aura extra.' },
   { id:'build', name:'🏗️ Tu Parcela', desc:'Construye casas, cercas y mesas con cristales. Tu nombre queda en el mapa para otros jugadores.' },
 ];
 const GUIDE_STEPS = [
-  { title:'✦ ¿Qué es ERIOR WORLD?', text:'Un MMO isométrico de manifestación cuántica inspirado en Kintara.\n\nEn vez de conectar wallet crypto ($KINS), aquí tu acceso premium es el Pasaporte Manifestor: comprar y activar audios Erior con Pauline.\n\nTodo gira en torno a transformar tu realidad: amor, dinero, salud, autoestima y manifestación.' },
-  { title:'Paso 1 · Cuenta Erior (no wallet)', text:'1. Crea cuenta con email + contraseña\n2. Elige tu nombre de viajero\n3. Tu progreso se guarda en la nube ☁️\n\nGratis puedes explorar el hub, hacer el quiz, chatear y ver la tienda.\n\n🎧 Pasaporte Manifestor = 1+ audio aprobado → desbloqueas la experiencia completa (como tener $KINS en Kintara).' },
-  { title:'Paso 1 · Niveles del Pasaporte', text:'🌱 Explorador (0) — Hub, quiz, tienda, casino\n🎧 Manifestor (1 audio) — Selva nocturna, +HP, menos daño\n🪓 Constructor (3) — Hacha cuántica, talar, oro\n🏡 Anfitrión (5) — Skins VIP, parcelas\n👑 VIP (10) — Máxima protección y eventos\n\nCompras audio → envías comprobante → Pauline activa tu pasaporte.' },
-  { title:'Paso 2 · Tutorial — Herramientas', text:'Completa el tutorial como en Kintara:\n\n✦ Alicia IA — habla con ella (guía personal)\n🗼 Torre Cuántica — quiz de 3 preguntas → tu audio ideal\n🏰 Castillo — visita la tienda de audios\n💎 Recolecta 10 cristales (misiones)\n\nGadgets (inventario 🎒):\n🪓 Hacha — 3 audios o casino\n🏮 Linterna — curar +50 HP\n🎰 Fichas — casino gratis' },
-  { title:'Paso 2 · Economía del juego', text:'💎 Cristales = jugar gratis (recolectar, misiones, casino)\n🪙 Oro = secundario (monedas, árboles, casino)\n🎧 Audios Erior = acceso premium real (Pasaporte)\n\nNo pierdes audios al morir. Los cristales y oro sí puedes gastarlos — como Kintara, no lleves oro a la Selva si eres novato/a.' },
-  { title:'Paso 3 · Menú del juego (dock)', text:'Botones circulares abajo a la derecha:\n\n🎧 Audios — Tienda del Castillo\n📊 Manifiesto — tu pasaporte y camino\n🎒 Inventario — gadgets y curación\n🏗️ Construir — casas y parcela\n👤 Outfits — Cabaña de skins\n💬 Chat — plaza del castillo\n📖 Guía — este tutorial\n\n📜 Misiones — panel derecho\n🗺️ Minimap — abajo derecha' },
-  { title:'Paso 4 · Mapa — Mainland', text:'🏰 PLAZA ERIOR (centro)\nCastillo dorado = tienda audios + chat multiplayer.\nFuente curativa de noche. Zona segura.\n\nCamina al sur → 🎰 Casino Cuántico\nNoroeste → 🔮 Cabaña Mística\nNoreste → 🗼 Torre Cuántica' },
-  { title:'Paso 4 · Selva Cuántica (Wilderness)', text:'🌙 De noche, fuera del hub:\n🧟 Zombies y 👽 Aliens te atacan.\n\n⚠️ Como Kintara Wilderness: ten linterna, no vayas sin Pasaporte Manifestor.\n\nSi mueres:\n· Reaparecer gratis en plaza\n· Revivir con 20 💎\n· Comprar audio Erior → protección VIP' },
+  { title:'✦ ¿Qué es ERIOR WORLD?', text:'Un MMO isométrico de manifestación cuántica creado por Erior Center.\n\nTu acceso premium es el Pasaporte Manifestor: comprar y activar audios Erior con Pauline.\n\nTodo gira en torno a transformar tu realidad: amor, dinero, salud, autoestima y manifestación.' },
+  { title:'Paso 1 · Cuenta Erior', text:'1. Crea cuenta con email + contraseña\n2. Elige tu nombre de viajero\n3. Tu progreso se guarda en la nube ☁️\n\nGratis puedes explorar el hub, hacer el quiz, chatear y ver la tienda.\n\n🎧 Pasaporte Manifestor = 1+ audio aprobado → desbloqueas la experiencia completa del mundo.' },
+  { title:'Paso 1 · Niveles del Pasaporte', text:'🌱 Explorador (0) — Hub, quiz, tienda, casino\n🎧 Manifestor (1 audio) — Selva nocturna, +HP, aura VIP\n🪓 Constructor (3) — Hacha cuántica, talar, oro\n🏡 Anfitrión (5) — Skins VIP, parcelas\n👑 VIP (10) — Máxima protección y eventos\n\nCompras audio → envías comprobante → Pauline activa tu pasaporte.' },
+  { title:'Paso 2 · Tutorial — Herramientas', text:'Completa el recorrido inicial:\n\n✦ Alicia IA — habla con ella (guía personal)\n🗼 Torre Cuántica — quiz de 3 preguntas → tu audio ideal\n🏰 Castillo — visita la tienda de audios\n💎 Recolecta 10 cristales (misiones)\n\nGadgets (inventario 🎒):\n🪓 Hacha — 3 audios o casino\n🏮 Linterna — curar +50 HP\n🎰 Fichas — casino gratis' },
+  { title:'Paso 2 · Economía del juego', text:'💎 Cristales = jugar gratis (recolectar, misiones, casino)\n🪙 Oro = secundario (monedas, árboles, casino)\n🎧 Audios Erior = acceso premium real (Pasaporte)\n\nTus audios comprados son permanentes. Los cristales y oro los gastas en el mundo — administra bien tu energía.' },
+  { title:'Paso 3 · Menú del juego', text:'En móvil: toca ☰ arriba a la derecha.\nEn desktop: botones circulares abajo a la derecha:\n\n🎧 Audios — Tienda del Castillo\n📊 Manifiesto — tu pasaporte y camino\n🎒 Inventario — gadgets y curación\n🏗️ Construir — casas y parcela\n👤 Outfits — Cabaña de skins\n💬 Chat — plaza del castillo\n📖 Guía — este tutorial\n\n📜 Misiones · 🗺️ Minimap' },
+  { title:'Paso 4 · Mapa del mundo', text:'🏰 PLAZA ERIOR (centro)\nCastillo dorado = tienda audios + chat multiplayer.\nFuente curativa de noche. Zona segura.\n\nCamina al sur → 🎰 Casino Cuántico\nNoroeste → 🔮 Cabaña Mística\nNoreste → 🗼 Torre Cuántica' },
+  { title:'Paso 4 · Selva Cuántica', text:'🌙 De noche, fuera del hub:\n🧟 Zombies y 👽 Aliens deambulan por la selva — ambiente místico, no te persiguen.\n\nExplora con calma, usa la linterna para curarte y activa tu Pasaporte Manifestor para misiones VIP.\n\nLa plaza siempre es tu refugio seguro.' },
   { title:'Paso 4 · Manifestación por categoría', text:'Audios organizados como tu camino:\n\n✨ AUTOESTIMA · 💖 AMOR · 💰 DINERO\n🌿 SALUD · 🛸 MANIFESTACIÓN\n\nEl Quiz de la Torre te recomienda uno.\nCada audio comprado sube tu Pasaporte y desbloquea más del mundo.' },
   { title:'✦ Multiplayer en tiempo real', text:'Jugadores con cuenta se ven en el mapa en vivo.\nChat en la plaza del castillo.\nConstrucciones con tu nombre ✦.\n\nComparte la guía con nuevos viajeros — la mejor forma de aprender es explorar, manifestar y comprar tu primer audio Erior.' },
-  { title:'✦ ¡Listo, Manifestor!', text:'Quédate seguro/a en la plaza de noche al empezar.\nVisita la Torre → descubre tu audio.\nCompra 1 audio → activa tu Pasaporte Manifestor.\n\nPulsa 📖 cuando quieras repasar. ¡A transformar tu realidad!' },
+  { title:'✦ ¡Listo, Manifestor!', text:'Empieza en la plaza — es tu refugio seguro.\nVisita la Torre → descubre tu audio.\nCompra 1 audio → activa tu Pasaporte Manifestor.\n\nPulsa 📖 cuando quieras repasar. ¡A transformar tu realidad!' },
 ];
 const CASINO_SPIN_COST = 15;
 const CASINO_PRIZES = [
@@ -728,7 +728,7 @@ function healPlayer(amount, reason) {
 }
 function useLanternHeal() {
   if (!gadgetCount('lantern')) {
-    if (window.G) window.G.showToast('Necesitas 🏮 Linterna en inventario (Casino o derrotar aliens)');
+    if (window.G) window.G.showToast('Necesitas 🏮 Linterna en inventario (Casino o misiones)');
     return false;
   }
   if (window.S.hp >= window.S.maxHp) {
@@ -745,8 +745,8 @@ function showDeathOverlay() {
   if (msg) {
     const ap = window.S.audiosPurchased || 0;
     msg.textContent = ap >= 1
-      ? 'Tus audios Erior te dan resistencia — compra más para mayor protección nocturna.'
-      : 'Los audios Erior refuerzan tu campo energético (+20 HP por audio). Compra uno y vuelve más fuerte.';
+      ? 'Tus audios Erior amplían tu campo energético — cada audio eleva tu Pasaporte y desbloquea más del mundo.'
+      : 'Activa tu Pasaporte Manifestor con un audio Erior (+20 HP y acceso VIP). Regresa con más energía cuántica.';
   }
 }
 function hideDeathOverlay() {
@@ -2914,14 +2914,13 @@ class Game extends Phaser.Scene {
       const spr = this.add.sprite(p.x, p.y - 12, botKey + '_0').setOrigin(0.5, 0.92).setDepth(d);
       spr.setTint(kind === 'zombie' ? 0x88ff88 : 0xcc88ff);
       const tag = this.add.text(p.x, p.y - 50, kind === 'zombie' ? '🧟' : '👽', { fontSize: '14px' }).setOrigin(0.5, 1).setDepth(d + 1);
-      const mob = { kind, c, r, spr, sh, tag, speed: kind === 'zombie' ? 0.018 : 0.026, walkT: 0 };
-      spr.setInteractive({ useHandCursor: true });
-      spr.on('pointerdown', (e) => {
-        e.stopPropagation();
-        if (window.S.modal) return;
-        if (dist(this.col, this.row, mob.c, mob.r) <= 4.5) this.defeatNightMob(mob);
-        else this.showToast('¡Acércate para combatir!');
-      });
+      const mob = {
+        kind, c, r, spr, sh, tag,
+        speed: kind === 'zombie' ? 0.010 : 0.014,
+        walkT: 0,
+        wanderAng: Math.random() * Math.PI * 2,
+        wanderTimer: 1500 + Math.random() * 2500,
+      };
       this.nightMobs.push(mob);
       return mob;
     }
@@ -2932,20 +2931,6 @@ class Game extends Phaser.Scene {
     mob.spr?.destroy(); mob.sh?.destroy(); mob.tag?.destroy();
   }
 
-  defeatNightMob(mob) {
-    const idx = this.nightMobs.indexOf(mob);
-    if (idx < 0) return;
-    const gold = mob.kind === 'zombie' ? Phaser.Math.Between(2, 6) : Phaser.Math.Between(4, 10);
-    window.S.gold = (window.S.gold || 0) + gold;
-    if (Math.random() < 0.12) addGadget('lantern', 1);
-    this.burst(mob.spr.x, mob.spr.y, mob.kind === 'zombie' ? 0x88ff88 : 0xcc88ff);
-    this.destroyNightMob(mob);
-    this.nightMobs.splice(idx, 1);
-    this.syncHUD();
-    renderInventory();
-    this.showToast((mob.kind === 'zombie' ? '🧟 Zombie' : '👽 Alien') + ' derrotado · +' + gold + ' 🪙');
-  }
-
   updateNightMobs(delta) {
     const night = (this.nightFactor || 0) > 0.55;
     if (!night) {
@@ -2954,34 +2939,28 @@ class Game extends Phaser.Scene {
       this.nightMobTimer = 0;
       return;
     }
-    const inSafe = dist(this.col, this.row, HUB.col, HUB.row) < 10;
     this.nightMobTimer -= delta;
-    if (!inSafe && this.nightMobs.length < 4 && this.nightMobTimer <= 0) {
+    if (this.nightMobs.length < 5 && this.nightMobTimer <= 0) {
       const kind = Math.random() < 0.65 ? 'zombie' : 'alien';
-      if (this.spawnNightMob(kind)) this.nightMobTimer = 4000 + Math.random() * 3000;
+      if (this.spawnNightMob(kind)) this.nightMobTimer = 3500 + Math.random() * 2500;
       else this.nightMobTimer = 2000;
     }
     const botKey = (kind) => kind === 'zombie' ? 'bot2' : 'bot4';
     this.nightMobs.forEach(mob => {
-      if (dist(mob.c, mob.r, HUB.col, HUB.row) < 10) {
-        const away = Math.atan2(mob.r - HUB.row, mob.c - HUB.col);
-        mob.c += Math.cos(away) * mob.speed * delta * 0.04;
-        mob.r += Math.sin(away) * mob.speed * delta * 0.04;
-      } else if (!this.playerDead && !inSafe) {
-        const dToPlayer = dist(this.col, this.row, mob.c, mob.r);
-        if (dToPlayer > 2.2) {
-          const ang = Math.atan2(this.row - mob.r, this.col - mob.c);
-          const nc = mob.c + Math.cos(ang) * mob.speed * delta;
-          const nr = mob.r + Math.sin(ang) * mob.speed * delta;
-          if (this.walk[Math.round(nr)]?.[Math.round(nc)]) { mob.c = nc; mob.r = nr; }
-        } else if (dToPlayer <= 2.5) {
-          mob.atkCd = (mob.atkCd || 0) - delta;
-          if (mob.atkCd <= 0) {
-            mob.atkCd = mob.kind === 'zombie' ? 1500 : 1200;
-            this.playerTakeDamage(mob.kind === 'zombie' ? 10 : 14, mob.kind);
-          }
-        }
+      mob.wanderTimer -= delta;
+      if (mob.wanderTimer <= 0) {
+        mob.wanderAng = Math.random() * Math.PI * 2;
+        mob.wanderTimer = 2000 + Math.random() * 3500;
       }
+      let ang = mob.wanderAng;
+      if (dist(mob.c, mob.r, HUB.col, HUB.row) < 12) {
+        ang = Math.atan2(mob.r - HUB.row, mob.c - HUB.col);
+      }
+      const nc = mob.c + Math.cos(ang) * mob.speed * delta;
+      const nr = mob.r + Math.sin(ang) * mob.speed * delta;
+      const rc = Math.round(nc), rr = Math.round(nr);
+      if (this.walk[rr]?.[rc]) { mob.c = nc; mob.r = nr; }
+      else { mob.wanderAng = Math.random() * Math.PI * 2; mob.wanderTimer = 800; }
       mob.walkT += delta;
       const pos = this.wpos(mob.c, mob.r);
       mob.spr.setPosition(pos.x, pos.y - 12);
@@ -3107,7 +3086,7 @@ class Game extends Phaser.Scene {
     if ((this.nightFactor || 0) > 0.55 && !hasManifestPass() && dist(this.col, this.row, HUB.col, HUB.row) > 20) {
       if (!this._wildWarn) {
         this._wildWarn = true;
-        this.showToast('⚠️ Selva Cuántica: 1 audio Erior = Pasaporte Manifestor (+protección)');
+        this.showToast('🌙 Selva Cuántica: criaturas místicas deambulan — explora con calma');
       }
     } else if (dist(this.col, this.row, HUB.col, HUB.row) <= 18) this._wildWarn = false;
     this.updateDayNight(delta);
