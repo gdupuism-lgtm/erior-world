@@ -52,6 +52,29 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 .quiz-opt{display:block;width:100%;padding:10px;margin:5px 0;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:rgba(20,20,20,.9);color:#ccc;cursor:pointer;text-align:left;font-size:.82rem}
 .quiz-opt:hover{border-color:#c9a227;background:rgba(201,162,39,.12);color:#f0d060}
 #howto-btn{position:fixed;top:10px;right:10px;z-index:500;padding:7px 12px;border:2px solid #c9a227;border-radius:18px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.72rem;cursor:pointer;font-weight:bold}
+#inv-btn{position:fixed;top:10px;right:68px;z-index:500;padding:7px 12px;border:2px solid #7b3fa0;border-radius:18px;background:rgba(0,0,0,.8);color:#f0d060;font-size:.72rem;cursor:pointer;font-weight:bold}
+#inv-panel{position:fixed;top:48px;right:10px;z-index:550;width:220px;max-height:50vh;overflow-y:auto;display:none;background:rgba(0,0,0,.88);border:2px solid rgba(123,63,160,.55);border-radius:12px;padding:10px;font-size:.68rem;color:#ccc}
+#inv-panel.open{display:block}
+#inv-panel h4{color:#f0d060;font-size:.75rem;margin-bottom:8px}
+.inv-slot{padding:6px 8px;margin-bottom:5px;border-radius:8px;background:rgba(123,63,160,.12);border:1px solid rgba(123,63,160,.25)}
+.inv-slot b{color:#f0d060}
+#guide-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.82);align-items:center;justify-content:center;padding:16px}
+#guide-overlay.open{display:flex}
+.guide-card{max-width:480px;width:100%;background:linear-gradient(160deg,#1a1408,#0d0d12);border:2px solid #c9a227;border-radius:18px;padding:24px 20px;text-align:center;color:#ccc}
+.guide-card h2{color:#f0d060;margin-bottom:8px;font-size:1.15rem}
+.guide-card p{font-size:.85rem;line-height:1.5;margin-bottom:14px}
+.guide-progress{display:flex;gap:4px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.guide-dot{width:8px;height:8px;border-radius:50%;background:#444}
+.guide-dot.on{background:#f0d060;box-shadow:0 0 6px #f0d060}
+.guide-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.guide-btns button{padding:10px 16px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:.78rem}
+#guide-next{background:linear-gradient(135deg,#c9a227,#8b6914);color:#000}
+#guide-skip{background:transparent;border:1px solid #666!important;color:#aaa}
+#hub-chat.visible{display:flex!important}
+@media(max-width:768px),(pointer:coarse){
+  #inv-btn{top:auto;bottom:168px;right:12px;font-size:.65rem;padding:6px 10px}
+  #inv-panel{top:auto;bottom:210px;right:6px;left:6px;width:auto}
+}
 #fomo-online{position:fixed;top:10px;right:70px;z-index:500;padding:5px 10px;border-radius:14px;background:rgba(0,0,0,.8);color:#4ade80;font-size:.72rem;border:1px solid rgba(74,222,128,.3);pointer-events:none}
 #fomo-feed{position:fixed;left:6px;top:50%;transform:translateY(-50%);z-index:500;width:210px;max-height:180px;overflow:hidden;pointer-events:none}
 .fomo-item{padding:5px 8px;margin-bottom:5px;border-radius:7px;background:rgba(0,0,0,.75);border-left:3px solid #7b3fa0;color:#aaa;font-size:.65rem;animation:fi .4s ease}
@@ -212,7 +235,20 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 <div id="game-root"></div>
 <div id="vignette"></div>
-<button id="howto-btn">❓</button>
+<button id="howto-btn">📖 Guía</button>
+<button id="inv-btn" type="button">🎒 Inventario</button>
+<div id="inv-panel"><h4>🎒 Inventario</h4><div id="inv-list"></div></div>
+<div id="guide-overlay">
+<div class="guide-card">
+<h2 id="guide-title">Bienvenido a ERIOR WORLD</h2>
+<div class="guide-progress" id="guide-dots"></div>
+<p id="guide-text"></p>
+<div class="guide-btns">
+<button type="button" id="guide-skip">Saltar</button>
+<button type="button" id="guide-next">Siguiente →</button>
+</div>
+</div>
+</div>
 <div id="fomo-online">🟢 35 jugadores online</div>
 <div id="day-clock">☀️ Día</div>
 <div id="fomo-feed"></div>
@@ -224,10 +260,11 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <div id="build-hint">Modo construir: clic en tile verde · ESC cancelar</div>
 <button id="build-toggle" type="button">🏗️ Construir</button>
 <div id="hub-chat">
-<button type="button" id="hub-chat-toggle">💬 Chat Plaza Castillo</button>
+<button type="button" id="hub-chat-toggle">💬 Chat Plaza</button>
 <div id="hub-chat-panel">
+<div id="hub-chat-hint" style="font-size:.62rem;color:#888;margin-bottom:4px"></div>
 <div id="hub-chat-msgs"></div>
-<form id="hub-chat-form"><input id="hub-chat-input" maxlength="120" placeholder="Escribe en la plaza del Castillo…" autocomplete="off"><button type="submit" id="hub-chat-send">Enviar</button></form>
+<form id="hub-chat-form"><input id="hub-chat-input" maxlength="120" placeholder="Escribe en la plaza…" autocomplete="off"><button type="submit" id="hub-chat-send">Enviar</button></form>
 </div>
 </div>
 <div id="build-bar" class="collapsed-mobile">
@@ -260,6 +297,18 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 </div>
 
 <div id="quiz-overlay" class="overlay"><button class="modal-close" id="quiz-x">✕</button><div class="gold-modal" id="quiz-box"></div></div>
+<div id="casino-overlay" class="overlay">
+<button class="modal-close" id="casino-x">✕</button>
+<div class="gold-modal" style="max-width:520px">
+<h2>🎰 Casino Cuántico Erior</h2>
+<p style="font-size:.82rem;color:#aaa;margin:8px 0">Gasta <b style="color:#3de8f0">💎 cristales</b> — gana oro, gadgets, cristales extra o cupones de audios.</p>
+<p id="casino-balance" style="color:#f0d060;font-size:.85rem"></p>
+<div id="casino-wheel" style="font-size:3rem;margin:16px 0;min-height:60px">🎰</div>
+<p id="casino-result" style="min-height:1.4em;color:#4ade80;font-size:.9rem"></p>
+<button class="gold-btn" id="casino-spin" type="button">Girar · 15 💎</button>
+<p style="font-size:.65rem;color:#666;margin-top:10px">Premios: oro 🪙 · cristales 💎 · gadgets 🎒 · descuento audio 🎧</p>
+</div>
+</div>
 <div id="chest-overlay" class="overlay"><button class="modal-close" id="chest-x">✕</button><div class="gold-modal" id="chest-box"></div></div>
 <div id="howto-overlay" class="overlay">
 <button class="modal-close" id="howto-x">✕</button>
@@ -354,6 +403,8 @@ const BUILDINGS = [
     points:[{col:15,row:18,r:4},{col:18,row:15,r:4}] },
   { id:'tower', name:'Torre Cuántica', col:65, row:20, r:2, shop:'quiz', tex:'b_tower',
     points:[{col:65,row:23,r:4},{col:68,row:20,r:4}] },
+  { id:'casino', name:'Casino Cuántico Erior', col:48, row:46, r:2, shop:'casino', tex:'b_casino',
+    points:[{col:48,row:49,r:5},{col:51,row:46,r:4}] },
 ];
 const CHESTS = [{col:10,row:50},{col:25,row:70},{col:55,row:10},{col:70,row:60},{col:35,row:25}];
 
@@ -378,6 +429,38 @@ const SKINS = [
   { id:'galactica', name:'Alicia Galáctica', cost:150, priceMXN:249, key:'sk_g', dress:0x3de8f0, hair:0x1a1a2e, aura:0x6b4fd4 },
   { id:'matrix', name:'Alicia Matrix', cost:200, priceMXN:299, key:'sk_m', dress:0x00ff41, hair:0x003300, aura:0x00ff00 },
   { id:'quantum', name:'Alicia Quantum ✦', cost:null, priceMXN:399, premiumOnly:true, key:'sk_q', dress:0xffffff, hair:0xf0d060, aura:0xc9a227 },
+  { id:'alien_verde', name:'Alien Cuántico', cost:120, priceMXN:249, key:'sk_av', dress:0x00cc66, hair:0x004422, aura:0x00ff88, skinColor:0x88ffaa },
+  { id:'alien_morado', name:'Alien Galáctico', cost:180, priceMXN:349, key:'sk_am', dress:0x9933ff, hair:0x220044, aura:0xcc66ff, skinColor:0xcc99ff },
+  { id:'selenita', name:'Selenita Erior', cost:null, priceMXN:449, premiumOnly:true, key:'sk_sel', dress:0xe0e0ff, hair:0x8888ff, aura:0xaabbff, skinColor:0xe8e8ff },
+];
+const GADGETS = [
+  { id:'axe', name:'Hacha Cuántica', icon:'🪓', desc:'Talar árboles → oro' },
+  { id:'lantern', name:'Linterna Erior', icon:'🏮', desc:'Ver mejor de noche' },
+  { id:'net', name:'Red Cuántica', icon:'🕸️', desc:'Atrapar cristales lejanos' },
+  { id:'chip', name:'Ficha Casino', icon:'🎰', desc:'1 giro gratis en casino' },
+  { id:'coupon', name:'Cupón Audio 10%', icon:'🎧', desc:'Descuento en tienda' },
+];
+const GUIDE_STEPS = [
+  { title:'✦ Bienvenido a ERIOR WORLD', text:'Explora un mundo isométrico estilo Kintara. Tu meta: descubrir audios cuánticos Erior y transformar tu realidad.' },
+  { title:'🕹️ Moverte', text:'WASD / clic en el mapa / joystick en móvil. Camina por el mundo verde y gris.' },
+  { title:'💎 Cristales (diamantes)', text:'Toca los cristales azules brillantes — subes XP y desbloqueas construcciones. ¡Son la moneda principal!' },
+  { title:'🪙 Monedas de oro', text:'Busca monedas DORADAS en el mapa (brillan). También gana oro talar árboles con hacha o en el Casino.' },
+  { title:'🏰 Castillo Erior', text:'Plaza gris del castillo = Tienda de audios + Chat con otros jugadores (cuenta Erior).' },
+  { title:'🎰 Casino Cuántico', text:'Edificio morado al sur — gasta 💎 y gana premios: oro, gadgets, cupones de audio.' },
+  { title:'🌙 Noche', text:'De noche salen 🧟 zombies y 👽 aliens. La plaza del castillo es zona segura. ¡Cuidado!' },
+  { title:'🎒 Inventario', text:'Botón Inventario arriba — guarda gadgets (hacha, linterna, fichas). Se llenan jugando y en casino.' },
+  { title:'🔮 Skins Alien', text:'Cabaña Mística — skins normales y Aliens premium. Algunos solo con PayPal Erior.' },
+  { title:'✦ ¡Listo!', text:'Pulsa 📖 Guía cuando quieras. Misiones 📜 a la derecha. ¡A explorar!' },
+];
+const CASINO_SPIN_COST = 15;
+const CASINO_PRIZES = [
+  { w:30, label:'+5 💎', fn:()=>{ window.S.crystals+=5; return '+5 cristales'; } },
+  { w:25, label:'+8 🪙', fn:()=>{ window.S.gold=(window.S.gold||0)+8; return '+8 oro'; } },
+  { w:15, label:'🎒 Ficha', fn:()=>{ addGadget('chip',1); return 'Ficha casino (inventario)'; } },
+  { w:12, label:'🎧 Cupón', fn:()=>{ addGadget('coupon',1); return 'Cupón 10% audio'; } },
+  { w:10, label:'🏮 Linterna', fn:()=>{ addGadget('lantern',1); return 'Linterna en inventario'; } },
+  { w:5, label:'+25 💎', fn:()=>{ window.S.crystals+=25; return '¡JACKPOT +25 cristales!'; } },
+  { w:3, label:'🪓 Hacha', fn:()=>{ addGadget('axe',1); if(!window.S.tools.includes('axe'))window.S.tools.push('axe'); return 'Hacha cuántica'; } },
 ];
 
 const AUDIO = [
@@ -435,7 +518,8 @@ const QUIZ_REC = { AMOR:'Erior LOVE', DINERO:'Master Abundance', SALUD:'VITAMIND
 
 window.S = {
   userId:'', profileId:'', username:'', avatar:0, level:0, xp:0, profileReady:false, cloud:false,
-  crystals:0, gold:0, audiosPurchased:0, tools:[],
+  crystals:0, gold:0, audiosPurchased:0, tools:[], inventory:[],
+  guideDone:false, guestId:'',
   skins:[], premiumSkins:[], activeSkin:'default', col:44, row:44, modal:false,
   tierNotified:[], openedChests:[], builds:[], questsDone:[], buildCount:0,
   stats:{ shopVisits:0, crystalsTotal:0, aliciaVisits:0 },
@@ -461,7 +545,14 @@ try {
   if (window.S.gold === undefined) window.S.gold = 0;
   if (window.S.audiosPurchased === undefined) window.S.audiosPurchased = 0;
   if (!window.S.tools) window.S.tools = [];
+  if (!window.S.inventory) window.S.inventory = [];
+  if (window.S.guideDone === undefined) window.S.guideDone = false;
+  if (!window.S.guestId) window.S.guestId = sessionStorage.getItem('erior_guest') || '';
 } catch(e){}
+if (!window.S.guestId) {
+  window.S.guestId = 'guest-' + Math.random().toString(36).slice(2, 10);
+  sessionStorage.setItem('erior_guest', window.S.guestId);
+}
 try { window.S.openedChests = JSON.parse(sessionStorage.getItem('erior_chests')||'[]'); } catch(e){ window.S.openedChests = []; }
 
 const CFG = window.ERIOR_CONFIG || {};
@@ -490,6 +581,108 @@ function updateOnlineCount() {
   const n = Math.max(28, BOT_POPULATION + real + Phaser.Math.Between(3, 11));
   el.textContent = '🟢 ' + n + ' jugadores online';
 }
+function addGadget(id, qty) {
+  if (!window.S.inventory) window.S.inventory = [];
+  const ex = window.S.inventory.find(x => x.id === id);
+  if (ex) ex.qty = (ex.qty || 0) + qty;
+  else window.S.inventory.push({ id, qty });
+  if (id === 'axe' && !window.S.tools.includes('axe')) window.S.tools.push('axe');
+  save();
+  renderInventory();
+}
+function gadgetCount(id) {
+  const it = (window.S.inventory || []).find(x => x.id === id);
+  return it ? it.qty : 0;
+}
+function useGadget(id) {
+  const it = (window.S.inventory || []).find(x => x.id === id);
+  if (!it || it.qty <= 0) return false;
+  it.qty--;
+  if (it.qty <= 0) window.S.inventory = window.S.inventory.filter(x => x.qty > 0);
+  save();
+  renderInventory();
+  return true;
+}
+function renderInventory() {
+  const el = document.getElementById('inv-list');
+  if (!el) return;
+  const items = window.S.inventory || [];
+  if (!items.length) {
+    el.innerHTML = '<p style="color:#888">Vacío — gana gadgets en el 🎰 Casino o talar árboles.</p>';
+    return;
+  }
+  el.innerHTML = items.map(it => {
+    const g = GADGETS.find(x => x.id === it.id);
+    return '<div class="inv-slot"><b>' + (g ? g.icon + ' ' + g.name : it.id) + '</b> ×' + it.qty +
+      (g ? '<br><span style="color:#888;font-size:.6rem">' + g.desc + '</span>' : '') + '</div>';
+  }).join('');
+}
+let guideIdx = 0;
+function showGuide(at) {
+  guideIdx = at != null ? at : 0;
+  document.getElementById('guide-overlay').classList.add('open');
+  window.S.modal = true;
+  renderGuideStep();
+}
+function renderGuideStep() {
+  const s = GUIDE_STEPS[guideIdx];
+  document.getElementById('guide-title').textContent = s.title;
+  document.getElementById('guide-text').textContent = s.text;
+  document.getElementById('guide-dots').innerHTML = GUIDE_STEPS.map((_, i) =>
+    '<span class="guide-dot' + (i === guideIdx ? ' on' : '') + '"></span>').join('');
+  document.getElementById('guide-next').textContent = guideIdx >= GUIDE_STEPS.length - 1 ? '¡Jugar!' : 'Siguiente →';
+}
+function closeGuide() {
+  document.getElementById('guide-overlay').classList.remove('open');
+  window.S.modal = false;
+  window.S.guideDone = true;
+  save();
+}
+function initGuide() {
+  document.getElementById('guide-next').onclick = () => {
+    if (guideIdx >= GUIDE_STEPS.length - 1) closeGuide();
+    else { guideIdx++; renderGuideStep(); }
+  };
+  document.getElementById('guide-skip').onclick = closeGuide;
+  document.getElementById('howto-btn').onclick = () => showGuide(0);
+  document.getElementById('inv-btn').onclick = () => {
+    document.getElementById('inv-panel').classList.toggle('open');
+    renderInventory();
+  };
+}
+function openCasino() {
+  window.S.modal = true;
+  document.getElementById('casino-balance').textContent = '💎 ' + (window.S.crystals || 0) + ' cristales · 🪙 ' + (window.S.gold || 0) + ' oro';
+  document.getElementById('casino-result').textContent = '';
+  document.getElementById('casino-wheel').textContent = '🎰';
+  document.getElementById('casino-overlay').classList.add('open');
+}
+function spinCasino() {
+  const free = gadgetCount('chip') > 0;
+  if (!free && (window.S.crystals || 0) < CASINO_SPIN_COST) {
+    if (window.G) window.G.showToast('Necesitas ' + CASINO_SPIN_COST + ' 💎 (o ficha 🎰 en inventario)');
+    return;
+  }
+  if (free) useGadget('chip');
+  else window.S.crystals -= CASINO_SPIN_COST;
+  const total = CASINO_PRIZES.reduce((a, p) => a + p.w, 0);
+  let roll = Math.random() * total, pick = CASINO_PRIZES[0];
+  for (const p of CASINO_PRIZES) { roll -= p.w; if (roll <= 0) { pick = p; break; } }
+  const icons = ['🎰','💎','🪙','🎧','🏮','🪓','✨'];
+  const wh = document.getElementById('casino-wheel');
+  let n = 0;
+  const iv = setInterval(() => { wh.textContent = icons[n++ % icons.length]; }, 80);
+  setTimeout(() => {
+    clearInterval(iv);
+    wh.textContent = pick.label;
+    const msg = pick.fn();
+    document.getElementById('casino-result').textContent = '¡' + msg + '!';
+    document.getElementById('casino-balance').textContent = '💎 ' + window.S.crystals + ' · 🪙 ' + (window.S.gold || 0);
+    save();
+    if (window.G) { window.G.crystals = window.S.crystals; window.G.syncHUD(); window.G.showToast('Casino: ' + msg); }
+    renderInventory();
+  }, 900);
+}
 function appendHubChatMsg(name, msg, isMe) {
   const box = document.getElementById('hub-chat-msgs');
   if (!box) return;
@@ -510,12 +703,8 @@ function initHubChat() {
     const inp = document.getElementById('hub-chat-input');
     const msg = (inp?.value || '').trim();
     if (!msg) return;
-    if (!window.S.userId) {
-      if (window.G) window.G.showToast('Inicia sesión para chatear en la plaza');
-      return;
-    }
-    if (!window.G?.isInHubPlaza()) {
-      if (window.G) window.G.showToast('Acércate a la plaza del Castillo para chatear');
+    if (!window.G?.isNearHub()) {
+      if (window.G) window.G.showToast('Camina a la plaza del Castillo (zona gris)');
       return;
     }
     window.G.sendHubChat(msg);
@@ -532,6 +721,8 @@ function gamePayload() {
     gold: window.S.gold || 0,
     audios_purchased: window.S.audiosPurchased || 0,
     tools: window.S.tools || [],
+    inventory: window.S.inventory || [],
+    guide_done: !!window.S.guideDone,
     active_skin: window.S.activeSkin,
     skins: window.S.skins || [],
     premium_skins: window.S.premiumSkins || [],
@@ -555,6 +746,8 @@ function applyCloudRow(row) {
   window.S.gold = row.gold ?? 0;
   window.S.audiosPurchased = row.audios_purchased ?? 0;
   window.S.tools = row.tools || [];
+  window.S.inventory = row.inventory || window.S.inventory || [];
+  window.S.guideDone = row.guide_done ?? window.S.guideDone;
   if ((window.S.audiosPurchased || 0) >= 3 && !window.S.tools.includes('axe')) window.S.tools.push('axe');
   window.S.activeSkin = row.active_skin || 'default';
   window.S.skins = row.skins || [];
@@ -613,7 +806,7 @@ function saveLocal() {
   localStorage.setItem('erior', JSON.stringify({
     userId:window.S.userId, profileId:window.S.profileId, username:window.S.username, avatar:window.S.avatar,
     level:window.S.level, xp:window.S.xp, profileReady:window.S.profileReady, cloud:window.S.cloud,
-    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[],
+    crystals:window.S.crystals, gold:window.S.gold||0, audiosPurchased:window.S.audiosPurchased||0, tools:window.S.tools||[], inventory:window.S.inventory||[], guideDone:!!window.S.guideDone, guestId:window.S.guestId||'',
     skins:window.S.skins, premiumSkins:window.S.premiumSkins||[],
     activeSkin:window.S.activeSkin, col:window.S.col, row:window.S.row, tierNotified:window.S.tierNotified||[],
     builds:window.S.builds||[], questsDone:window.S.questsDone||[], buildCount:window.S.buildCount||0,
@@ -782,12 +975,12 @@ function updateInteractPrompt(zone) {
   const actIcon = document.getElementById('act-icon');
   const actLbl = document.getElementById('act-label');
   if (!el) return;
-  const enterLbl = zone ? (zone.shop === 'audio' ? '🛒 ENTRAR Tienda' : zone.shop === 'skins' ? '🔮 ENTRAR Skins' : '🗼 ENTRAR Quiz') : '';
+  const enterLbl = zone ? (zone.shop === 'audio' ? '🛒 ENTRAR Tienda' : zone.shop === 'skins' ? '🔮 ENTRAR Skins' : zone.shop === 'casino' ? '🎰 ENTRAR Casino' : '🗼 ENTRAR Quiz') : '';
   if (zone && !window.S.modal) {
     if (isMobileUI() && act) {
       el.style.display = 'none';
       act.classList.add('enter-mode');
-      actIcon.textContent = zone.shop === 'audio' ? '🏰' : zone.shop === 'skins' ? '🔮' : '🗼';
+      actIcon.textContent = zone.shop === 'audio' ? '🏰' : zone.shop === 'skins' ? '🔮' : zone.shop === 'casino' ? '🎰' : '🗼';
       actLbl.textContent = 'ENTRAR';
     } else {
       el.style.display = 'block';
@@ -933,7 +1126,11 @@ function makeTextures(scene) {
   }
   drawVoxelChar('alicia_0', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 0);
   drawVoxelChar('alicia_1', 0x2563eb, 0xffccaa, 0x1a1a2e, 0, 1);
-  SKINS.forEach(s => { drawVoxelChar(s.key + '_0', s.dress, 0xffccaa, s.hair, 0, 0); drawVoxelChar(s.key + '_1', s.dress, 0xffccaa, s.hair, 0, 1); });
+  SKINS.forEach(s => {
+    const sk = s.skinColor || 0xffccaa;
+    drawVoxelChar(s.key + '_0', s.dress, sk, s.hair, 0, 0);
+    drawVoxelChar(s.key + '_1', s.dress, sk, s.hair, 0, 1);
+  });
   for (let i = 0; i < 6; i++) {
     const c = SKIN_COLORS[i];
     drawVoxelChar('bot' + i + '_0', c.body, c.head, c.hair, c.hat, 0);
@@ -1059,6 +1256,20 @@ function makeTextures(scene) {
   g.fillStyle(0xf0d060, 0.7); g.fillRect(38, 42, 4, 8);
   g.generateTexture('b_tower', 80, 122);
 
+  g.clear();
+  block(6, 74, 52, 26, 0x3d1a5c, 0x2a1038);
+  g.fillStyle(0x9933ff, 1); g.fillRect(8, 76, 48, 3);
+  prism(32, 48, 18, 28, 0xbb44ff, 0x6622aa, 0x8833cc);
+  g.fillStyle(0x1a0a28, 1); g.fillRect(18, 56, 28, 14);
+  g.fillStyle(0xff0066, 0.95); g.fillRect(20, 58, 7, 10); g.fillRect(29, 58, 7, 10); g.fillRect(38, 58, 7, 10);
+  g.fillStyle(0xf0d060, 0.9); g.fillRect(22, 68, 20, 3);
+  g.fillStyle(0x3de8f0, 0.75); g.fillRect(12, 82, 40, 5);
+  g.fillStyle(0xf0d060, 0.85); g.fillRect(26, 34, 12, 16);
+  g.fillStyle(0x4ade80, 0.7); g.fillCircle(16, 70, 3); g.fillCircle(48, 70, 3);
+  g.fillStyle(0x2a1500, 1); g.fillRect(28, 88, 10, 12);
+  g.fillStyle(0xff44aa, 0.8); g.fillRect(30, 90, 6, 6);
+  g.generateTexture('b_casino', 64, 102);
+
   g.clear(); g.fillStyle(0x8b6914, 1); g.fillRect(2, 0, 3, 28);
   g.fillStyle(0x7b3fa0, 1); g.beginPath(); g.moveTo(5, 4); g.lineTo(22, 10); g.lineTo(5, 16); g.closePath(); g.fillPath();
   g.generateTexture('flag', 24, 30);
@@ -1069,7 +1280,7 @@ function makeTextures(scene) {
 
 let shopCat='TODOS', quizA=[], chestT=null;
 function closeAll() {
-  ['shop-overlay','cabin-overlay','quiz-overlay','chest-overlay','howto-overlay','skin-pay-overlay'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  ['shop-overlay','cabin-overlay','quiz-overlay','chest-overlay','howto-overlay','skin-pay-overlay','casino-overlay'].forEach(id=>document.getElementById(id).classList.remove('open'));
   window.S.modal=false; if(chestT){clearInterval(chestT);chestT=null;}
   window.buildMode='';
   document.querySelectorAll('.build-slot').forEach(b=>b.classList.remove('active'));
@@ -1204,6 +1415,7 @@ function openShop(type) {
     else open();
   }
   else if(type==='quiz'){quizA=[];renderQuiz();document.getElementById('quiz-overlay').classList.add('open');}
+  else if(type==='casino'){openCasino();}
 }
 function completeTowerQuest() {
   if (quizA.length >= QUIZ.length) completeQuest('tower');
@@ -1215,9 +1427,10 @@ function initDOM() {
     const b=e.target.closest('.shop-tab'); if(!b)return;
     shopCat=b.dataset.c; document.querySelectorAll('.shop-tab').forEach(t=>t.classList.toggle('active',t.dataset.c===shopCat)); renderShop();
   };
-  ['shop-x','cabin-x','quiz-x','chest-x','howto-x','skin-pay-x'].forEach(id=>document.getElementById(id).onclick=closeAll);
-  document.getElementById('howto-btn').onclick=()=>{window.S.modal=true;document.getElementById('howto-overlay').classList.add('open');};
+  ['shop-x','cabin-x','quiz-x','chest-x','howto-x','skin-pay-x','casino-x'].forEach(id=>document.getElementById(id).onclick=closeAll);
   document.getElementById('howto-ok').onclick=closeAll;
+  document.getElementById('casino-spin').onclick=spinCasino;
+  initGuide();
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape')closeAll();
     if((e.key==='e'||e.key==='E')&&!window.S.modal){
@@ -1280,6 +1493,7 @@ class Game extends Phaser.Scene {
     this.walkFrame = 0; this.walkTimer = 0; this.skinBase = 'alicia';
     this.targetCol = null; this.targetRow = null; this.vx = 0; this.vy = 0;
     this.pendingShop = null; this.shopMarkers = [];
+    this.nightMobs = []; this.nightMobTimer = 0; this.nightFactor = 0;
 
     const corners = [iso(0,0), iso(MAP-1,0), iso(0,MAP-1), iso(MAP-1,MAP-1)];
     const pad = TW * 4;
@@ -1317,6 +1531,9 @@ class Game extends Phaser.Scene {
         const f=this.add.sprite(p.x+24,p.y-82,'flag').setOrigin(0,1).setDepth(isoDepth(b.col,b.row,55)).setScale(1.2);
         this.tweens.add({targets:f,x:f.x+5,duration:1200,yoyo:true,repeat:-1});
         this.add.text(p.x,p.y-100,'🛒 TIENDA AUDIOS ERIOR',{fontFamily:'Segoe UI',fontSize:'12px',color:'#f0d060',stroke:'#000',strokeThickness:4,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(b.col,b.row,56));
+      }
+      if(b.id==='casino'){
+        this.add.text(p.x,p.y-92,'🎰 CASINO ERIOR',{fontFamily:'Segoe UI',fontSize:'11px',color:'#bb44ff',stroke:'#000',strokeThickness:4,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(b.col,b.row,56));
       }
     });
     this.placeShopMarkers();
@@ -1379,17 +1596,24 @@ class Game extends Phaser.Scene {
     return dist(this.col, this.row, HUB.col, HUB.row) <= HUB.interactR;
   }
 
+  isNearHub() {
+    return dist(this.col, this.row, HUB.col, HUB.row) <= HUB.interactR + 6;
+  }
+
   initMultiplayer() {
     this.remotePlayers = {};
     this.mpChannel = null;
     this.mpSyncAcc = 0;
     this.mpWasInHub = false;
-    if (!sb || !window.S.userId) return;
+    if (!sb) return;
+    const selfKey = window.S.userId || window.S.guestId;
     (async () => {
       try {
-        const { data:{ session } } = await sb.auth.getSession();
-        if (session?.access_token) sb.realtime.setAuth(session.access_token);
-        this.mpChannel = sb.channel('plaza-castle', { config: { presence: { key: window.S.userId } } });
+        if (window.S.userId) {
+          const { data:{ session } } = await sb.auth.getSession();
+          if (session?.access_token) sb.realtime.setAuth(session.access_token);
+        }
+        this.mpChannel = sb.channel('plaza-castle', { config: { presence: { key: selfKey } } });
         this.mpChannel
           .on('presence', { event: 'sync' }, () => this.refreshRemotePlayers())
           .on('presence', { event: 'join' }, () => this.refreshRemotePlayers())
@@ -1404,13 +1628,13 @@ class Game extends Phaser.Scene {
 
   buildPresence() {
     return {
-      user_id: window.S.userId,
+      user_id: window.S.userId || window.S.guestId,
       username: window.S.username || 'Viajero',
       avatar: window.S.avatar || 0,
       col: this.col,
       row: this.row,
       level: window.S.level || 0,
-      in_hub: this.isInHubPlaza(),
+      in_hub: this.isNearHub(),
       ts: Date.now(),
     };
   }
@@ -1427,7 +1651,8 @@ class Game extends Phaser.Scene {
     let realOthers = 0;
     Object.values(state).forEach(arr => {
       (arr || []).forEach(p => {
-        if (!p || p.user_id === window.S.userId) return;
+        const selfId = window.S.userId || window.S.guestId;
+        if (!p || p.user_id === selfId) return;
         if (!p.in_hub) return;
         seen.add(p.user_id);
         realOthers++;
@@ -1435,7 +1660,7 @@ class Game extends Phaser.Scene {
       });
     });
     Object.keys(this.remotePlayers).forEach(uid => { if (!seen.has(uid)) this.removeRemotePlayer(uid); });
-    window._realOnline = realOthers + (window.S.userId && this.isInHubPlaza() ? 1 : 0);
+    window._realOnline = realOthers + (this.isNearHub() ? 1 : 0);
     updateOnlineCount();
   }
 
@@ -1470,7 +1695,8 @@ class Game extends Phaser.Scene {
 
   onRemoteChat(payload) {
     if (!payload?.msg) return;
-    appendHubChatMsg(payload.username || 'Viajero', payload.msg, payload.user_id === window.S.userId);
+    const selfId = window.S.userId || window.S.guestId;
+    appendHubChatMsg(payload.username || 'Viajero', payload.msg, payload.user_id === selfId);
     const r = this.remotePlayers[payload.user_id];
     if (r) {
       r.bubble.setText(payload.msg).setVisible(true);
@@ -1479,20 +1705,30 @@ class Game extends Phaser.Scene {
   }
 
   sendHubChat(msg) {
-    if (!this.mpChannel || !msg.trim()) return;
-    const text = msg.trim().slice(0, 120);
-    this.mpChannel.send({
-      type: 'broadcast', event: 'chat',
-      payload: { user_id: window.S.userId, username: window.S.username, msg: text, ts: Date.now() },
-    });
-    appendHubChatMsg(window.S.username || 'Tú', text, true);
+    const text = (msg || '').trim().slice(0, 120);
+    if (!text) return;
+    appendHubChatMsg(window.S.username || 'Viajero', text, true);
+    if (!this.mpChannel) return;
+    try {
+      this.mpChannel.send({
+        type: 'broadcast', event: 'chat',
+        payload: { user_id: window.S.userId || window.S.guestId, username: window.S.username, msg: text, ts: Date.now() },
+      });
+    } catch (e) { /* offline */ }
   }
 
   updateHubChatUI() {
     const hub = document.getElementById('hub-chat');
     if (!hub) return;
-    const show = this.isInHubPlaza() && !!window.S.userId;
+    const show = this.isNearHub();
     hub.classList.toggle('visible', show);
+    const hint = document.getElementById('hub-chat-hint');
+    if (hint) hint.textContent = window.S.userId ? 'Chat global · jugadores en la plaza' : 'Chat local · crea cuenta Erior para ver a otros online';
+    if (show && !this._chatHinted) {
+      this._chatHinted = true;
+      hub.classList.add('open');
+      this.showToast('💬 Chat de la plaza — escribe aquí');
+    }
     if (!show) hub.classList.remove('open');
   }
 
@@ -1503,8 +1739,8 @@ class Game extends Phaser.Scene {
     if (this.mpSyncAcc >= 280) {
       this.mpSyncAcc = 0;
       this.mpTrack();
-      if (this.isInHubPlaza() !== this.mpWasInHub) {
-        this.mpWasInHub = this.isInHubPlaza();
+      if (this.isNearHub() !== this.mpWasInHub) {
+        this.mpWasInHub = this.isNearHub();
         this.refreshRemotePlayers();
       }
     }
@@ -1574,6 +1810,7 @@ class Game extends Phaser.Scene {
       audio: { title:'🛒 ENTRAR', sub:'Tienda Audios Erior' },
       skins: { title:'🔮 ENTRAR', sub:'Cabaña de Skins' },
       quiz: { title:'🗼 ENTRAR', sub:'Torre Cuántica' },
+      casino: { title:'🎰 ENTRAR', sub:'Casino Cuántico' },
     };
     const compact = isMobileUI();
     BUILDINGS.forEach(b => {
@@ -1687,6 +1924,7 @@ class Game extends Phaser.Scene {
   }
 
   applyDayPalette(p) {
+    this.nightFactor = p.stars;
     this.cameras.main.setBackgroundColor(p.sky);
     if (this.dayOverlay) this.dayOverlay.setFillStyle(p.overlay, p.oA);
     if (this.sunDisc) {
@@ -1714,6 +1952,7 @@ class Game extends Phaser.Scene {
     this.dayT = (this.dayT + delta / DAY_CYCLE_MS) % 1;
     this.applyDayPalette(sampleDayPalette(this.dayT));
     this.layoutSunMoon();
+    this.updateNightMobs(delta);
   }
 
   seededPos(n, salt) {
@@ -1742,7 +1981,7 @@ class Game extends Phaser.Scene {
       ...this.seededPos(80,2000).map(p=>({...p,type:'tree',tex:'tree'})),
       ...this.seededPos(50,3000).map(p=>({...p,type:'rock',tex:'rock'})),
       ...this.seededPos(40,4000).map(p=>({...p,type:'deco',tex:rng(p.c*99+p.r)>.5?'flower':'mushroom'})),
-      ...this.seededPos(35,5000).map(p=>({...p,type:'goldcoin',tex:'goldcoin'})),
+      ...this.seededPos(60,5000).map(p=>({...p,type:'goldcoin',tex:'goldcoin'})),
     ];
     list.forEach(pos => {
       if (blocked.has(pos.c+','+pos.r)) return;
@@ -1773,6 +2012,9 @@ class Game extends Phaser.Scene {
           else this.showToast('¡Acércate a la moneda de oro!');
         });
         this.tweens.add({ targets:o, y:o.y-3, duration:900, yoyo:true, repeat:-1 });
+        const gl = this.add.circle(p.x, p.y-4, 10, 0xf0d060, 0.12).setDepth(d-1);
+        this.tweens.add({ targets:gl, alpha:0.35, scale:1.5, duration:700, yoyo:true, repeat:-1 });
+        o.meta.glow = gl;
       } else if (pos.type==='tree') {
         o.setInteractive({ useHandCursor: true });
         o.on('pointerdown', (e) => {
@@ -2178,11 +2420,99 @@ class Game extends Phaser.Scene {
     addXP(3);
     this.showToast('+' + gain + ' 🪙 Oro · +3 XP');
     this.burst(o.x, o.y, 0xf0d060);
+    if (o.meta.glow) o.meta.glow.setVisible(false);
     this.syncHUD();
     this.tweens.add({ targets:o, alpha:0, scale:0, y:o.y-12, duration:300, onComplete:()=>{
       o.setVisible(false);
-      this.time.delayedCall(90000, ()=>{ o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1); });
+      this.time.delayedCall(90000, ()=>{
+        o.meta.gone=false; o.setVisible(true).setAlpha(1).setScale(1);
+        if (o.meta.glow) o.meta.glow.setVisible(true);
+      });
     }});
+  }
+
+  spawnNightMob(kind) {
+    for (let t = 0; t < 8; t++) {
+      const ang = Math.random() * Math.PI * 2;
+      const d0 = 10 + Math.random() * 10;
+      let c = Math.round(this.col + Math.cos(ang) * d0);
+      let r = Math.round(this.row + Math.sin(ang) * d0);
+      c = Phaser.Math.Clamp(c, 2, MAP - 3);
+      r = Phaser.Math.Clamp(r, 2, MAP - 3);
+      if (!this.walk[r][c] || dist(c, r, HUB.col, HUB.row) < 11) continue;
+      const p = this.wpos(c, r);
+      const d = isoDepth(c, r, 72);
+      const botKey = kind === 'zombie' ? 'bot2' : 'bot4';
+      const sh = this.add.image(p.x, p.y + 4, 'shadow').setDepth(d - 1);
+      const spr = this.add.sprite(p.x, p.y - 12, botKey + '_0').setOrigin(0.5, 0.92).setDepth(d);
+      spr.setTint(kind === 'zombie' ? 0x88ff88 : 0xcc88ff);
+      const tag = this.add.text(p.x, p.y - 50, kind === 'zombie' ? '🧟' : '👽', { fontSize: '14px' }).setOrigin(0.5, 1).setDepth(d + 1);
+      const mob = { kind, c, r, spr, sh, tag, speed: kind === 'zombie' ? 0.018 : 0.026, walkT: 0 };
+      spr.setInteractive({ useHandCursor: true });
+      spr.on('pointerdown', (e) => {
+        e.stopPropagation();
+        if (window.S.modal) return;
+        if (dist(this.col, this.row, mob.c, mob.r) <= 4.5) this.defeatNightMob(mob);
+        else this.showToast('¡Acércate para combatir!');
+      });
+      this.nightMobs.push(mob);
+      return mob;
+    }
+    return null;
+  }
+
+  destroyNightMob(mob) {
+    mob.spr?.destroy(); mob.sh?.destroy(); mob.tag?.destroy();
+  }
+
+  defeatNightMob(mob) {
+    const idx = this.nightMobs.indexOf(mob);
+    if (idx < 0) return;
+    const gold = mob.kind === 'zombie' ? Phaser.Math.Between(2, 6) : Phaser.Math.Between(4, 10);
+    window.S.gold = (window.S.gold || 0) + gold;
+    if (Math.random() < 0.12) addGadget('lantern', 1);
+    this.burst(mob.spr.x, mob.spr.y, mob.kind === 'zombie' ? 0x88ff88 : 0xcc88ff);
+    this.destroyNightMob(mob);
+    this.nightMobs.splice(idx, 1);
+    this.syncHUD();
+    renderInventory();
+    this.showToast((mob.kind === 'zombie' ? '🧟 Zombie' : '👽 Alien') + ' derrotado · +' + gold + ' 🪙');
+  }
+
+  updateNightMobs(delta) {
+    const night = (this.nightFactor || 0) > 0.55;
+    if (!night) {
+      this.nightMobs.forEach(m => this.destroyNightMob(m));
+      this.nightMobs = [];
+      this.nightMobTimer = 0;
+      return;
+    }
+    const inSafe = dist(this.col, this.row, HUB.col, HUB.row) < 10;
+    this.nightMobTimer -= delta;
+    if (!inSafe && this.nightMobs.length < 4 && this.nightMobTimer <= 0) {
+      const kind = Math.random() < 0.65 ? 'zombie' : 'alien';
+      if (this.spawnNightMob(kind)) this.nightMobTimer = 4000 + Math.random() * 3000;
+      else this.nightMobTimer = 2000;
+    }
+    const botKey = (kind) => kind === 'zombie' ? 'bot2' : 'bot4';
+    this.nightMobs.forEach(mob => {
+      if (dist(mob.c, mob.r, HUB.col, HUB.row) < 10) {
+        const away = Math.atan2(mob.r - HUB.row, mob.c - HUB.col);
+        mob.c += Math.cos(away) * mob.speed * delta * 0.04;
+        mob.r += Math.sin(away) * mob.speed * delta * 0.04;
+      } else if (dist(this.col, this.row, mob.c, mob.r) < 20 && !inSafe) {
+        const ang = Math.atan2(this.row - mob.r, this.col - mob.c);
+        const nc = mob.c + Math.cos(ang) * mob.speed * delta;
+        const nr = mob.r + Math.sin(ang) * mob.speed * delta;
+        if (this.walk[Math.round(nr)]?.[Math.round(nc)]) { mob.c = nc; mob.r = nr; }
+      }
+      mob.walkT += delta;
+      const pos = this.wpos(mob.c, mob.r);
+      mob.spr.setPosition(pos.x, pos.y - 12);
+      mob.sh.setPosition(pos.x, pos.y + 4);
+      mob.tag.setPosition(pos.x, pos.y - 50);
+      mob.spr.setTexture(botKey(mob.kind) + (Math.sin(mob.walkT / 180) > 0 ? '_1' : '_0'));
+    });
   }
 
   chopTree(o) {
@@ -2456,6 +2786,7 @@ function initProfile() {
     overlay.classList.add('hidden');
     startPhaser();
     setTimeout(applyDailyBonus, 800);
+    if (!window.S.guideDone) setTimeout(() => showGuide(0), 1400);
   }
 
   document.querySelectorAll('.auth-tab').forEach(t=>{
