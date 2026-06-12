@@ -511,7 +511,9 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 <h2 style="text-align:center">✦ ¿Qué es ERIOR WORLD?</h2>
 <p style="font-size:.82rem;line-height:1.55">Un mundo isométrico de <b>manifestación cuántica</b> donde explorar, conectar y transformar tu realidad es el juego. Recolecta cristales, completa misiones, vive el ciclo día/noche y descubre tu audio ideal.</p>
 <p style="font-size:.78rem;color:#888"><b>Acceso:</b> Cuenta Erior gratis · <b>Pasaporte Manifestor</b> (1+ audio) desbloquea la Selva nocturna, +HP y herramientas exclusivas.</p>
-<button class="gold-btn" id="howto-full" style="width:100%;margin:10px 0">📖 Guía completa paso a paso</button>
+<button class="gold-btn" id="howto-pdf" style="width:100%;margin:10px 0">📄 Descargar Guía PDF (imprimible)</button>
+<button class="gold-btn" id="howto-web" style="width:100%;margin:6px 0;background:linear-gradient(135deg,#7b3fa0,#4a1a6b)!important;color:#fff!important">📖 Guía visual con imágenes</button>
+<button class="gold-btn" id="howto-full" style="width:100%;margin:10px 0">📖 Tutorial dentro del juego</button>
 <button class="gold-btn" id="howto-ok">¡Explorar!</button></div>
 </div>
 
@@ -1823,6 +1825,50 @@ function genPDF() {
   doc.save('cupon-maestro-erior.pdf');
 }
 
+function genGuidePDF() {
+  const doc = new window.jspdf.jsPDF();
+  const gold = [240, 208, 96];
+  const muted = [180, 180, 180];
+  const purple = [123, 63, 160];
+  const steps = [
+    { t: '1 · Entra al mundo', b: 'Crea tu cuenta Erior (email + contraseña).\nElige avatar, nombre de viajero y mascota 🐰.\nGratis: explorar, misiones, chat y tienda.' },
+    { t: '2 · Controles', b: 'PC: WASD mover · E interactuar.\nMóvil: joystick izquierda · botón E dorado.\nBarra central: 👋 💃 🧘 🪓 🎣 emotes.\nMenú ☰ (móvil) o dock (PC): audios, inventario, construir.' },
+    { t: '3 · Mapa principal', b: 'Centro: Plaza + Castillo (tienda audios).\nNoroeste: Cabaña Skins · Noreste: Torre Quiz.\nSur: Casino · Sur-este: Lago Cuántico (pesca).\nMinimapa abajo derecha = orientación rápida.' },
+    { t: '4 · Economía', b: '💎 Cristales = recolectar, misiones, casino.\n🪵 Madera = talar árboles con 🪓.\n🐟 Pescado = lago → cocinar → comer (+XP).\n🎧 Audios Erior = Pasaporte Manifestor (premium real).' },
+    { t: '5 · Subir de nivel rápido', b: '① Pesca en el lago (🎣)\n② Tala madera (🪓)\n③ Construye fogata (5💎+8🪵)\n④ Cocina y come pescado (+35 XP)\n⑤ Construye tu casa → entra a descansar (+XP)' },
+    { t: '6 · Tu casa (universo interior)', b: 'Construye 🏠 Casa o 🏡 Villa con madera.\nAcércate y pulsa E → ENTRAR.\nDentro: descansar, cocinar, comer, salir.\nRefugio seguro para recuperar energía.' },
+    { t: '7 · Pasaporte Manifestor', b: '1 audio = Manifestor: selva nocturna, +HP, VIP.\n3 audios = Hacha cuántica · 5 = skins premium.\nCompra audio → comprobante a eriorcenter@gmail.com\nPauline activa tu pasaporte en ~24h.' },
+    { t: '8 · Multiplayer', b: 'Jugadores online en la plaza.\nChat global cerca del castillo.\nEmotes visibles para otros.\nConstrucciones con tu nombre ✦.' },
+  ];
+  function pageBg() {
+    doc.setFillColor(15, 12, 5); doc.rect(0, 0, 210, 297, 'F');
+    doc.setDrawColor(201, 162, 39); doc.setLineWidth(1.5); doc.rect(10, 10, 190, 277);
+  }
+  function header(title) {
+    doc.setTextColor(...gold); doc.setFontSize(20); doc.text('ERIOR WORLD ✦', 105, 28, { align: 'center' });
+    doc.setFontSize(14); doc.setTextColor(...purple); doc.text(title, 105, 40, { align: 'center' });
+  }
+  pageBg();
+  doc.setTextColor(...gold); doc.setFontSize(28); doc.text('GUÍA OFICIAL', 105, 80, { align: 'center' });
+  doc.setFontSize(16); doc.setTextColor(...muted); doc.text('Cómo jugar ERIOR WORLD', 105, 95, { align: 'center' });
+  doc.setFontSize(11); doc.setTextColor(200, 200, 200);
+  doc.text('Manifestación cuántica · MMO isométrico · eriorcenter.com', 105, 110, { align: 'center' });
+  doc.setFontSize(10); doc.text('Lee cada paso en 30 segundos · Guarda este PDF · Comparte con nuevos jugadores', 105, 122, { align: 'center' });
+  doc.setFontSize(12); doc.setTextColor(...gold); doc.text('Ruta express:', 20, 150);
+  doc.setFontSize(10); doc.setTextColor(220, 220, 220);
+  const intro = doc.splitTextToSize('Cuenta → Explora plaza → Pesca + madera → Fogata → Come → Casa → Audio Erior = Pasaporte Manifestor', 170);
+  doc.text(intro, 20, 162);
+  steps.forEach((s, i) => {
+    doc.addPage(); pageBg(); header('Paso ' + (i + 1));
+    doc.setFontSize(13); doc.setTextColor(...gold); doc.text(s.t, 20, 55);
+    doc.setFontSize(10); doc.setTextColor(210, 210, 210);
+    doc.text(doc.splitTextToSize(s.b, 170), 20, 68);
+    doc.setFontSize(8); doc.setTextColor(120, 120, 120);
+    doc.text('eriorcenter@gmail.com · Guía v2026', 105, 280, { align: 'center' });
+  });
+  doc.save('guia-erior-world.pdf');
+}
+
 function makeTextures(scene) {
   const g = scene.make.graphics({ add: false });
   const cx = TW / 2, cy = TH / 2, hw = TW / 2, hh = TH / 2;
@@ -1908,17 +1954,27 @@ function makeTextures(scene) {
   }
   genCharFrames('npc', 0xffffff, 0xffccaa, 0xf0d060, 0xc9a227);
 
-  function drawPetTex(key, primary, accent, frame) {
+  function drawPetTex(key, primary, accent) {
     g.clear();
-    const bounce = frame % 2 ? 1 : 0;
-    g.fillStyle(0x000000, 0.2); g.fillEllipse(14, 22 + bounce, 10, 4);
-    g.fillStyle(primary, 1); g.fillEllipse(14, 14 + bounce, 12, 10);
-    g.fillStyle(accent, 1); g.fillCircle(10, 12 + bounce, 3); g.fillCircle(18, 12 + bounce, 3);
-    g.fillStyle(0x1a1a1a, 1); g.fillRect(9, 11 + bounce, 2, 2); g.fillRect(17, 11 + bounce, 2, 2);
-    g.fillStyle(0xffffff, 0.5); g.fillRect(10, 11 + bounce, 1, 1);
+    g.fillStyle(0x000000, 0.25);
+    g.fillCircle(14, 22, 8);
+    g.fillStyle(primary, 1);
+    g.fillCircle(14, 13, 9);
+    g.fillStyle(accent, 1);
+    g.fillCircle(11, 11, 3);
+    g.fillCircle(17, 11, 3);
+    g.fillStyle(0x1a1a1a, 1);
+    g.fillRect(10, 10, 2, 2);
+    g.fillRect(18, 10, 2, 2);
+    g.fillStyle(0xffffff, 0.55);
+    g.fillRect(11, 10, 1, 1);
+    g.fillStyle(0xffaaaa, 0.4);
+    g.fillCircle(12, 15, 2);
     g.generateTexture(key, 28, 28);
   }
-  PETS.forEach((p, i) => { drawPetTex('pet_' + p.id, p.color, (p.color & 0xfefefe) >> 1, 0); drawPetTex('pet_' + p.id + '_1', p.color, (p.color & 0xfefefe) >> 1, 1); });
+  PETS.forEach((p) => {
+    drawPetTex('pet_' + p.id, p.color, (p.color & 0xfefefe) >> 1);
+  });
 
   g.clear();
   g.fillStyle(0xff7043, 1); g.fillEllipse(12, 10, 10, 6);
@@ -2245,6 +2301,8 @@ function initDOM() {
   initMusicUI();
   initHomeSanctuary();
   document.getElementById('howto-full')?.addEventListener('click', () => { closeAll(); showGuide(0); });
+  document.getElementById('howto-pdf')?.addEventListener('click', () => { genGuidePDF(); });
+  document.getElementById('howto-web')?.addEventListener('click', () => { window.open('docs/guia-erior-world.html', '_blank'); });
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape')closeAll();
     if((e.key==='e'||e.key==='E')&&!window.S.modal){
@@ -2969,13 +3027,18 @@ class Game extends Phaser.Scene {
   refreshPet() {
     if (this.petSpr) { this.petSpr.destroy(); this.petSpr = null; }
     if (this.petSh) { this.petSh.destroy(); this.petSh = null; }
-    const id = window.S.activePet || 'bunny';
+    let id = window.S.activePet || 'bunny';
     if (!id || !hasPet(id)) return;
+    let tex = 'pet_' + id;
+    if (!this.textures.exists(tex)) {
+      id = 'bunny';
+      tex = 'pet_bunny';
+    }
+    if (!this.textures.exists(tex)) return;
     const p = this.wpos(this.col, this.row);
     const d = isoDepth(this.col, this.row, 81);
     this.petSh = this.add.image(p.x - 12, p.y + 4, 'shadow').setScale(0.55).setDepth(d - 1);
-    this.petSpr = this.add.sprite(p.x - 12, p.y - 8, 'pet_' + id + '_0').setOrigin(0.5, 0.92).setDepth(d);
-    this.petFrame = 0;
+    this.petSpr = this.add.sprite(p.x - 12, p.y - 8, tex).setOrigin(0.5, 0.92).setDepth(d);
     this.petTimer = 0;
   }
 
@@ -2984,16 +3047,10 @@ class Game extends Phaser.Scene {
     this.petTimer += delta;
     const offX = (this.facing === 'SE' || this.facing === 'NE') ? -16 : 16;
     const p = this.wpos(this.col, this.row);
-    const bob = this.moving ? Math.sin(this.bobPhase * 0.025) * 3 : 0;
+    const bob = this.moving ? Math.sin(this.bobPhase * 0.025) * 3 : Math.sin(this.petTimer * 0.008) * 1.5;
     const d = isoDepth(this.col, this.row, 81);
     this.petSpr.setPosition(p.x + offX, p.y - 10 + bob).setDepth(d);
     this.petSh?.setPosition(p.x + offX, p.y + 2).setDepth(d - 1);
-    if (this.petTimer > 220) {
-      this.petTimer = 0;
-      this.petFrame = 1 - this.petFrame;
-      const id = window.S.activePet || 'bunny';
-      this.petSpr.setTexture('pet_' + id + '_' + this.petFrame);
-    }
   }
 
   nearCampfire() {

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía ERIOR WORLD — Cómo jugar</title>
+<style>
+  :root {
+    --gold: #f0d060;
+    --gold-d: #c9a227;
+    --purple: #7b3fa0;
+    --bg: #0f0c05;
+    --card: #1a1520;
+    --text: #e8e8e8;
+    --muted: #999;
+    --accent: #3de8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 24px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .cover {
+    text-align: center;
+    padding: 48px 24px 40px;
+    border: 2px solid var(--gold-d);
+    border-radius: 16px;
+    background: linear-gradient(160deg, #1a1028 0%, var(--bg) 60%);
+    margin-bottom: 32px;
+  }
+  .cover h1 { font-size: 2.4rem; color: var(--gold); letter-spacing: 2px; }
+  .cover .sub { color: var(--muted); font-size: 1rem; margin-top: 8px; }
+  .cover .badge {
+    display: inline-block; margin-top: 20px;
+    background: var(--purple); color: #fff;
+    padding: 8px 20px; border-radius: 20px; font-size: .85rem;
+  }
+  .route {
+    background: var(--card); border-left: 4px solid var(--gold);
+    padding: 16px 20px; border-radius: 0 12px 12px 0;
+    margin-bottom: 32px; font-size: .95rem;
+  }
+  .route strong { color: var(--gold); }
+  .step {
+    background: var(--card);
+    border: 1px solid #2a2035;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold-d); color: #000; font-weight: 800;
+    font-size: 1rem; margin-right: 12px; flex-shrink: 0;
+  }
+  .step-head { display: flex; align-items: center; margin-bottom: 12px; }
+  .step-head h2 { font-size: 1.15rem; color: var(--gold); }
+  .step-icon { font-size: 2rem; margin-left: auto; }
+  .step p, .step li { font-size: .92rem; color: #ccc; }
+  .step ul { margin: 10px 0 0 20px; }
+  .step li { margin-bottom: 6px; }
+  .diagram {
+    background: #0a0808; border: 1px dashed #444;
+    border-radius: 10px; padding: 14px 16px;
+    margin-top: 14px; font-family: monospace;
+    font-size: .78rem; color: var(--accent); white-space: pre;
+    overflow-x: auto;
+  }
+  .tip {
+    background: rgba(123,63,160,.2); border: 1px solid var(--purple);
+    border-radius: 8px; padding: 10px 14px; margin-top: 12px;
+    font-size: .85rem; color: #ddd;
+  }
+  .tip b { color: var(--gold); }
+  .controls-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
+  }
+  .ctrl-box {
+    background: #111; border-radius: 8px; padding: 12px; text-align: center;
+    font-size: .85rem;
+  }
+  .ctrl-box .key { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+  .footer {
+    text-align: center; padding: 32px 0 16px;
+    color: var(--muted); font-size: .8rem;
+    border-top: 1px solid #333; margin-top: 24px;
+  }
+  .print-btn {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--gold-d); color: #000; border: none;
+    padding: 12px 22px; border-radius: 24px; font-weight: 700;
+    cursor: pointer; font-size: .9rem; box-shadow: 0 4px 20px rgba(0,0,0,.5);
+    z-index: 99;
+  }
+  .print-btn:hover { background: var(--gold); }
+  @media print {
+    body { background: #fff; color: #111; padding: 12px; }
+    .cover { background: #f5f0e0; border-color: #c9a227; }
+    .cover h1 { color: #8b6914; }
+    .step { background: #fafafa; border-color: #ddd; break-inside: avoid; }
+    .step-head h2 { color: #8b6914; }
+    .step p, .step li { color: #333; }
+    .diagram { background: #f0f0f0; color: #333; border-color: #ccc; }
+    .tip { background: #f3e8ff; color: #333; }
+    .print-btn { display: none; }
+    .route { background: #fff8e0; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">📄 Guardar como PDF</button>
+
+<div class="cover">
+  <h1>✦ ERIOR WORLD ✦</h1>
+  <p class="sub">Guía oficial · Cómo jugar en 10 minutos</p>
+  <span class="badge">Manifestación cuántica · MMO isométrico</span>
+</div>
+
+<div class="route">
+  <strong>Ruta express (lo esencial):</strong><br>
+  Cuenta → Explora la plaza → Recolecta 💎 → Pesca en el lago → Tala madera 🪵 → Cocina en fogata → Come (+XP) → Construye tu casa → Entra al refugio → Compra audio Erior = Pasaporte Manifestor
+</div>
+
+<!-- PASO 1 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">1</span>
+    <h2>Crea tu cuenta y elige tu avatar</h2>
+    <span class="step-icon">🧙</span>
+  </div>
+  <p>Al entrar a <strong>eriorcenter.com</strong> (o tu enlace Netlify), regístrate con email y contraseña. Elige:</p>
+  <ul>
+    <li><strong>Nombre de viajero</strong> — aparece sobre tu personaje</li>
+    <li><strong>Avatar</strong> — Alicia, Matrix, Alien, etc.</li>
+    <li><strong>Mascota</strong> — el conejo 🐰 es gratis y te sigue por el mapa</li>
+  </ul>
+  <div class="tip"><b>Gratis siempre:</b> explorar, misiones, chat, casino, construir con cristales recolectados.</div>
+</div>
+
+<!-- PASO 2 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">2</span>
+    <h2>Controles — PC y móvil</h2>
+    <span class="step-icon">🎮</span>
+  </div>
+  <div class="controls-grid">
+    <div class="ctrl-box"><span class="key">⌨️ WASD</span>Mover (PC)</div>
+    <div class="ctrl-box"><span class="key">E</span>Interactuar (PC)</div>
+    <div class="ctrl-box"><span class="key">🕹️ Joystick</span>Mover (móvil)</div>
+    <div class="ctrl-box"><span class="key">E dorado</span>Acción (móvil)</div>
+  </div>
+  <ul style="margin-top:14px">
+    <li><strong>Barra de emotes</strong> (centro-abajo): 👋 saludar · 💃 bailar · 🧘 meditar · 🪓 talar · 🎣 pescar</li>
+    <li><strong>Menú ☰</strong> (móvil) o dock lateral (PC): audios, inventario, construir, guía</li>
+    <li><strong>🎵</strong> — activa/desactiva música ambiente</li>
+  </ul>
+</div>
+
+<!-- PASO 3 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">3</span>
+    <h2>Conoce el mapa</h2>
+    <span class="step-icon">🗺️</span>
+  </div>
+  <div class="diagram">        [Cabaña Skins]          [Torre Quiz]
+              \                      /
+               \    PLAZA + CASTILLO 🏰  /
+                \   (tienda audios)   /
+                 \__________________/
+        [Casino 🎰]              [Lago Cuántico 🎣]
+              sur                    sur-este
+
+  ● Minimapa = esquina inferior derecha
+  ● Cristales 💎 brillantes = recolectar caminando encima</div>
+  <p style="margin-top:12px">Camina hacia un edificio y pulsa <strong>E</strong> cuando estés cerca para abrir su tienda o actividad.</p>
+</div>
+
+<!-- PASO 4 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">4</span>
+    <h2>Tu economía — qué significa cada ícono</h2>
+    <span class="step-icon">💎</span>
+  </div>
+  <ul>
+    <li><strong>💎 Cristales</strong> — moneda principal. Recolecta, misiones, casino, quiz</li>
+    <li><strong>🪙 Oro</strong> — recompensas especiales</li>
+    <li><strong>🪵 Madera</strong> — tala árboles con emote 🪓 cerca de un árbol</li>
+    <li><strong>🐟 Pescado crudo</strong> — pesca en el lago con 🎣</li>
+    <li><strong>🍽️ Pescado cocido</strong> — cocina en fogata → come para ganar XP</li>
+  </ul>
+  <div class="tip"><b>HUD superior:</b> ves nivel, HP ❤️, cristales, madera y pescado en todo momento.</div>
+</div>
+
+<!-- PASO 5 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">5</span>
+    <h2>Pesca en el Lago Cuántico</h2>
+    <span class="step-icon">🎣</span>
+  </div>
+  <ol style="margin-left:20px;color:#ccc;font-size:.92rem">
+    <li>Ve al <strong>sur-este</strong> del mapa (cartel "Lago Cuántico")</li>
+    <li>Párate en el muelle o borde del agua</li>
+    <li>Pulsa el emote <strong>🎣</strong> en la barra central</li>
+    <li>Espera unos segundos → recibes 🐟 pescado crudo</li>
+  </ol>
+  <div class="tip"><b>Tip:</b> de noche el lago brilla más — misma mecánica, ambiente especial.</div>
+</div>
+
+<!-- PASO 6 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">6</span>
+    <h2>Tala madera y construye</h2>
+    <span class="step-icon">🪵</span>
+  </div>
+  <p>Abre el panel <strong>Construir</strong> (dock o menú ☰):</p>
+  <ul>
+    <li>🪓 Emote talar → junto a árboles del mapa → +🪵 madera</li>
+    <li>🪵 Cerca — 5 💎</li>
+    <li>🏠 Casa — 15 💎 + 10 🪵</li>
+    <li>🔥 Fogata — 5 💎 + 8 🪵 ← <em>necesaria para cocinar</em></li>
+    <li>🏡 Villa VIP — 25 💎 + 20 🪵</li>
+  </ul>
+  <p style="margin-top:10px">Selecciona objeto → haz clic en el suelo verde → se coloca con tu nombre ✦</p>
+</div>
+
+<!-- PASO 7 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">7</span>
+    <h2>Cocina y come — sube de nivel rápido</h2>
+    <span class="step-icon">🔥</span>
+  </div>
+  <div class="diagram">  🐟 crudo  +  🔥 fogata cerca  =  🍽️ cocido  →  COMER  →  +35 XP</div>
+  <ol style="margin-left:20px;margin-top:12px;color:#ccc;font-size:.92rem">
+    <li>Construye una <strong>fogata</strong> (5💎 + 8🪵)</li>
+    <li>Acércate a la fogata con pescado crudo</li>
+    <li>Pulsa <strong>E</strong> → Cocinar</li>
+    <li>Abre inventario → Comer pescado cocido</li>
+  </ol>
+  <div class="tip"><b>Combo XP:</b> pesca + tala + cocina + comer = la forma más rápida de subir nivel gratis.</div>
+</div>
+
+<!-- PASO 8 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">8</span>
+    <h2>Tu casa — universo interior</h2>
+    <span class="step-icon">🏠</span>
+  </div>
+  <p>Después de construir una <strong>Casa</strong> o <strong>Villa</strong>:</p>
+  <ol style="margin-left:20px;color:#ccc;font-size:.92rem">
+    <li>Camina hasta tu construcción</li>
+    <li>Pulsa <strong>E</strong> → aparece "ENTRAR"</li>
+    <li>Dentro del refugio puedes: <strong>Descansar</strong> (+HP/XP) · <strong>Cocinar</strong> · <strong>Comer</strong> · <strong>Salir</strong></li>
+  </ol>
+  <div class="tip"><b>Refugio seguro:</b> recupera energía lejos de las criaturas nocturnas del mapa.</div>
+</div>
+
+<!-- PASO 9 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">9</span>
+    <h2>Mascotas</h2>
+    <span class="step-icon">🐰</span>
+  </div>
+  <p>Tu mascota te sigue automáticamente. Cámbiala en el menú de avatar o inventario:</p>
+  <ul>
+    <li>🐰 Conejo — gratis (inicial)</li>
+    <li>🦊 Zorro — 40 💎 · 🦉 Búho — 60 💎 · 💎 Sprite — 80 💎 · 🐉 Dragón — 100 💎</li>
+  </ul>
+</div>
+
+<!-- PASO 10 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">10</span>
+    <h2>Castillo — Audios Erior y Pasaporte Manifestor</h2>
+    <span class="step-icon">🎧</span>
+  </div>
+  <p>El <strong>Castillo</strong> en el centro vende audios de manifestación cuántica (producto real de Erior Center):</p>
+  <ul>
+    <li><strong>1 audio</strong> → Pasaporte Manifestor: selva nocturna, +HP, acceso VIP</li>
+    <li><strong>3 audios</strong> → Hacha cuántica (tala más rápido)</li>
+    <li><strong>5 audios</strong> → Skins premium exclusivas</li>
+  </ul>
+  <div class="diagram" style="margin-top:12px">  COMPRAR  →  Pago  →  Comprobante a eriorcenter@gmail.com
+       ↓
+  Pauline activa tu pasaporte en ~24 h  →  Beneficios en el juego</div>
+</div>
+
+<!-- PASO 11 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">11</span>
+    <h2>Multiplayer y comunidad</h2>
+    <span class="step-icon">💬</span>
+  </div>
+  <ul>
+    <li><strong>Chat Plaza</strong> — escribe cerca del castillo, otros jugadores te ven</li>
+    <li><strong>Emotes</strong> — 👋💃🧘 visibles para todos en tiempo real</li>
+    <li><strong>Jugadores online</strong> — bots + usuarios reales deambulan la plaza</li>
+    <li><strong>Construcciones</strong> — cada jugador deja su marca en el mundo</li>
+  </ul>
+</div>
+
+<!-- PASO 12 -->
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">12</span>
+    <h2>Misiones, casino y extras</h2>
+    <span class="step-icon">⭐</span>
+  </div>
+  <ul>
+    <li><strong>Misiones</strong> — panel de misiones en el dock; recompensas en 💎</li>
+    <li><strong>Casino</strong> — sur del mapa; apuesta cristales</li>
+    <li><strong>Torre Quiz</strong> — noreste; preguntas = cristales</li>
+    <li><strong>Criaturas nocturnas</strong> — deambulan de noche, no atacan (ambiente)</li>
+    <li><strong>Cupón PDF</strong> — desde la tienda puedes generar cupón 15% off audios</li>
+  </ul>
+</div>
+
+<div class="footer">
+  ERIOR WORLD · eriorcenter@gmail.com · Guía v2026<br>
+  Para guardar: botón "Guardar como PDF" o Ctrl+P → Imprimir → Guardar como PDF
+</div>
+
+</body>
+</html>
