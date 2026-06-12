@@ -77,11 +77,10 @@ body{min-height:100vh;min-height:-webkit-fill-available}
   #profile-btn,#account-row,#quest-toggle,#build-toggle,#game-dock,#top-right-cluster,#sync-dot{display:none!important}
   #hp-bar-wrap{display:none!important}
   #inv-panel{position:fixed;left:8px;right:8px;bottom:auto;top:50%;transform:translateY(-50%);z-index:700;max-height:50vh;width:auto}
-  #minimap{bottom:100px!important;right:8px!important;top:auto!important;left:auto!important;width:52px!important;height:52px!important;z-index:510}
-  #joy-zone{bottom:max(8px,env(safe-area-inset-bottom));left:8px;width:88px;height:88px;z-index:600}
-  #act-btn{bottom:max(8px,env(safe-area-inset-bottom));right:8px;z-index:600;width:72px;height:72px;min-width:72px;min-height:72px}
-  #build-hint{bottom:108px;left:50%;transform:translateX(-50%);font-size:.6rem;z-index:505;max-width:88vw}
-  #hub-chat.visible{bottom:max(96px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
+  #minimap,#joy-zone,#act-btn{display:none!important}
+  #emote-bar{bottom:max(14px,env(safe-area-inset-bottom))}
+  #build-hint{bottom:68px;left:50%;transform:translateX(-50%);font-size:.6rem;z-index:505;max-width:88vw}
+  #hub-chat.visible{bottom:max(64px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
   #quest-panel{position:static!important;transform:none!important;width:100%!important;max-height:none!important;display:block!important;background:transparent;border:none;padding:0;font-size:.65rem}
   #quest-panel.collapsed-mobile{display:none!important}
   body.mobile-quests-open #quest-panel.collapsed-mobile{display:block!important}
@@ -176,7 +175,6 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #build-hint{position:fixed;bottom:58px;left:50%;transform:translateX(-50%);z-index:500;color:#f0d060;font-size:.7rem;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
 .countdown{font-size:1.3rem;color:#ff5555;font-weight:bold;font-family:monospace;margin:8px 0}
 @media(max-width:768px),(pointer:coarse){
-  #joy-zone,#act-btn{display:flex}
   #fomo-feed{display:none!important}
   #daily-banner{top:52px;font-size:.65rem;padding:6px 8px;max-width:92vw}
   .overlay{padding:8px}
@@ -247,11 +245,11 @@ body{min-height:100vh;min-height:-webkit-fill-available}
 #hub-chat-input{flex:1;padding:8px;border:1px solid rgba(201,162,39,.4);border-radius:8px;background:#0a0a0a;color:#f0d060;font-size:.75rem}
 #hub-chat-send{padding:8px 12px;border:none;border-radius:8px;background:linear-gradient(135deg,#c9a227,#8b6914);color:#000;font-weight:bold;font-size:.72rem;cursor:pointer}
 @media(max-width:768px),(pointer:coarse){
-  #hub-chat.visible{bottom:max(96px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
+  #hub-chat.visible{bottom:max(64px,env(safe-area-inset-bottom));left:8px;right:8px;width:auto}
   #hub-chat-panel{max-height:16vh}
   #interact-prompt{display:none!important}
 }
-#emote-bar{display:none;position:fixed;bottom:max(108px,calc(92px + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%);z-index:608;gap:6px;padding:6px 12px;border-radius:22px;background:rgba(0,0,0,.78);border:1px solid rgba(201,162,39,.45);align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.45)}
+#emote-bar{display:none;position:fixed;bottom:max(14px,calc(8px + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%);z-index:608;gap:6px;padding:6px 12px;border-radius:22px;background:rgba(0,0,0,.78);border:1px solid rgba(201,162,39,.45);align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.45)}
 #emote-bar.visible{display:flex}
 #emote-bar button{width:42px;height:42px;border-radius:50%;border:2px solid rgba(201,162,39,.45);background:rgba(18,18,24,.95);font-size:1.15rem;cursor:pointer;line-height:1;transition:transform .12s,border-color .12s}
 #emote-bar button:hover,#emote-bar button:active{transform:scale(1.1);border-color:#f0d060}
@@ -790,7 +788,7 @@ const GUIDE_STEPS = [
   { title:'Paso 1 · Niveles del Pasaporte', text:'🌱 Explorador (0) — Hub, quiz, tienda, casino\n🎧 Manifestor (1 audio) — Selva nocturna, +HP, aura VIP\n🪓 Constructor (3) — Hacha cuántica, talar, oro\n🏡 Anfitrión (5) — Skins VIP, parcelas\n👑 VIP (10) — Máxima protección y eventos\n\nCompras audio → envías comprobante → Pauline activa tu pasaporte.' },
   { title:'Paso 2 · Tutorial — Herramientas', text:'Completa el recorrido inicial:\n\n✦ Alicia IA — habla con ella (guía personal)\n🗼 Torre Cuántica — quiz de 3 preguntas → tu audio ideal\n🏰 Castillo — visita la tienda de audios\n💎 Recolecta 10 cristales (misiones)\n\nGadgets (inventario 🎒):\n🪓 Hacha — 3 audios o casino\n🏮 Linterna — curar +50 HP\n🎰 Fichas — casino gratis' },
   { title:'Paso 2 · Economía del juego', text:'💎 Cristales = jugar gratis (recolectar, misiones, casino)\n🪙 Oro = secundario (monedas, árboles, casino)\n🎧 Audios Erior = acceso premium real (Pasaporte)\n\nTus audios comprados son permanentes. Los cristales y oro los gastas en el mundo — administra bien tu energía.' },
-  { title:'Paso 3 · Menú del juego', text:'En móvil: toca ☰ arriba a la derecha.\nEn desktop: botones circulares abajo a la derecha:\n\n🎧 Audios — Tienda del Castillo\n📊 Manifiesto — tu pasaporte y camino\n🎒 Inventario — gadgets y curación\n🏗️ Construir — casas y parcela\n👤 Outfits — Cabaña de skins\n💬 Chat — plaza del castillo\n📖 Guía — este tutorial\n\n📜 Misiones · 🗺️ Minimap' },
+  { title:'Paso 3 · Menú del juego', text:'En móvil: toca ☰ arriba a la derecha.\nEn desktop: botones circulares abajo a la derecha:\n\n🎧 Audios — Tienda del Castillo\n📊 Manifiesto — tu pasaporte y camino\n🎒 Inventario — gadgets y curación\n🏗️ Construir — casas y parcela\n👤 Outfits — Cabaña de skins\n💬 Chat — plaza del castillo\n📖 Guía — este tutorial\n\n📜 Misiones en el menú ☰' },
   { title:'Paso 4 · Mapa del mundo', text:'🏰 PLAZA ERIOR (centro)\nCastillo dorado = tienda audios + chat multiplayer.\nFuente curativa de noche. Zona segura.\n\nCamina al sur → 🎰 Casino Cuántico\nNoroeste → 🔮 Cabaña Mística\nNoreste → 🗼 Torre Cuántica' },
   { title:'Paso 4 · Selva Cuántica', text:'🌙 De noche, fuera del hub:\n🧟 Zombies y 👽 Aliens deambulan por la selva — ambiente místico, no te persiguen.\n\nExplora con calma, usa la linterna para curarte y activa tu Pasaporte Manifestor para misiones VIP.\n\nLa plaza siempre es tu refugio seguro.' },
   { title:'Paso 4 · Manifestación por categoría', text:'Audios organizados como tu camino:\n\n✨ AUTOESTIMA · 💖 AMOR · 💰 DINERO\n🌿 SALUD · 🛸 MANIFESTACIÓN\n\nEl Quiz de la Torre te recomienda uno.\nCada audio comprado sube tu Pasaporte y desbloquea más del mundo.' },
@@ -1702,20 +1700,13 @@ function updateInteractPrompt(zone) {
   const actLbl = document.getElementById('act-label');
   if (!el) return;
   const enterLbl = zone ? (zone.shop === 'audio' ? '🛒 ENTRAR Tienda' : zone.shop === 'skins' ? '🔮 ENTRAR Skins' : zone.shop === 'casino' ? '🎰 ENTRAR Casino' : '🗼 ENTRAR Quiz') : '';
-  if (zone && !window.S.modal) {
-    if (isMobileUI() && act) {
-      el.style.display = 'none';
-      act.classList.add('enter-mode');
-      actIcon.textContent = zone.shop === 'audio' ? '🏰' : zone.shop === 'skins' ? '🔮' : zone.shop === 'casino' ? '🎰' : '🗼';
-      actLbl.textContent = 'ENTRAR';
-    } else {
-      el.style.display = 'block';
-      lbl.textContent = enterLbl || zone.name;
-      act?.classList.remove('enter-mode');
-      if (actIcon) actIcon.textContent = 'E';
-      if (actLbl) actLbl.textContent = '';
-    }
-    el.onclick = ()=>{ if (window.G) window.G.doInteract(); };
+  if (zone && !window.S.modal && !isMobileUI()) {
+    el.style.display = 'block';
+    lbl.textContent = enterLbl || zone.name;
+    act?.classList.remove('enter-mode');
+    if (actIcon) actIcon.textContent = 'E';
+    if (actLbl) actLbl.textContent = '';
+    el.onclick = () => { if (window.G) window.G.doInteract(); };
   } else {
     el.style.display = 'none';
     act?.classList.remove('enter-mode');
@@ -1832,8 +1823,8 @@ function genGuidePDF() {
   const purple = [123, 63, 160];
   const steps = [
     { t: '1 · Entra al mundo', b: 'Crea tu cuenta Erior (email + contraseña).\nElige avatar, nombre de viajero y mascota 🐰.\nGratis: explorar, misiones, chat y tienda.' },
-    { t: '2 · Controles', b: 'PC: WASD mover · E interactuar.\nMóvil: joystick izquierda · botón E dorado.\nBarra central: 👋 💃 🧘 🪓 🎣 emotes.\nMenú ☰ (móvil) o dock (PC): audios, inventario, construir.' },
-    { t: '3 · Mapa principal', b: 'Centro: Plaza + Castillo (tienda audios).\nNoroeste: Cabaña Skins · Noreste: Torre Quiz.\nSur: Casino · Sur-este: Lago Cuántico (pesca).\nMinimapa abajo derecha = orientación rápida.' },
+    { t: '2 · Controles', b: 'PC: WASD mover · E interactuar.\nMóvil: toca el suelo para caminar · toca ENTRAR en edificios.\nBarra central: 👋 💃 🧘 🪓 🎣 emotes.\nMenú ☰ (móvil) o dock (PC): audios, inventario, construir.' },
+    { t: '3 · Mapa principal', b: 'Centro: Plaza + Castillo (tienda audios).\nNoroeste: Cabaña Skins · Noreste: Torre Quiz.\nSur: Casino · Sur-este: Lago Cuántico (pesca).\nToca los carteles ENTRAR verdes en cada lugar.' },
     { t: '4 · Economía', b: '💎 Cristales = recolectar, misiones, casino.\n🪵 Madera = talar árboles con 🪓.\n🐟 Pescado = lago → cocinar → comer (+XP).\n🎧 Audios Erior = Pasaporte Manifestor (premium real).' },
     { t: '5 · Subir de nivel rápido', b: '① Pesca en el lago (🎣)\n② Tala madera (🪓)\n③ Construye fogata (5💎+8🪵)\n④ Cocina y come pescado (+35 XP)\n⑤ Construye tu casa → entra a descansar (+XP)' },
     { t: '6 · Tu casa (universo interior)', b: 'Construye 🏠 Casa o 🏡 Villa con madera.\nAcércate y pulsa E → ENTRAR.\nDentro: descansar, cocinar, comer, salir.\nRefugio seguro para recuperar energía.' },
@@ -2320,16 +2311,18 @@ function initDOM() {
   };
   setTimeout(feed,4000);
   window.mobileInput={dx:0,dy:0,act:false};
-  const jz=document.getElementById('joy-zone'), jk=document.getElementById('joy-knob');
-  let ja=false;
-  const jm=(cx,cy)=>{const r=jz.getBoundingClientRect(),x=cx-r.left-r.width/2,y=cy-r.top-r.height/2,d=Math.min(Math.hypot(x,y),60),a=Math.atan2(y,x);
-    jk.style.transform='translate(calc(-50% + '+Math.cos(a)*d+'px),calc(-50% + '+Math.sin(a)*d+'px))';
-    window.mobileInput.dx=Math.cos(a)*d/60; window.mobileInput.dy=Math.sin(a)*d/60;};
-  jz.onpointerdown=e=>{ja=true;jz.setPointerCapture(e.pointerId);jm(e.clientX,e.clientY);};
-  jz.onpointermove=e=>{if(ja)jm(e.clientX,e.clientY);};
-  jz.onpointerup=()=>{ja=false;jk.style.transform='translate(-50%,-50%)';window.mobileInput.dx=0;window.mobileInput.dy=0;};
-  document.getElementById('act-btn').onpointerdown=()=>{window.mobileInput.act=true;};
-  document.getElementById('act-btn').onclick=()=>{ if(window.G && !window.S.modal) window.G.doInteract(); };
+  if (!isMobileUI()) {
+    const jz=document.getElementById('joy-zone'), jk=document.getElementById('joy-knob');
+    let ja=false;
+    const jm=(cx,cy)=>{const r=jz.getBoundingClientRect(),x=cx-r.left-r.width/2,y=cy-r.top-r.height/2,d=Math.min(Math.hypot(x,y),60),a=Math.atan2(y,x);
+      jk.style.transform='translate(calc(-50% + '+Math.cos(a)*d+'px),calc(-50% + '+Math.sin(a)*d+'px))';
+      window.mobileInput.dx=Math.cos(a)*d/60; window.mobileInput.dy=Math.sin(a)*d/60;};
+    jz.onpointerdown=e=>{ja=true;jz.setPointerCapture(e.pointerId);jm(e.clientX,e.clientY);};
+    jz.onpointermove=e=>{if(ja)jm(e.clientX,e.clientY);};
+    jz.onpointerup=()=>{ja=false;jk.style.transform='translate(-50%,-50%)';window.mobileInput.dx=0;window.mobileInput.dy=0;};
+    document.getElementById('act-btn').onpointerdown=()=>{window.mobileInput.act=true;};
+    document.getElementById('act-btn').onclick=()=>{ if(window.G && !window.S.modal) window.G.doInteract(); };
+  }
   initMobileUI();
   initHubChat();
   window.buildMode = '';
@@ -2364,7 +2357,7 @@ class Game extends Phaser.Scene {
     this.walk = []; this.collectibles = []; this.chests = []; this.zones = []; this.fakePlayers = []; this.placedBuilds = [];
     this.walkFrame = 0; this.walkTimer = 0; this.skinBase = 'alicia';
     this.targetCol = null; this.targetRow = null; this.vx = 0; this.vy = 0;
-    this.pendingShop = null; this.shopMarkers = [];
+    this.pendingShop = null; this.pendingHome = null; this.pendingNpc = false; this.shopMarkers = [];
     this.nightMobs = []; this.nightMobTimer = 0; this.nightFactor = 0;
     this.playerDead = false; this.hitFlash = 0; this.hubHealAcc = 0;
     this.emoteLock = false; this.moving = false; this.bobPhase = 0;
@@ -2431,6 +2424,22 @@ class Game extends Phaser.Scene {
     this.npc=this.add.sprite(np.x,np.y-12,'npc_0').setOrigin(0.5,0.92).setDepth(isoDepth(NPC.col,NPC.row,62));
     this.npcTag=this.add.text(np.x,np.y-48,'Lvl 99\n✦ Alicia IA',{fontFamily:'Segoe UI',fontSize:'10px',color:'#fff',stroke:'#000',strokeThickness:3,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
     this.add.text(np.x,np.y-72,'Guía Cuántica',{fontFamily:'Segoe UI',fontSize:'8px',color:'#f0d060',stroke:'#000',strokeThickness:2,align:'center'}).setOrigin(0.5,1).setDepth(isoDepth(NPC.col,NPC.row,63));
+    const npcD = isoDepth(NPC.col, NPC.row, 68);
+    const npcBw = isMobileUI() ? 108 : 96;
+    const npcBg = this.add.rectangle(np.x, np.y - 78, npcBw, 34, 0x050508, 0.88).setStrokeStyle(2, 0x4ade80, 1).setDepth(npcD);
+    const npcEnt = this.add.text(np.x, np.y - 82, '✦ ENTRAR', { fontFamily:'Segoe UI', fontSize: isMobileUI() ? '11px' : '10px', color:'#4ade80', fontStyle:'bold', stroke:'#000', strokeThickness:3 }).setOrigin(0.5).setDepth(npcD + 1);
+    const npcHit = this.add.rectangle(np.x, np.y - 78, npcBw + 8, 40, 0x000000, 0.001).setDepth(npcD + 2).setInteractive({ useHandCursor:true });
+    npcHit.on('pointerdown', (e) => {
+      e.stopPropagation();
+      if (window.S.modal) return;
+      if (dist(this.col, this.row, NPC.col, NPC.row) < 2.5) this.doInteract();
+      else {
+        this.targetCol = NPC.col; this.targetRow = NPC.row + 1;
+        this.pendingNpc = true;
+        this.showToast('Camino a Alicia IA…');
+      }
+    });
+    this.tweens.add({ targets:[npcBg, npcEnt], y:'-=3', duration:850, yoyo:true, repeat:-1, ease:'Sine.easeInOut' });
 
     const sp=this.wpos(this.col,this.row);
     this.playerSh=this.add.image(sp.x,sp.y+4,'shadow').setDepth(isoDepth(this.col,this.row,80));
@@ -2464,7 +2473,7 @@ class Game extends Phaser.Scene {
     window._gameBooted = true;
     document.getElementById('load-error')?.classList.remove('show');
     this.time.delayedCall(1200, ()=>{
-      if (isMobileUI()) this.showToast('📱 Joystick = mover · 👋💃🧘🪓 = emotes · 🎵 = música');
+      if (isMobileUI()) this.showToast('👆 Toca el suelo para moverte · Toca ENTRAR en lugares · Emotes abajo');
       else this.showToast('👋 Emotes abajo · 🪓 Tala árboles → 🪵 madera → 🔥 fogatas y 🏡 villas');
     });
     this.initMultiplayer();
@@ -2692,7 +2701,7 @@ class Game extends Phaser.Scene {
       if (!m) return;
       const p = this.wpos(pt.col, pt.row);
       const d = isoDepth(pt.col, pt.row, 67);
-      const bw = compact ? 100 : 118, bh = compact ? 34 : 40;
+      const bw = compact ? 112 : 118, bh = compact ? 38 : 40;
       const bg = this.add.rectangle(p.x, p.y - 54, bw, bh, 0x050508, 0.88).setStrokeStyle(2, 0x4ade80, 1).setDepth(d);
       const t1 = this.add.text(p.x, p.y - (compact ? 60 : 62), m.title, { fontFamily:'Segoe UI', fontSize: compact ? '10px' : '12px', color:'#4ade80', fontStyle:'bold', stroke:'#000', strokeThickness:3 }).setOrigin(0.5).setDepth(d + 1);
       const t2 = this.add.text(p.x, p.y - (compact ? 48 : 48), m.sub, { fontFamily:'Segoe UI', fontSize: compact ? '8px' : '9px', color:'#f0d060', stroke:'#000', strokeThickness:2 }).setOrigin(0.5).setDepth(d + 1);
@@ -3389,6 +3398,28 @@ class Game extends Phaser.Scene {
         tint: [0xff5722, 0xffeb3b, 0xff9800], blendMode: 'ADD',
       }).setDepth(d + 1);
     }
+    const me = window.S.username || 'Viajero';
+    if ((type === 'house' || type === 'villa') && owner && owner === me) {
+      const lift = type === 'villa' ? 78 : 70;
+      const bw = isMobileUI() ? 108 : 96;
+      const enterBg = this.add.rectangle(p.x, p.y - lift, bw, 34, 0x050508, 0.88).setStrokeStyle(2, 0x4ade80, 1).setDepth(d + 3);
+      const enterTxt = this.add.text(p.x, p.y - lift - 2, '🏠 ENTRAR', {
+        fontFamily: 'Segoe UI', fontSize: isMobileUI() ? '11px' : '10px', color: '#4ade80', fontStyle: 'bold', stroke: '#000', strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(d + 4);
+      const enterHit = this.add.rectangle(p.x, p.y - lift, bw + 8, 40, 0x000000, 0.001).setDepth(d + 5).setInteractive({ useHandCursor: true });
+      const homeRef = { col: ic, row: ir, type, owner: me };
+      enterHit.on('pointerdown', (e) => {
+        e.stopPropagation();
+        if (window.S.modal) return;
+        if (dist(this.col, this.row, ic, ir) <= 2.8) enterHomeSanctuaryUI(homeRef);
+        else {
+          this.targetCol = ic; this.targetRow = ir;
+          this.pendingHome = homeRef;
+          this.showToast('Caminando a tu ' + (type === 'villa' ? 'villa' : 'casa') + '…');
+        }
+      });
+      this.tweens.add({ targets: [enterBg, enterTxt], y: '-=3', duration: 850, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
     this.placedBuilds.push({ col: ic, row: ir, type, spr, tag, owner, fire });
     if (persist) {
       window.S.builds = window.S.builds || [];
@@ -3733,6 +3764,7 @@ class Game extends Phaser.Scene {
   }
 
   drawMinimap() {
+    if (isMobileUI()) return;
     const cv = document.getElementById('minimap'), ctx = cv.getContext('2d');
     const mm = isMobileUI() ? 56 : 120;
     if (cv.width !== mm) { cv.width = mm; cv.height = mm; }
@@ -3788,7 +3820,9 @@ class Game extends Phaser.Scene {
       if (this.keys.D.isDown) { dc += 1; dr -= 1; this.targetCol = null; }
     }
     if (Math.abs(window.mobileInput.dx) > 0.08 || Math.abs(window.mobileInput.dy) > 0.08) {
-      dc = window.mobileInput.dx; dr = window.mobileInput.dy; this.targetCol = null;
+      if (!isMobileUI()) {
+        dc = window.mobileInput.dx; dr = window.mobileInput.dy; this.targetCol = null;
+      }
     }
     if (this.targetCol !== null && this.targetRow !== null) {
       dc = this.targetCol - this.col;
@@ -3796,7 +3830,7 @@ class Game extends Phaser.Scene {
       if (Math.hypot(dc, dr) < 0.2) { this.targetCol = null; this.targetRow = null; dc = dr = 0; }
     }
 
-    if ((this.keys && Phaser.Input.Keyboard.JustDown(this.keys.E)) || window.mobileInput.act) {
+    if ((this.keys && Phaser.Input.Keyboard.JustDown(this.keys.E)) || (!isMobileUI() && window.mobileInput.act)) {
       this.doInteract(); window.mobileInput.act = false;
     }
 
@@ -3807,36 +3841,51 @@ class Game extends Phaser.Scene {
         this.pendingShop = null;
       }
     }
+    if (this.pendingHome) {
+      const h = this.pendingHome;
+      if (dist(this.col, this.row, h.col, h.row) <= 2.8) {
+        enterHomeSanctuaryUI(h);
+        this.pendingHome = null;
+      }
+    }
+    if (this.pendingNpc && dist(this.col, this.row, NPC.col, NPC.row) < 2.5) {
+      this.doInteract();
+      this.pendingNpc = false;
+    }
 
     const home = this.nearOwnHouse();
     const z = this.nearBuilding();
     const dNpc = dist(this.col, this.row, NPC.col, NPC.row);
-    const act = document.getElementById('act-btn');
-    const actIcon = document.getElementById('act-icon');
-    const actLbl = document.getElementById('act-label');
-    if (home && !window.S.modal) {
-      document.getElementById('interact-prompt').style.display = 'none';
-      act?.classList.add('enter-mode');
-      if (actIcon) actIcon.textContent = '🏠';
-      if (actLbl) actLbl.textContent = 'ENTRAR';
-      this.hudTxt.tip.setText('Presiona E — Entrar a tu ' + (home.type === 'villa' ? 'Villa' : 'Casa')).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
-    } else if (z && !window.S.modal) updateInteractPrompt(z);
-    else if (dNpc < 2.5 && !window.S.modal && isMobileUI()) {
-      document.getElementById('interact-prompt').style.display = 'none';
-      act?.classList.add('enter-mode');
-      if (actIcon) actIcon.textContent = '✦';
-      if (actLbl) actLbl.textContent = 'Alicia IA';
-      this.hudTxt.tip.setAlpha(0);
+    if (!isMobileUI()) {
+      const act = document.getElementById('act-btn');
+      const actIcon = document.getElementById('act-icon');
+      const actLbl = document.getElementById('act-label');
+      if (home && !window.S.modal) {
+        document.getElementById('interact-prompt').style.display = 'none';
+        act?.classList.add('enter-mode');
+        if (actIcon) actIcon.textContent = '🏠';
+        if (actLbl) actLbl.textContent = 'ENTRAR';
+        this.hudTxt.tip.setText('Presiona E — Entrar a tu ' + (home.type === 'villa' ? 'Villa' : 'Casa')).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+      } else if (z && !window.S.modal) updateInteractPrompt(z);
+      else if (dNpc < 2.5 && !window.S.modal) {
+        document.getElementById('interact-prompt').style.display = 'none';
+        act?.classList.add('enter-mode');
+        if (actIcon) actIcon.textContent = '✦';
+        if (actLbl) actLbl.textContent = 'Alicia IA';
+        this.hudTxt.tip.setAlpha(0);
+      } else {
+        updateInteractPrompt(null);
+        if (isNearLake(this.col, this.row) && !window.S.modal) {
+          this.hudTxt.tip.setText('🎣 Cerca del lago — pulsa 🎣 para pescar').setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+        } else if (z) {
+          const lbl = z.shop === 'audio' ? '🛒 Tienda Audios Erior' : z.name;
+          this.hudTxt.tip.setText('Presiona E — ' + lbl).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+        } else if (dNpc < 3) {
+          this.hudTxt.tip.setText('Presiona E — Hablar con Alicia IA').setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
+        } else this.hudTxt.tip.setAlpha(0);
+      }
     } else {
-      updateInteractPrompt(null);
-      if (isNearLake(this.col, this.row) && !window.S.modal) {
-        this.hudTxt.tip.setText('🎣 Cerca del lago — pulsa 🎣 para pescar').setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
-      } else if (z) {
-        const lbl = z.shop === 'audio' ? '🛒 Tienda Audios Erior' : z.name;
-        this.hudTxt.tip.setText('Presiona E — ' + lbl).setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
-      } else if (dNpc < 3) {
-        this.hudTxt.tip.setText('Presiona E — Hablar con Alicia IA').setPosition(this.cameras.main.width / 2, this.cameras.main.height - 70).setAlpha(1);
-      } else this.hudTxt.tip.setAlpha(0);
+      this.hudTxt.tip.setAlpha(0);
     }
 
     const bubble = document.getElementById('npc-bubble');
